@@ -9,7 +9,6 @@ apps/api            NestJS - scheduled email notifications + the over-budget web
 packages/shared-types  Enums, DB row types, Zod schemas, shared calculation functions
 supabase/migrations  SQL migrations (tables, RLS, triggers, RPC functions)
 docs/SETUP.md        Full setup walkthrough - start here
-docs/PROJECT_STRUCTURE.md  Full annotated file/folder tree
 ```
 
 **Architecture in one line:** Supabase (Postgres + Auth + RLS) is the
@@ -34,23 +33,3 @@ Once configured:
 pnpm --filter @mc-tracker/web dev   # http://localhost:3000
 pnpm --filter @mc-tracker/api dev   # http://localhost:3001/health
 ```
-
-## Where things live
-
-| Concern | Location |
-|---|---|
-| Database schema, RLS, triggers, RPC functions | `supabase/migrations/*.sql` |
-| Shared enums / category↔subcategory rule | `packages/shared-types/src/{enums,constants}` |
-| Dashboard math (net profit, variance, % change) | `packages/shared-types/src/calculations` |
-| Supabase client setup (`@supabase/ssr`) | `apps/web/lib/supabase` |
-| Dynamic income/cost entry forms | `apps/web/components/forms` |
-| Plan module (duplicate prevention) | `apps/web/components/plans`, `apps/web/lib/data/plans.ts` |
-| Dashboard + Recharts | `apps/web/components/dashboard` |
-| Cron jobs (daily/hourly/weekly/monthly) | `apps/api/src/notifications/jobs` |
-| Over-budget webhook receiver | `apps/api/src/budget-alerts` |
-| Email templates | `apps/api/src/mail/templates` |
-
-The plan this was built from — including the couple of assumptions flagged
-for review (timezone, over-budget re-fire cadence, etc.) — is preserved at
-the top of the project's planning history; the same decisions are called
-out inline in the relevant files' doc comments.
