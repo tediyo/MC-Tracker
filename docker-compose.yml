@@ -1,0 +1,20 @@
+# Scoped to the NestJS `api` service only, per the plan - Supabase's own
+# local dev stack runs separately via `supabase start` (a different,
+# CLI-managed Docker Compose under the hood), and apps/web is deployed
+# however Next.js apps normally are (Vercel, Node server, etc.), not via
+# this file. See docs/SETUP.md.
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    ports:
+      - "3001:3001"
+    env_file:
+      - apps/api/.env
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped

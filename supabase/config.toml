@@ -1,0 +1,45 @@
+# Supabase CLI local-dev configuration.
+# Run `supabase start` from the repo root to spin up a local Postgres/Auth/
+# Studio stack, then `supabase db reset` to apply every file in
+# `supabase/migrations/` in order. See docs/SETUP.md for the full walkthrough
+# (including linking this to a real hosted project with `supabase link`).
+
+project_id = "mc-tracker"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[inbucket]
+# Local fake-SMTP inbox for testing Supabase Auth emails (confirmation,
+# password reset) without a real mail provider during local dev.
+enabled = true
+port = 54324
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/callback"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false # flip to true once real SMTP is wired up for production
+
+[realtime]
+enabled = false
+
+[storage]
+enabled = false

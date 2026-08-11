@@ -1,0 +1,164 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------------------------------------------------------------
+ * UI tokens (shadcn/ui-style HSL variables) - drive Tailwind's `border`,
+ * `background`, `primary`, etc. utility colors declared in
+ * tailwind.config.ts. Separate from the chart-specific tokens below.
+ * ------------------------------------------------------------------- */
+:root {
+  --background: 40 20% 98%;
+  --foreground: 0 0% 4%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 4%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 4%;
+  --primary: 213 65% 51%; /* mirrors chart categorical slot 1 (blue) */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 40 10% 94%;
+  --secondary-foreground: 0 0% 15%;
+  --muted: 40 10% 94%;
+  --muted-foreground: 30 4% 51%;
+  --destructive: 3 60% 51%; /* mirrors status "critical" */
+  --destructive-foreground: 0 0% 100%;
+  --success: 120 89% 32%;
+  --success-foreground: 0 0% 100%;
+  --border: 40 12% 88%;
+  --input: 40 12% 88%;
+  --ring: 213 65% 51%;
+  --radius: 0.5rem;
+}
+
+:root[data-theme="dark"],
+:root:not([data-theme="light"]) {
+  @media (prefers-color-scheme: dark) {
+    --background: 0 0% 5%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 213 71% 59%;
+    --primary-foreground: 0 0% 5%;
+    --secondary: 0 0% 16%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 16%;
+    --muted-foreground: 40 8% 76%;
+    --destructive: 3 74% 68%;
+    --destructive-foreground: 0 0% 5%;
+    --success: 121 89% 40%;
+    --success-foreground: 0 0% 5%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 213 71% 59%;
+  }
+}
+:root[data-theme="dark"] {
+  --background: 0 0% 5%;
+  --foreground: 0 0% 100%;
+  --card: 0 0% 10%;
+  --card-foreground: 0 0% 100%;
+  --popover: 0 0% 10%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 213 71% 59%;
+  --primary-foreground: 0 0% 5%;
+  --secondary: 0 0% 16%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 0 0% 16%;
+  --muted-foreground: 40 8% 76%;
+  --destructive: 3 74% 68%;
+  --destructive-foreground: 0 0% 5%;
+  --success: 121 89% 40%;
+  --success-foreground: 0 0% 5%;
+  --border: 0 0% 20%;
+  --input: 0 0% 20%;
+  --ring: 213 71% 59%;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+body {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+/* ---------------------------------------------------------------------
+ * Chart tokens - validated palette from the `dataviz` skill
+ * (references/palette.md). Scoped under `.viz-root`, which wraps the
+ * dashboard's chart area, and referenced by every Recharts component via
+ * `var(--series-1)` etc. rather than hardcoded hex, so dark mode is a
+ * *selected* state (its own validated steps), not an automatic filter-flip.
+ * ------------------------------------------------------------------- */
+.viz-root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page-plane: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+  --gridline: #e1e0d9;
+  --baseline: #c3c2b7;
+  --success-text: #006300;
+  --border-ring: rgba(11, 11, 11, 0.1);
+
+  /* categorical (first 3 slots - validated all-pairs, safe for a pie chart) */
+  --series-1: #2a78d6; /* blue - basic / income */
+  --series-2: #eb6834; /* orange - fancy / cost */
+  --series-3: #1baf7a; /* aqua - extra */
+
+  /* sequential blue ramp - used for the subcategory drill-down pie */
+  --seq-100: #cde2fb;
+  --seq-150: #b7d3f6;
+  --seq-200: #9ec5f4;
+  --seq-250: #86b6ef;
+  --seq-300: #6da7ec;
+  --seq-350: #5598e7;
+  --seq-400: #3987e5;
+  --seq-450: #2a78d6;
+  --seq-500: #256abf;
+  --seq-550: #1c5cab;
+  --seq-600: #184f95;
+  --seq-650: #104281;
+  --seq-700: #0d366b;
+
+  /* status (fixed - never themed) */
+  --status-good: #0ca30c;
+  --status-critical: #d03b3b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) .viz-root {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page-plane: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted: #898781;
+    --gridline: #2c2c2a;
+    --baseline: #383835;
+    --success-text: #0ca30c;
+    --border-ring: rgba(255, 255, 255, 0.1);
+
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+  }
+}
+:root[data-theme="dark"] .viz-root {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --page-plane: #0d0d0d;
+  --text-primary: #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted: #898781;
+  --gridline: #2c2c2a;
+  --baseline: #383835;
+  --success-text: #0ca30c;
+  --border-ring: rgba(255, 255, 255, 0.1);
+
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+}
