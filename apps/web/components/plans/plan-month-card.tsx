@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Plus } from "lucide-react";
 import type { PlanRow } from "@mc-tracker/shared-types";
 import { formatCurrency } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,8 +36,11 @@ export function PlanMonthCard({ month, year, plan }: { month: number; year: numb
         ) : (
           <>
             <p className="text-sm text-muted-foreground">No plan set</p>
-            <Button asChild size="sm">
-              <Link href={`/plans/new?month=${month}&year=${year}`}>Create</Link>
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/plans/new?month=${month}&year=${year}`}>
+                <Plus className="h-3.5 w-3.5" />
+                Create
+              </Link>
             </Button>
           </>
         )}
