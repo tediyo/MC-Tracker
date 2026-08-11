@@ -2,7 +2,10 @@ import { join } from "path";
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { MailerModule } from "@nestjs-modules/mailer";
-import { HandlebarsAdapter } from "@nestjs-modules/mailer/dist/adapters/handlebars.adapter";
+// The installed version of @nestjs-modules/mailer (2.x) locks down its
+// package.json `exports` map - only `./adapters/*` (not the old
+// `./dist/adapters/*.adapter` deep-import path) is a valid public subpath.
+import { HandlebarsAdapter } from "@nestjs-modules/mailer/adapters/handlebars.adapter";
 import { MailService } from "./mail.service";
 
 @Module({
