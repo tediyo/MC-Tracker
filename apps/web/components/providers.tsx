@@ -9,7 +9,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = React.useState(() => new QueryClient({
     defaultOptions: {
       queries: {
-        staleTime: 30_000,
+        // 5 min: data only changes when the user explicitly adds/edits an
+        // entry (those mutations should invalidate their query keys). For a
+        // personal tracker this avoids unnecessary Supabase round-trips when
+        // the user switches timeframes back and forth.
+        staleTime: 5 * 60 * 1000,
         refetchOnWindowFocus: false,
       },
     },

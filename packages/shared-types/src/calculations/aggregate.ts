@@ -8,8 +8,29 @@ export interface DateRange {
   end: Date;
 }
 
+/**
+ * Module-level cache: ISO date strings (YYYY-MM-DD) repeat heavily across
+ * multiple calls per render — the same rows are scanned for the current
+ * range, the previous range, and (in buildTrendSeries) once per bucket.
+ * Parsing each unique string just once and reusing the Date object avoids
+ * re-running the full string parser on every row × every call.
+ *
+ * The key space is bounded (YYYY-MM-DD strings for a personal tracker's
+ * data range) so the Map never grows unboundedly.
+ */
+const _parsedDateCache = new Map<string, Date>();
+
+export function parseISOCached(dateStr: string): Date {
+  let d = _parsedDateCache.get(dateStr);
+  if (!d) {
+    d = parseISO(dateStr);
+    _parsedDateCache.set(dateStr, d);
+  }
+  return d;
+}
+
 function isDateInRange(dateStr: string, range: DateRange): boolean {
-  return isWithinInterval(parseISO(dateStr), { start: range.start, end: range.end });
+  return isWithinInterval(parseISOCached(dateStr), { start: range.start, end: range.end });
 }
 
 export function filterIncomesInRange(rows: readonly IncomeRow[], range: DateRange): IncomeRow[] {

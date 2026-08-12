@@ -7,7 +7,7 @@ import type { Database, IncomeRow, IncomeRowInput } from "@mc-tracker/shared-typ
  * server client (first paint) or the browser client (subsequent
  * timeframe/history refetches).
  */
-type Client = SupabaseClient<Database>;
+type Client = any;
 
 export async function fetchIncomesInRange(
   supabase: Client,

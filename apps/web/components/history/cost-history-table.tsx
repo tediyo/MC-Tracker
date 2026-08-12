@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Search, ArrowUpDown, Filter } from "lucide-react";
 import type { CostRow, CostCategory, CostSubcategory } from "@mc-tracker/shared-types";
 import { COST_CATEGORY_LABELS, COST_SUBCATEGORY_LABELS, CATEGORY_SUBCATEGORY_MAP } from "@mc-tracker/shared-types";
 import { createClient } from "@/lib/supabase/client";
@@ -11,19 +11,43 @@ import { fetchAllCosts, deleteCost, updateCost } from "@/lib/data/costs";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
+const CATEGORY_BADGE_STYLES: Record<CostCategory, string> = {
+  basic: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+  fancy: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+  extra: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+};
 
 export function CostHistoryTable({ userId }: { userId: string }) {
   const queryClient = useQueryClient();
   const supabase = React.useMemo(() => createClient(), []);
   const [editing, setEditing] = React.useState<CostRow | null>(null);
   const [editCategory, setEditCategory] = React.useState<CostCategory>("basic");
+  const [search, setSearch] = React.useState("");
+  const [categoryFilter, setCategoryFilter] = React.useState<string>("all");
 
   const { data: costs = [], isLoading } = useQuery({
     queryKey: ["costs", userId],
     queryFn: () => fetchAllCosts(supabase, userId),
   });
+
+  const filteredCosts = React.useMemo(() => {
+    return costs.filter((r) => {
+      if (categoryFilter !== "all" && r.category !== categoryFilter) return false;
+      if (!search.trim()) return true;
+      const term = search.toLowerCase();
+      return (
+        r.description?.toLowerCase().includes(term) ||
+        COST_CATEGORY_LABELS[r.category]?.toLowerCase().includes(term) ||
+        COST_SUBCATEGORY_LABELS[r.subcategory]?.toLowerCase().includes(term) ||
+        r.date.includes(term) ||
+        r.amount.toString().includes(term)
+      );
+    });
+  }, [costs, search, categoryFilter]);
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteCost(supabase, id),
@@ -63,59 +87,132 @@ export function CostHistoryTable({ userId }: { userId: string }) {
     setEditing(row);
   }
 
-  if (isLoading) return <p className="text-sm text-muted-foreground">Loading…</p>;
-  if (costs.length === 0) return <p className="text-sm text-muted-foreground">No costs logged yet.</p>;
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8 text-sm text-muted-foreground">
+        Loading cost history…
+      </div>
+    );
+  }
 
   return (
-    <>
-      <div className="overflow-x-auto rounded-md border">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/50 text-left text-muted-foreground">
-            <tr>
-              <th className="px-3 py-2 font-medium">Date</th>
-              <th className="px-3 py-2 font-medium">Category</th>
-              <th className="px-3 py-2 font-medium">Subcategory</th>
-              <th className="px-3 py-2 font-medium">Description</th>
-              <th className="px-3 py-2 text-right font-medium">Amount</th>
-              <th className="px-3 py-2" />
-            </tr>
-          </thead>
-          <tbody>
-            {costs.map((row) => (
-              <tr key={row.id} className="border-t">
-                <td className="px-3 py-2">{row.date}</td>
-                <td className="px-3 py-2">{COST_CATEGORY_LABELS[row.category]}</td>
-                <td className="px-3 py-2">{COST_SUBCATEGORY_LABELS[row.subcategory]}</td>
-                <td className="px-3 py-2 text-muted-foreground">{row.description || "—"}</td>
-                <td className="px-3 py-2 text-right font-medium">{formatCurrency(Number(row.amount))}</td>
-                <td className="px-3 py-2">
-                  <div className="flex justify-end gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => openEdit(row)} aria-label="Edit">
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive"
-                      onClick={() => {
-                        if (confirm("Delete this cost row?")) deleteMutation.mutate(row.id);
-                      }}
-                      aria-label="Delete"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div className="flex flex-col gap-4">
+      {/* Search & Filter Toolbar */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-1 flex-wrap items-center gap-2">
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search expenses..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 text-xs rounded-xl"
+            />
+          </div>
+          <div className="flex items-center gap-1.5 rounded-xl border border-border/60 bg-card px-3 py-1.5 text-xs text-muted-foreground">
+            <Filter className="h-3.5 w-3.5" />
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="bg-transparent font-medium text-foreground outline-none cursor-pointer"
+            >
+              <option value="all">All Categories</option>
+              {Object.entries(COST_CATEGORY_LABELS).map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="text-xs font-semibold text-muted-foreground">
+          Showing {filteredCosts.length} of {costs.length} entries
+        </div>
       </div>
 
+      {filteredCosts.length === 0 ? (
+        <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
+          {search || categoryFilter !== "all"
+            ? "No matching cost records found."
+            : "No costs logged yet."}
+        </div>
+      ) : (
+        <div className="overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/40 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground border-b border-border/50">
+                <tr>
+                  <th className="px-4 py-3.5">
+                    <span className="flex items-center gap-1">
+                      Date <ArrowUpDown className="h-3 w-3" />
+                    </span>
+                  </th>
+                  <th className="px-4 py-3.5">Category</th>
+                  <th className="px-4 py-3.5">Subcategory</th>
+                  <th className="px-4 py-3.5">Description</th>
+                  <th className="px-4 py-3.5 text-right">Amount</th>
+                  <th className="px-4 py-3.5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/40">
+                {filteredCosts.map((row) => (
+                  <tr key={row.id} className="group hover:bg-accent/30 transition-colors">
+                    <td className="px-4 py-3.5 font-medium text-foreground">{row.date}</td>
+                    <td className="px-4 py-3.5">
+                      <span
+                        className={`inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold border ${
+                          CATEGORY_BADGE_STYLES[row.category]
+                        }`}
+                      >
+                        {COST_CATEGORY_LABELS[row.category]}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5 text-foreground font-medium">
+                      {COST_SUBCATEGORY_LABELS[row.subcategory]}
+                    </td>
+                    <td className="px-4 py-3.5 text-muted-foreground max-w-[200px] truncate">
+                      {row.description || "—"}
+                    </td>
+                    <td className="px-4 py-3.5 text-right font-bold text-foreground tabular-nums">
+                      {formatCurrency(Number(row.amount))}
+                    </td>
+                    <td className="px-4 py-3.5 text-right">
+                      <div className="flex justify-end gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground"
+                          onClick={() => openEdit(row)}
+                          aria-label="Edit"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                          onClick={() => {
+                            if (confirm("Delete this cost entry?")) deleteMutation.mutate(row.id);
+                          }}
+                          aria-label="Delete"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Dialog */}
       <Dialog open={editing !== null} onOpenChange={(open) => !open && setEditing(null)}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit cost row</DialogTitle>
+            <DialogTitle>Edit Cost Entry</DialogTitle>
           </DialogHeader>
           {editing ? (
             <form
@@ -130,17 +227,17 @@ export function CostHistoryTable({ userId }: { userId: string }) {
                 const description = (formEl.elements.namedItem("description") as HTMLInputElement).value;
                 updateMutation.mutate({ id: editing.id, amount, date, category, subcategory, description });
               }}
-              className="flex flex-col gap-4"
+              className="flex flex-col gap-4 py-2"
             >
               <div className="grid grid-cols-2 gap-3">
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1.5">
                   <Label htmlFor="category">Category</Label>
                   <select
                     id="category"
                     name="category"
                     defaultValue={editing.category}
                     onChange={(e) => setEditCategory(e.target.value as CostCategory)}
-                    className="h-10 rounded-md border border-input bg-transparent px-3 text-sm"
+                    className="h-10 rounded-xl border border-input bg-card px-3 text-sm"
                   >
                     {Object.entries(COST_CATEGORY_LABELS).map(([value, label]) => (
                       <option key={value} value={value}>
@@ -149,14 +246,14 @@ export function CostHistoryTable({ userId }: { userId: string }) {
                     ))}
                   </select>
                 </div>
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1.5">
                   <Label htmlFor="subcategory">Subcategory</Label>
                   <select
                     id="subcategory"
                     name="subcategory"
                     defaultValue={editing.subcategory}
                     key={editCategory}
-                    className="h-10 rounded-md border border-input bg-transparent px-3 text-sm"
+                    className="h-10 rounded-xl border border-input bg-card px-3 text-sm"
                   >
                     {CATEGORY_SUBCATEGORY_MAP[editCategory].map((sub) => (
                       <option key={sub} value={sub}>
@@ -166,20 +263,26 @@ export function CostHistoryTable({ userId }: { userId: string }) {
                   </select>
                 </div>
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1.5">
                 <Label htmlFor="amount">Amount (USD)</Label>
-                <Input id="amount" name="amount" type="number" step="0.01" min="0" defaultValue={editing.amount} />
+                <Input id="amount" name="amount" type="number" step="0.01" min="0" defaultValue={editing.amount} className="rounded-xl" />
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1.5">
                 <Label htmlFor="date">Date</Label>
-                <Input id="date" name="date" type="date" defaultValue={editing.date} />
+                <Input id="date" name="date" type="date" defaultValue={editing.date} className="rounded-xl" />
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1.5">
                 <Label htmlFor="description">Description</Label>
-                <Input id="description" name="description" defaultValue={editing.description ?? ""} />
+                <Textarea
+                  id="description"
+                  name="description"
+                  defaultValue={editing.description ?? ""}
+                  placeholder="Add notes or details..."
+                  className="rounded-xl min-h-[70px]"
+                />
               </div>
-              <DialogFooter>
-                <Button type="submit" disabled={updateMutation.isPending}>
+              <DialogFooter className="pt-2">
+                <Button type="submit" disabled={updateMutation.isPending} className="rounded-xl">
                   {updateMutation.isPending ? "Saving…" : "Save changes"}
                 </Button>
               </DialogFooter>
@@ -187,6 +290,6 @@ export function CostHistoryTable({ userId }: { userId: string }) {
           ) : null}
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }
