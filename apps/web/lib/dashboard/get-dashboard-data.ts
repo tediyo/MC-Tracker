@@ -60,7 +60,7 @@ function fetchWindowStart(timeframe: TimeFrame, referenceDate: Date): Date {
  * the rows.
  */
 export async function getDashboardData(
-  supabase: SupabaseClient<Database>,
+  supabase: SupabaseClient<Database, any, any>,
   userId: string,
   timeframe: TimeFrame,
   referenceDate: Date,

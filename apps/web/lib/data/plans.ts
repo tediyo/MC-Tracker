@@ -1,7 +1,7 @@
 import type { SupabaseClient, PostgrestError } from "@supabase/supabase-js";
 import type { Database, PlanRow, CreatePlanInput, UpdatePlanInput } from "@mc-tracker/shared-types";
 
-type Client = SupabaseClient<Database>;
+type Client = SupabaseClient<Database, any, any>;
 
 /** Postgres unique-violation error code - used to detect a duplicate (user_id, year, month). */
 export const UNIQUE_VIOLATION = "23505";

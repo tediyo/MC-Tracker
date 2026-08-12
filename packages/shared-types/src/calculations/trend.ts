@@ -38,7 +38,7 @@ export const DEFAULT_BUCKET_COUNT: Record<TimeFrame, number> = {
   yearly: 5,
 };
 
-function bucketBounds(timeframe: TimeFrame, date: Date): DateRange {
+function bucketBounds(timeframe: TimeFrame, date: Date): { start: Date; end: Date } {
   switch (timeframe) {
     case "daily":
       return { start: startOfDay(date), end: endOfDay(date) };

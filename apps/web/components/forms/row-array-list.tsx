@@ -32,15 +32,18 @@ export function RowArrayList<TFieldValues extends FieldValues, TName extends Arr
   const { fields, append, remove } = useFieldArray({ control, name });
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3.5">
       {fields.map((field, index) => (
-        <div key={field.id} className="flex items-start gap-2 rounded-md border p-3">
+        <div
+          key={field.id}
+          className="flex items-start gap-3 rounded-xl border border-border/60 bg-accent/20 p-4 transition-all hover:bg-accent/30 hover:border-border"
+        >
           <div className="flex-1">{renderRow({ index, remove: () => remove(index) })}</div>
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            className="mt-1 shrink-0 text-muted-foreground hover:text-destructive"
+            className="mt-1 shrink-0 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
             disabled={fields.length <= minRows}
             onClick={() => remove(index)}
             aria-label="Remove row"
@@ -49,8 +52,13 @@ export function RowArrayList<TFieldValues extends FieldValues, TName extends Arr
           </Button>
         </div>
       ))}
-      <Button type="button" variant="outline" onClick={() => append(newRowDefaults())} className="self-start">
-        <Plus className="h-4 w-4" />
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() => append(newRowDefaults())}
+        className="self-start gap-2 border-dashed border-border/80 hover:border-primary/50 hover:bg-primary/5"
+      >
+        <Plus className="h-4 w-4 text-primary" />
         {addLabel}
       </Button>
     </div>

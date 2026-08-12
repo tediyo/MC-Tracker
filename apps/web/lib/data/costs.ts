@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database, CostRow, CostRowInput } from "@mc-tracker/shared-types";
 
-type Client = SupabaseClient<Database>;
+type Client = SupabaseClient<Database, any, any>;
 
 export async function fetchCostsInRange(
   supabase: Client,

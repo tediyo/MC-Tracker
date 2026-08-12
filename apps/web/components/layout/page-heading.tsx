@@ -13,6 +13,20 @@ import { NAV_ITEMS } from "@/lib/nav";
 export function PageHeading() {
   const pathname = usePathname();
   const active = NAV_ITEMS.find((item) => pathname === item.href || pathname.startsWith(`${item.href}/`));
+  const Icon = active?.icon;
 
-  return <span className="text-sm font-semibold">{active?.label ?? "MC Tracker"}</span>;
+  return (
+    <div className="flex items-center gap-2">
+      {Icon && (
+        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <Icon className="h-4 w-4" />
+        </span>
+      )}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+        <span className="text-sm font-bold tracking-tight text-foreground">
+          {active?.label ?? "MC Tracker"}
+        </span>
+      </div>
+    </div>
+  );
 }

@@ -62,7 +62,7 @@ export function CostSubcategoryPieChart({ category, costs, range }: CostSubcateg
     return {
       subcategory: sub,
       label: COST_SUBCATEGORY_LABELS[sub as keyof typeof COST_SUBCATEGORY_LABELS] ?? sub,
-      value: totals[sub],
+      value: totals[sub] ?? 0,
       color: stepColor(seriesVar, mixPercent),
     };
   });
