@@ -20,5 +20,6 @@
     "strictBindCallApply": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": false
-  }
+  },
+  "include": ["src/**/*"]
 }

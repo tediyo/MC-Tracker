@@ -27,13 +27,24 @@ import { MailService } from "./mail.service";
               // token - no accessToken needs to be stored.
             };
 
+        const host = config.get<string>("SMTP_HOST", "smtp.gmail.com");
+        const port = Number(config.get<number>("SMTP_PORT", 587));
+        const isGmail = host === "smtp.gmail.com";
+
         return {
-          transport: {
-            host: config.get<string>("SMTP_HOST", "smtp.gmail.com"),
-            port: config.get<number>("SMTP_PORT", 465),
-            secure: true,
-            auth,
-          },
+          transport: isGmail
+            ? {
+                service: "gmail",
+                auth,
+                connectionTimeout: 10000,
+              }
+            : {
+                host,
+                port,
+                secure: port === 465,
+                auth,
+                connectionTimeout: 10000,
+              },
           defaults: { from: config.get<string>("MAIL_FROM", "MC Tracker <no-reply@example.com>") },
           template: {
             dir: join(__dirname, "templates"),
