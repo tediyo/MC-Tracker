@@ -7,7 +7,7 @@
 # Build from the REPO ROOT, not this directory:
 #   docker build -f apps/api/Dockerfile -t mc-tracker-api .
 
-FROM node:20-alpine AS base
+FROM node:22-alpine AS base
 RUN corepack enable
 
 # ---- Prune: compute the minimal subset of the monorepo apps/api needs ----
