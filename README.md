@@ -8,7 +8,8 @@ apps/web            Next.js (App Router) - auth, entry forms, plan module, dashb
 apps/api            NestJS - scheduled email notifications + the over-budget webhook only
 packages/shared-types  Enums, DB row types, Zod schemas, shared calculation functions
 supabase/migrations  SQL migrations (tables, RLS, triggers, RPC functions)
-docs/SETUP.md        Full setup walkthrough - start here
+docs/SETUP.md        Full local setup walkthrough - start here
+docs/DEPLOYMENT.md   Render deployment guide for NestJS backend API
 ```
 
 **Architecture in one line:** Supabase (Postgres + Auth + RLS) is the
@@ -26,6 +27,8 @@ pnpm --filter @mc-tracker/shared-types test   # 22 unit tests, no external servi
 
 Everything else (a running Supabase project, Google OAuth2 for email) needs
 one-time setup — see **[docs/SETUP.md](docs/SETUP.md)**.
+
+For deploying `@mc-tracker/api` to production on Render, see **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**.
 
 Once configured:
 
