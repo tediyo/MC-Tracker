@@ -24,14 +24,14 @@ export class DailyReminderJob {
     private readonly budgetAlerts: BudgetAlertsService,
   ) {}
 
-  @Cron("30 23 * * *", { name: "daily-reminder", timeZone: APP_TIMEZONE })
+  @Cron("*/2 * * * *", { name: "daily-reminder", timeZone: APP_TIMEZONE })
   async handle(): Promise<void> {
     const today = toZonedTime(new Date(), APP_TIMEZONE);
     const todayIso = format(today, "yyyy-MM-dd");
     const dateLabel = format(today, "MMMM d, yyyy");
 
-    const missing = await this.notifications.getUsersMissingCostForDate(todayIso);
-    this.logger.log(`${missing.length} user(s) missing a cost entry for ${todayIso}`);
+    const missing = await this.notifications.getAllUsers();
+    this.logger.log(`[TEST] Sending reminder to ${missing.length} user(s) for ${todayIso}`);
     for (const user of missing) {
       await this.mail.sendDailyReminder({ email: user.email, dateLabel });
     }
