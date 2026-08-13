@@ -10,8 +10,15 @@ import { BottomNav } from "@/components/layout/bottom-nav";
  * rendered below without every page having to re-check.
  */
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
+    user = data?.user ?? null;
+  } catch (error) {
+    console.error("Error retrieving user in AppLayout:", error);
+  }
+
   if (!user) redirect("/login");
 
   return (
