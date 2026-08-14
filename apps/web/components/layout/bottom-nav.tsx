@@ -3,7 +3,6 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Plus } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 
@@ -48,16 +47,20 @@ export function BottomNav({ userEmail }: BottomNavProps) {
         })}
       </div>
 
-      {/* Floating Circular Action Button (Matching the Image) */}
+      {/* Floating Profile Shortcut - same gradient-initial avatar used by the
+          identity chips in the sidebar/topbar, just promoted to a FAB since
+          mobile has no other persistent profile entry point (see Topbar,
+          which hides UserMenu below md). */}
       <Link
-        href="/costs"
-        className="pointer-events-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 transition-transform active:scale-95 hover:bg-emerald-700"
-        title="Add Expense"
-        aria-label="Add Expense"
+        href="/profile"
+        className={cn(
+          "pointer-events-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary via-primary/90 to-primary/70 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 transition-transform active:scale-95",
+          pathname === "/profile" && "ring-2 ring-primary ring-offset-2 ring-offset-background",
+        )}
+        title="Profile"
+        aria-label="Profile"
       >
-        <span className="flex items-center justify-center font-bold text-xs">
-          <Plus className="h-5 w-5 stroke-[2.5]" />
-        </span>
+        {initial}
       </Link>
     </div>
   );

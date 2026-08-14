@@ -80,3 +80,64 @@ export async function logout(): Promise<void> {
   revalidatePath("/", "layout");
   redirect("/login");
 }
+
+export interface ProfileActionResult {
+  error: string | null;
+  success: string | null;
+}
+
+/**
+ * Unlike `login`/`signup`/`updatePassword`, the profile forms stay on
+ * /profile after submitting - `success` carries the confirmation message
+ * instead of a redirect ending the interaction.
+ */
+export async function updateEmail(
+  _prevState: ProfileActionResult,
+  formData: FormData,
+): Promise<ProfileActionResult> {
+  const supabase = await createClient();
+  const email = String(formData.get("email") ?? "").trim();
+
+  const { error } = await supabase.auth.updateUser(
+    { email },
+    { emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback` },
+  );
+  if (error) return { error: error.message, success: null };
+
+  revalidatePath("/profile");
+  return {
+    error: null,
+    success: `Confirmation link sent to ${email} - your email won't change until you click it.`,
+  };
+}
+
+export async function changePassword(
+  _prevState: ProfileActionResult,
+  formData: FormData,
+): Promise<ProfileActionResult> {
+  const currentPassword = String(formData.get("currentPassword") ?? "");
+  const newPassword = String(formData.get("newPassword") ?? "");
+  const confirmPassword = String(formData.get("confirmPassword") ?? "");
+
+  if (newPassword !== confirmPassword) {
+    return { error: "New passwords don't match.", success: null };
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user?.email) return { error: "Not signed in.", success: null };
+
+  // updateUser() alone only requires a valid session, not proof of the
+  // *current* password - re-verifying it here stops a hijacked session
+  // from locking the real owner out by silently changing the password.
+  const { error: reauthError } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: currentPassword,
+  });
+  if (reauthError) return { error: "Current password is incorrect.", success: null };
+
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+  if (error) return { error: error.message, success: null };
+
+  return { error: null, success: "Password updated." };
+}
