@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
+export const dynamic = "force-dynamic";
+
 /**
  * Handles the `?code=` param from both email-confirmation and
  * password-recovery links. `next` lets a recovery link route into

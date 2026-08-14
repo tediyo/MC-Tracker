@@ -2,7 +2,12 @@
   "permissions": {
     "allow": [
       "Bash(npx eslint *)",
-      "Bash(timeout 40 bash -c 'until curl -sf http://localhost:3000 >/dev/null 2>&1; do sleep 1; done')"
+      "Bash(timeout 40 bash -c 'until curl -sf http://localhost:3000 >/dev/null 2>&1; do sleep 1; done')",
+      "PowerShell(Get-NetTCPConnection -State Listen | Where-Object { $_.LocalPort -in 3000,3001 } | Select-Object LocalPort, OwningProcess | Format-Table -AutoSize)",
+      "PowerShell(Get-Process -Id 11212 -ErrorAction SilentlyContinue)",
+      "PowerShell(Stop-Process -Id 11212 -Force -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-Process -Id 17784,24092 -ErrorAction SilentlyContinue)"
     ]
   },
   "enabledPlugins": {
