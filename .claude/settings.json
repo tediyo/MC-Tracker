@@ -7,7 +7,9 @@
       "PowerShell(Get-Process -Id 11212 -ErrorAction SilentlyContinue)",
       "PowerShell(Stop-Process -Id 11212 -Force -ErrorAction SilentlyContinue)",
       "PowerShell(Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue)",
-      "PowerShell(Get-Process -Id 17784,24092 -ErrorAction SilentlyContinue)"
+      "PowerShell(Get-Process -Id 17784,24092 -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue | Where-Object { $_.LocalPort -in 3000,3001 } | Select-Object LocalPort, OwningProcess)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/login)"
     ]
   },
   "enabledPlugins": {

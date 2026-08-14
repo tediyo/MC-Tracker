@@ -86,7 +86,11 @@ export function Sidebar({ userEmail }: SidebarProps) {
       {/* User Info Footer */}
       {userEmail && (
         <div className="mt-auto border-t border-border/50 pt-4 px-2">
-          <div className="flex items-center gap-3 rounded-xl bg-accent/40 p-2.5 border border-border/40">
+          <Link
+            href="/profile"
+            className="flex items-center gap-3 rounded-xl bg-accent/40 p-2.5 border border-border/40 transition-colors hover:bg-accent/70"
+            title="View profile"
+          >
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/20 text-primary font-semibold text-xs">
               {userEmail.charAt(0).toUpperCase()}
             </div>
@@ -98,7 +102,7 @@ export function Sidebar({ userEmail }: SidebarProps) {
                 <UserCheck className="h-3 w-3 text-emerald-500" /> Connected
               </span>
             </div>
-          </div>
+          </Link>
         </div>
       )}
     </aside>
