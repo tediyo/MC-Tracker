@@ -3,10 +3,11 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Wallet, UserCheck } from "lucide-react";
+import { Wallet, UserCheck, LogOut } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/components/providers/theme-provider";
+import { logout } from "@/lib/auth/actions";
 
 interface SidebarProps {
   userEmail?: string;
@@ -88,9 +89,9 @@ export function Sidebar({ userEmail }: SidebarProps) {
         })}
       </nav>
 
-      {/* User Info Footer */}
+      {/* User Info & Sign Out Footer */}
       {userEmail && (
-        <div className="mt-auto border-t border-border pt-3 px-1">
+        <div className="mt-auto border-t border-border pt-3 px-1 flex flex-col gap-2">
           <Link
             href="/profile"
             className="flex items-center gap-3 rounded-lg border border-border bg-card p-2 transition-colors hover:bg-accent"
@@ -108,6 +109,16 @@ export function Sidebar({ userEmail }: SidebarProps) {
               </span>
             </div>
           </Link>
+
+          <form action={logout}>
+            <button
+              type="submit"
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium text-rose-600 dark:text-rose-400 transition-colors hover:bg-rose-500/10 hover:text-rose-700 dark:hover:text-rose-300"
+            >
+              <LogOut className="h-4 w-4 shrink-0" />
+              <span>Sign out</span>
+            </button>
+          </form>
         </div>
       )}
     </aside>
