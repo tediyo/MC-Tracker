@@ -28,13 +28,14 @@ export function ThemeToggle() {
   return (
     <Button
       type="button"
-      variant="ghost"
+      variant="outline"
       size="icon"
       onClick={cycleTheme}
+      className="h-10 w-10 rounded-xl border border-border bg-card text-foreground shadow-sm hover:bg-accent hover:text-accent-foreground transition-colors flex items-center justify-center"
       title={`${label} - click to change`}
       aria-label={`${label}. Click to switch theme.`}
     >
-      <Icon className="h-4 w-4" />
+      <Icon className="h-4.5 w-4.5" />
     </Button>
   );
 }

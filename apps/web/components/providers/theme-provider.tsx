@@ -30,7 +30,7 @@ function applyTheme(theme: ThemeMode) {
 
 function readStoredTheme(): ThemeMode {
   const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
-  return stored === "light" || stored === "dark" ? stored : "system";
+  return stored === "light" || stored === "dark" ? stored : "light";
 }
 
 /**
@@ -38,7 +38,7 @@ function readStoredTheme(): ThemeMode {
  * "system" means no attribute at all, so the CSS's `prefers-color-scheme`
  * fallback takes over - see globals.css for the light/dark token pairs.
  *
- * `theme` always *starts* at "system" on both server and client, even when a
+ * `theme` always *starts* at "light" on both server and client, even when a
  * different choice is stored - reading localStorage during the initial
  * render would make the client's first render disagree with the
  * server-rendered HTML (server has no localStorage), which is a hydration
@@ -48,15 +48,13 @@ function readStoredTheme(): ThemeMode {
  * effect instead makes that a normal post-hydration update.
  */
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = React.useState<ThemeMode>("system");
+  const [theme, setThemeState] = React.useState<ThemeMode>("light");
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
     const stored = readStoredTheme();
-    if (stored !== "system") {
-      setThemeState(stored);
-      applyTheme(stored); // defensive - the inline script in app/layout.tsx already did this
-    }
+    setThemeState(stored);
+    applyTheme(stored);
     setMounted(true);
   }, []);
 

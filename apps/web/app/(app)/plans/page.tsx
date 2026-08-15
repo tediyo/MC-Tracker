@@ -20,19 +20,14 @@ export default async function PlansPage({
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6">
-      <div className="flex flex-col gap-3 border-b border-border/50 pb-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary shadow-sm">
-            <Target className="h-5 w-5" />
-          </span>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-              Annual Budget Plans
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Set monthly income targets, cost limits, and savings goals for {year}.
-            </p>
-          </div>
+      <div className="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            Annual Budget Plans
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Set monthly income targets, cost limits, and savings goals for {year}.
+          </p>
         </div>
       </div>
 

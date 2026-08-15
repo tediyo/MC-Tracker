@@ -14,7 +14,7 @@ function ChangeBadge({ value, invert = false }: { value: number | null; invert?:
 
   return (
     <div
-      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
+      className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-medium ${
         isGood
           ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
           : "bg-rose-500/10 text-rose-600 dark:text-rose-400"
@@ -36,61 +36,52 @@ export function SummaryCards({ metrics }: { metrics: PeriodMetrics }) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {/* Total Income */}
-      <Card className="relative overflow-hidden border-border/60 hover:border-emerald-500/40">
-        <div className="absolute top-0 right-0 p-4 opacity-10">
-          <PiggyBank className="h-20 w-20 text-emerald-500" />
-        </div>
+      <Card className="border-border">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle>Total Income</CardTitle>
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-500">
+          <CardTitle className="text-sm font-medium text-muted-foreground">Total Income</CardTitle>
+          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
             <PiggyBank className="h-4 w-4" />
           </span>
         </CardHeader>
-        <CardContent className="space-y-1.5">
+        <CardContent className="space-y-1">
           <p className="text-2xl font-bold tracking-tight tabular-nums text-foreground">
             {formatCurrency(metrics.totalIncome)}
           </p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 pt-1">
             <ChangeBadge value={metrics.percentChangeIncome} />
-            <span className="text-[11px] text-muted-foreground">vs prev period</span>
+            <span className="text-xs text-muted-foreground">vs prev period</span>
           </div>
         </CardContent>
       </Card>
 
       {/* Total Costs */}
-      <Card className="relative overflow-hidden border-border/60 hover:border-amber-500/40">
-        <div className="absolute top-0 right-0 p-4 opacity-10">
-          <Receipt className="h-20 w-20 text-amber-500" />
-        </div>
+      <Card className="border-border">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle>Total Costs</CardTitle>
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/10 text-amber-500">
+          <CardTitle className="text-sm font-medium text-muted-foreground">Total Costs</CardTitle>
+          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400">
             <Receipt className="h-4 w-4" />
           </span>
         </CardHeader>
-        <CardContent className="space-y-1.5">
+        <CardContent className="space-y-1">
           <p className="text-2xl font-bold tracking-tight tabular-nums text-foreground">
             {formatCurrency(metrics.totalCosts)}
           </p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 pt-1">
             <ChangeBadge value={metrics.percentChangeCosts} invert />
-            <span className="text-[11px] text-muted-foreground">vs prev period</span>
+            <span className="text-xs text-muted-foreground">vs prev period</span>
           </div>
         </CardContent>
       </Card>
 
       {/* Net Profit / Loss */}
-      <Card className="relative overflow-hidden border-border/60 hover:border-blue-500/40">
-        <div className="absolute top-0 right-0 p-4 opacity-10">
-          <Scale className="h-20 w-20 text-blue-500" />
-        </div>
+      <Card className="border-border">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle>Net Profit / Loss</CardTitle>
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10 text-blue-500">
+          <CardTitle className="text-sm font-medium text-muted-foreground">Net Profit / Loss</CardTitle>
+          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400">
             <Scale className="h-4 w-4" />
           </span>
         </CardHeader>
-        <CardContent className="space-y-1.5">
+        <CardContent className="space-y-1">
           <p
             className={`text-2xl font-bold tracking-tight tabular-nums ${
               metrics.netProfitLoss >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
@@ -98,21 +89,18 @@ export function SummaryCards({ metrics }: { metrics: PeriodMetrics }) {
           >
             {formatCurrency(metrics.netProfitLoss)}
           </p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 pt-1">
             <ChangeBadge value={metrics.percentChangeNet} />
-            <span className="text-[11px] text-muted-foreground">vs prev period</span>
+            <span className="text-xs text-muted-foreground">vs prev period</span>
           </div>
         </CardContent>
       </Card>
 
-      {/* Target vs Actual */}
-      <Card className="relative overflow-hidden border-border/60 hover:border-purple-500/40">
-        <div className="absolute top-0 right-0 p-4 opacity-10">
-          <Target className="h-20 w-20 text-purple-500" />
-        </div>
+      {/* Budget Variance */}
+      <Card className="border-border">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle>Budget Variance</CardTitle>
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-500/10 text-purple-500">
+          <CardTitle className="text-sm font-medium text-muted-foreground">Budget Variance</CardTitle>
+          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400">
             <Target className="h-4 w-4" />
           </span>
         </CardHeader>
@@ -124,3 +112,4 @@ export function SummaryCards({ metrics }: { metrics: PeriodMetrics }) {
     </div>
   );
 }
+
