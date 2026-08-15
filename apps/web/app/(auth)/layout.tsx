@@ -1,5 +1,7 @@
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 
+export const dynamic = "force-dynamic";
+
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-muted/40 px-4">

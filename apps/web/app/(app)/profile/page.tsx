@@ -6,7 +6,6 @@ import { logout } from "@/lib/auth/actions";
 import { ProfileHeader } from "@/components/profile/profile-header";
 import { UpdateEmailForm } from "@/components/profile/update-email-form";
 import { ChangePasswordForm } from "@/components/profile/change-password-form";
-import { Card, CardContent } from "@/components/ui/card";
 import { SubmitButton } from "@/components/forms/submit-button";
 
 export default async function ProfilePage() {
@@ -25,23 +24,17 @@ export default async function ProfilePage() {
       <UpdateEmailForm currentEmail={email} />
       <ChangePasswordForm />
 
-      <Card>
-        <CardContent className="flex flex-wrap items-center justify-between gap-4 pt-6">
-          <div className="flex flex-col gap-1">
-            <span className="text-sm font-medium text-foreground">Log out</span>
-            <span className="text-sm text-muted-foreground">Sign out of MC Tracker on this device.</span>
-          </div>
-          <form action={logout}>
-            <SubmitButton
-              variant="outline"
-              className="text-muted-foreground hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
-            >
-              <LogOut className="h-4 w-4" />
-              Log out
-            </SubmitButton>
-          </form>
-        </CardContent>
-      </Card>
+      <div className="pt-2 flex justify-start">
+        <form action={logout}>
+          <SubmitButton
+            variant="outline"
+            className="text-destructive border-destructive/20 hover:bg-destructive/10 hover:border-destructive/40 transition-colors"
+          >
+            <LogOut className="h-4 w-4" />
+            Log out
+          </SubmitButton>
+        </form>
+      </div>
     </div>
   );
 }
