@@ -14,7 +14,7 @@ export const metadata: Metadata = {
  * Absence of a stored value (or "system") leaves the attribute unset, letting
  * globals.css's `prefers-color-scheme` fallback apply.
  */
-const NO_FLASH_THEME_SCRIPT = `(function(){try{var t=localStorage.getItem("mc-tracker-theme");if(t==="light"||t==="dark"){document.documentElement.setAttribute("data-theme",t)}}catch(e){}})();`;
+const NO_FLASH_THEME_SCRIPT = `(function(){try{var t=localStorage.getItem("mc-tracker-theme")||"light";document.documentElement.setAttribute("data-theme",t)}catch(e){}})();`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

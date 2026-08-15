@@ -1,13 +1,43 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Wallet, UserCheck } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/nav";
 import { cn } from "@/lib/utils";
+import { useTheme } from "@/components/providers/theme-provider";
 
 interface SidebarProps {
   userEmail?: string;
+}
+
+function BrandLogo() {
+  const { theme, mounted } = useTheme();
+  const [src, setSrc] = React.useState("/MCT_Logo_light.jpg");
+
+  React.useEffect(() => {
+    if (!mounted) return;
+    const isDark =
+      theme === "dark" ||
+      (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    setSrc(isDark ? "/MCT_Logo.png" : "/MCT_Logo_light.jpg");
+  }, [theme, mounted]);
+
+  return (
+    <img
+      src={src}
+      alt="MC Tracker Logo"
+      className="h-9 w-9 rounded-lg object-contain"
+      onError={() => {
+        if (src === "/MCT_Logo_light.jpg") {
+          setSrc("/MCT_Logo_light.png");
+        } else if (src === "/MCT_Logo_light.png") {
+          setSrc("/MCT_Logo.png");
+        }
+      }}
+    />
+  );
 }
 
 export function Sidebar({ userEmail }: SidebarProps) {
@@ -18,9 +48,7 @@ export function Sidebar({ userEmail }: SidebarProps) {
       {/* Brand Header */}
       <div className="mb-8 flex items-center justify-between px-2">
         <div className="flex items-center gap-3">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
-            <Wallet className="h-4 w-4" />
-          </span>
+          <BrandLogo />
           <div className="flex flex-col">
             <span className="text-sm font-semibold tracking-tight text-foreground">
               MC Tracker
