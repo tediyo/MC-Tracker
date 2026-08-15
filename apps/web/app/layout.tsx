@@ -5,6 +5,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "MC Tracker",
   description: "Monthly Cost & Income Tracker",
+  icons: {
+    icon: "/MCT_Logo.png",
+    shortcut: "/MCT_Logo.png",
+    apple: "/MCT_Logo.png",
+  },
 };
 
 /**
@@ -20,6 +25,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="icon" href="/MCT_Logo.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/MCT_Logo.png" />
         <script dangerouslySetInnerHTML={{ __html: NO_FLASH_THEME_SCRIPT }} />
       </head>
       <body className="min-h-screen font-sans antialiased">
