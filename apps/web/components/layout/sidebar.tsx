@@ -58,9 +58,7 @@ export function Sidebar({ userEmail }: SidebarProps) {
             </span>
           </div>
         </div>
-        <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-mono font-medium text-muted-foreground">
-          v1.0
-        </span>
+       
       </div>
 
       {/* Section Label */}
