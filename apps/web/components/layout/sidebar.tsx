@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Wallet, UserCheck, LogOut } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/nav";
 import { cn } from "@/lib/utils";
@@ -43,6 +43,7 @@ function BrandLogo() {
 
 export function Sidebar({ userEmail }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <aside className="sticky top-0 hidden h-screen w-64 flex-col overflow-hidden border-r border-border bg-card/90 px-4 py-5 md:flex shrink-0 transition-colors">
@@ -75,6 +76,9 @@ export function Sidebar({ userEmail }: SidebarProps) {
             <Link
               key={href}
               href={href}
+              prefetch={true}
+              onMouseEnter={() => router.prefetch(href)}
+              onPointerDown={() => router.prefetch(href)}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 active

@@ -22,7 +22,7 @@ export default async function CostsPage() {
           </p>
         </div>
         <Button asChild variant="outline" size="sm" className="gap-2 self-start sm:self-auto">
-          <Link href="/costs/history">
+          <Link href="/costs/history" prefetch={true}>
             <History className="h-4 w-4" />
             View Expense History
           </Link>

@@ -1,17 +1,22 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { LogOut, User } from "lucide-react";
 import { logout } from "@/lib/auth/actions";
 import { Button } from "@/components/ui/button";
 
 export function UserMenu({ email }: { email: string }) {
+  const router = useRouter();
   const initial = email ? email.charAt(0).toUpperCase() : "U";
 
   return (
     <div className="hidden items-center gap-2 md:flex">
       <Link
         href="/profile"
+        prefetch={true}
+        onMouseEnter={() => router.prefetch("/profile")}
+        onPointerDown={() => router.prefetch("/profile")}
         className="flex items-center gap-2 rounded-full border border-border bg-card px-2.5 py-1 text-xs font-medium text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
         title="View profile"
       >

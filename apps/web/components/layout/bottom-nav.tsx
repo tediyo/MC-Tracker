@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { NAV_ITEMS } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
@@ -12,6 +12,7 @@ interface BottomNavProps {
 
 export function BottomNav({ userEmail }: BottomNavProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const initial = userEmail ? userEmail.charAt(0).toUpperCase() : "U";
 
   return (
@@ -24,6 +25,9 @@ export function BottomNav({ userEmail }: BottomNavProps) {
             <Link
               key={href}
               href={href}
+              prefetch={true}
+              onMouseEnter={() => router.prefetch(href)}
+              onPointerDown={() => router.prefetch(href)}
               className={cn(
                 "flex flex-col items-center justify-center rounded-full px-3 py-1 text-center transition-colors min-w-[54px]",
                 active ? "text-primary font-semibold" : "text-muted-foreground hover:text-foreground",
@@ -40,6 +44,9 @@ export function BottomNav({ userEmail }: BottomNavProps) {
         <ThemeToggle />
         <Link
           href="/profile"
+          prefetch={true}
+          onMouseEnter={() => router.prefetch("/profile")}
+          onPointerDown={() => router.prefetch("/profile")}
           className={cn(
             "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border bg-card text-xs font-bold text-foreground transition-colors hover:bg-accent",
             pathname === "/profile" && "border-primary text-primary ring-1 ring-primary",

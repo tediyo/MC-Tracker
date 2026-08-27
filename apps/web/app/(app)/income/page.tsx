@@ -22,7 +22,7 @@ export default async function IncomePage() {
           </p>
         </div>
         <Button asChild variant="outline" size="sm" className="gap-2 self-start sm:self-auto">
-          <Link href="/income/history">
+          <Link href="/income/history" prefetch={true}>
             <History className="h-4 w-4" />
             View Income History
           </Link>

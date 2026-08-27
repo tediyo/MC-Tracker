@@ -59,14 +59,14 @@ export function PlanMonthCard({ month, year, plan }: { month: number; year: numb
       <div className="p-4 pt-0 mt-2">
         {plan ? (
           <Button asChild variant="outline" size="sm" className="w-full gap-2 text-xs font-medium">
-            <Link href={`/plans/${plan.id}/edit`}>
+            <Link href={`/plans/${plan.id}/edit`} prefetch={true}>
               <Edit2 className="h-3.5 w-3.5 text-muted-foreground" />
               Edit Budget Plan
             </Link>
           </Button>
         ) : (
           <Button asChild variant="default" size="sm" className="w-full gap-2 text-xs font-medium">
-            <Link href={`/plans/new?month=${month}&year=${year}`}>
+            <Link href={`/plans/new?month=${month}&year=${year}`} prefetch={true}>
               <Plus className="h-3.5 w-3.5" />
               Create Plan
             </Link>
