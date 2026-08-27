@@ -26,6 +26,7 @@ export function CostHistoryTable({ userId }: { userId: string }) {
   const supabase = React.useMemo(() => createClient(), []);
   const [editing, setEditing] = React.useState<CostRow | null>(null);
   const [editCategory, setEditCategory] = React.useState<CostCategory>("basic");
+  const [editSubcategory, setEditSubcategory] = React.useState<CostSubcategory>("other");
   const [search, setSearch] = React.useState("");
   const [categoryFilter, setCategoryFilter] = React.useState<string>("all");
 
@@ -84,6 +85,7 @@ export function CostHistoryTable({ userId }: { userId: string }) {
 
   function openEdit(row: CostRow) {
     setEditCategory(row.category);
+    setEditSubcategory(row.subcategory);
     setEditing(row);
   }
 
@@ -101,7 +103,7 @@ export function CostHistoryTable({ userId }: { userId: string }) {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-1 flex-wrap items-center gap-2">
           <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-emerald-500" />
             <Input
               placeholder="Search expenses..."
               value={search}
@@ -110,7 +112,7 @@ export function CostHistoryTable({ userId }: { userId: string }) {
             />
           </div>
           <div className="flex items-center gap-1.5 rounded-xl border border-border/60 bg-card px-3 py-1.5 text-xs text-muted-foreground">
-            <Filter className="h-3.5 w-3.5" />
+            <Filter className="h-3.5 w-3.5 text-emerald-500" />
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
@@ -181,11 +183,11 @@ export function CostHistoryTable({ userId }: { userId: string }) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground"
+                          className="h-8 w-8 rounded-lg text-emerald-500 hover:text-emerald-600 hover:bg-emerald-500/10"
                           onClick={() => openEdit(row)}
                           aria-label="Edit"
                         >
-                          <Pencil className="h-3.5 w-3.5" />
+                          <Pencil className="h-3.5 w-3.5 text-emerald-500" />
                         </Button>
                         <Button
                           variant="ghost"
@@ -225,6 +227,10 @@ export function CostHistoryTable({ userId }: { userId: string }) {
                 const subcategory = (formEl.elements.namedItem("subcategory") as HTMLSelectElement)
                   .value as CostSubcategory;
                 const description = (formEl.elements.namedItem("description") as HTMLInputElement).value;
+                if (subcategory === "other" && !description.trim()) {
+                  toast.error("Please specify a reason when selecting 'Other'");
+                  return;
+                }
                 updateMutation.mutate({ id: editing.id, amount, date, category, subcategory, description });
               }}
               className="flex flex-col gap-4 py-2"
@@ -236,7 +242,15 @@ export function CostHistoryTable({ userId }: { userId: string }) {
                     id="category"
                     name="category"
                     defaultValue={editing.category}
-                    onChange={(e) => setEditCategory(e.target.value as CostCategory)}
+                    onChange={(e) => {
+                      const nextCat = e.target.value as CostCategory;
+                      setEditCategory(nextCat);
+                      const nextSubs = CATEGORY_SUBCATEGORY_MAP[nextCat];
+                      const firstSub = nextSubs[0];
+                      if (firstSub) {
+                        setEditSubcategory(firstSub);
+                      }
+                    }}
                     className="h-10 rounded-xl border border-input bg-card px-3 text-sm"
                   >
                     {Object.entries(COST_CATEGORY_LABELS).map(([value, label]) => (
@@ -251,7 +265,8 @@ export function CostHistoryTable({ userId }: { userId: string }) {
                   <select
                     id="subcategory"
                     name="subcategory"
-                    defaultValue={editing.subcategory}
+                    value={editSubcategory}
+                    onChange={(e) => setEditSubcategory(e.target.value as CostSubcategory)}
                     key={editCategory}
                     className="h-10 rounded-xl border border-input bg-card px-3 text-sm"
                   >
@@ -272,13 +287,18 @@ export function CostHistoryTable({ userId }: { userId: string }) {
                 <Input id="date" name="date" type="date" defaultValue={editing.date} className="rounded-xl" />
               </div>
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="description">Description</Label>
+                <Label
+                  htmlFor="description"
+                  className={editSubcategory === "other" ? "font-semibold text-primary" : ""}
+                >
+                  {editSubcategory === "other" ? "Reason (Required) *" : "Description"}
+                </Label>
                 <Textarea
                   id="description"
                   name="description"
                   defaultValue={editing.description ?? ""}
-                  placeholder="Add notes or details..."
-                  className="rounded-xl min-h-[70px]"
+                  placeholder={editSubcategory === "other" ? "State the reason for this expense..." : "Add notes or details..."}
+                  className={`rounded-xl min-h-[70px] ${editSubcategory === "other" ? "border-primary/60 focus-visible:ring-primary" : ""}`}
                 />
               </div>
               <DialogFooter className="pt-2">

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Wallet, UserCheck, LogOut } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/nav";
 import { cn } from "@/lib/utils";
@@ -43,6 +43,7 @@ function BrandLogo() {
 
 export function Sidebar({ userEmail }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <aside className="sticky top-0 hidden h-screen w-64 flex-col overflow-hidden border-r border-border bg-card/90 px-4 py-5 md:flex shrink-0 transition-colors">
@@ -75,14 +76,17 @@ export function Sidebar({ userEmail }: SidebarProps) {
             <Link
               key={href}
               href={href}
+              prefetch={true}
+              onMouseEnter={() => router.prefetch(href)}
+              onPointerDown={() => router.prefetch(href)}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 active
-                  ? "bg-accent text-accent-foreground font-semibold"
+                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold"
                   : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
               )}
             >
-              <Icon className={cn("h-4 w-4 shrink-0", active ? "text-primary" : "text-muted-foreground")} />
+              <Icon className="h-4 w-4 shrink-0 text-emerald-500" />
               <span>{label}</span>
             </Link>
           );
@@ -97,7 +101,7 @@ export function Sidebar({ userEmail }: SidebarProps) {
             className="flex items-center gap-3 rounded-lg border border-border bg-card p-2 transition-colors hover:bg-accent"
             title="View profile"
           >
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-xs">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500 font-bold text-xs">
               {userEmail.charAt(0).toUpperCase()}
             </div>
             <div className="flex flex-col min-w-0 flex-1">
@@ -113,9 +117,9 @@ export function Sidebar({ userEmail }: SidebarProps) {
           <form action={logout}>
             <button
               type="submit"
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium text-rose-600 dark:text-rose-400 transition-colors hover:bg-rose-500/10 hover:text-rose-700 dark:hover:text-rose-300"
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium text-emerald-600 dark:text-emerald-400 transition-colors hover:bg-emerald-500/10"
             >
-              <LogOut className="h-4 w-4 shrink-0" />
+              <LogOut className="h-4 w-4 shrink-0 text-emerald-500" />
               <span>Sign out</span>
             </button>
           </form>

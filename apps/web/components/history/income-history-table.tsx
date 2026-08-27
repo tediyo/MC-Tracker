@@ -102,7 +102,7 @@ export function IncomeHistoryTable({ userId }: { userId: string }) {
                 <tr>
                   <th className="px-4 py-3.5">
                     <span className="flex items-center gap-1">
-                      Date <ArrowUpDown className="h-3 w-3" />
+                      Date <ArrowUpDown className="h-3 w-3 text-emerald-500" />
                     </span>
                   </th>
                   <th className="px-4 py-3.5">Source</th>
@@ -131,11 +131,11 @@ export function IncomeHistoryTable({ userId }: { userId: string }) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground"
+                          className="h-8 w-8 rounded-lg text-emerald-500 hover:text-emerald-600 hover:bg-emerald-500/10"
                           onClick={() => setEditing(row)}
                           aria-label="Edit"
                         >
-                          <Pencil className="h-3.5 w-3.5" />
+                          <Pencil className="h-3.5 w-3.5 text-emerald-500" />
                         </Button>
                         <Button
                           variant="ghost"

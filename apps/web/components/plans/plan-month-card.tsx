@@ -1,17 +1,14 @@
 import Link from "next/link";
 import { Plus, Edit2, ShieldAlert, Target } from "lucide-react";
-import type { PlanRow } from "@mc-tracker/shared-types";
+import { type PlanRow, ETHIOPIAN_MONTHS, getEthiopianDate } from "@mc-tracker/shared-types";
 import { formatCurrency } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
-
 export function PlanMonthCard({ month, year, plan }: { month: number; year: number; plan?: PlanRow }) {
-  const isCurrentMonth = new Date().getFullYear() === year && new Date().getMonth() + 1 === month;
+  const currentEth = getEthiopianDate(new Date());
+  const isCurrentMonth = currentEth.year === year && currentEth.month === month;
+  const monthInfo = ETHIOPIAN_MONTHS[month - 1];
 
   return (
     <Card className={`relative flex flex-col justify-between border ${
@@ -26,7 +23,7 @@ export function PlanMonthCard({ month, year, plan }: { month: number; year: numb
       <div>
         <CardHeader className="pb-3">
           <CardTitle className="text-foreground flex items-center justify-between font-semibold text-base tracking-tight">
-            <span>{MONTH_NAMES[month - 1]}</span>
+            <span>{monthInfo ? monthInfo.label : `Month ${month}`}</span>
           </CardTitle>
         </CardHeader>
 
@@ -35,7 +32,7 @@ export function PlanMonthCard({ month, year, plan }: { month: number; year: numb
             <div className="space-y-2">
               <div className="flex items-center justify-between rounded-md bg-muted/40 p-2 text-xs">
                 <span className="text-muted-foreground font-medium flex items-center gap-1.5">
-                  <ShieldAlert className="h-3.5 w-3.5 text-amber-500" /> Cost Limit
+                  <ShieldAlert className="h-3.5 w-3.5 text-emerald-500" /> Cost Limit
                 </span>
                 <span className="font-semibold text-foreground tabular-nums">
                   {formatCurrency(Number(plan.target_cost_limit))}
@@ -62,15 +59,15 @@ export function PlanMonthCard({ month, year, plan }: { month: number; year: numb
       <div className="p-4 pt-0 mt-2">
         {plan ? (
           <Button asChild variant="outline" size="sm" className="w-full gap-2 text-xs font-medium">
-            <Link href={`/plans/${plan.id}/edit`}>
-              <Edit2 className="h-3.5 w-3.5 text-muted-foreground" />
+            <Link href={`/plans/${plan.id}/edit`} prefetch={true}>
+              <Edit2 className="h-3.5 w-3.5 text-emerald-500" />
               Edit Budget Plan
             </Link>
           </Button>
         ) : (
           <Button asChild variant="default" size="sm" className="w-full gap-2 text-xs font-medium">
-            <Link href={`/plans/new?month=${month}&year=${year}`}>
-              <Plus className="h-3.5 w-3.5" />
+            <Link href={`/plans/new?month=${month}&year=${year}`} prefetch={true}>
+              <Plus className="h-3.5 w-3.5 text-white" />
               Create Plan
             </Link>
           </Button>

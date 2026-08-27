@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { Target } from "lucide-react";
 
+import { getEthiopianDate } from "@mc-tracker/shared-types";
+
 export default async function NewPlanPage({
   searchParams,
 }: {
@@ -15,10 +17,10 @@ export default async function NewPlanPage({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const now = new Date();
+  const ethNow = getEthiopianDate(new Date());
   const { month: monthParam, year: yearParam } = await searchParams;
-  const initialMonth = monthParam ? Number(monthParam) : now.getMonth() + 1;
-  const initialYear = yearParam ? Number(yearParam) : now.getFullYear();
+  const initialMonth = monthParam ? Number(monthParam) : ethNow.month;
+  const initialYear = yearParam ? Number(yearParam) : ethNow.year;
 
   const plansThisYear = await fetchPlansForYear(supabase, user.id, initialYear);
   const existingPeriods = new Set(plansThisYear.map((p) => `${p.year}-${p.month}`));

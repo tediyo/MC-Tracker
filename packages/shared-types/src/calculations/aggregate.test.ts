@@ -67,6 +67,8 @@ describe("groupCostsBySubcategory", () => {
       food: 20,
       asbeza: 0,
       taxi: 15,
+      rent: 0,
+      wifi: 0,
       other: 0,
     });
   });
