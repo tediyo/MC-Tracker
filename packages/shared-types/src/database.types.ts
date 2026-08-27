@@ -204,6 +204,8 @@ export type Database = {
         | "food"
         | "asbeza"
         | "taxi"
+        | "rent"
+        | "wifi"
         | "drunk"
         | "coffee"
         | "familia"
@@ -348,6 +350,8 @@ export const Constants = {
         "food",
         "asbeza",
         "taxi",
+        "rent",
+        "wifi",
         "drunk",
         "coffee",
         "familia",

@@ -25,6 +25,13 @@ export const costRowSchema = z
         message: `"${row.subcategory}" is not a valid subcategory for "${row.category}"`,
       });
     }
+    if (row.subcategory === "other" && (!row.description || row.description.trim() === "")) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["description"],
+        message: "Please specify a reason when selecting 'Other'",
+      });
+    }
   });
 
 /**

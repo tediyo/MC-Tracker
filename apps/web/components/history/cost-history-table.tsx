@@ -82,8 +82,13 @@ export function CostHistoryTable({ userId }: { userId: string }) {
     onError: (error) => toast.error(error instanceof Error ? error.message : "Failed to update"),
   });
 
+  const [editing, setEditing] = React.useState<CostRow | null>(null);
+  const [editCategory, setEditCategory] = React.useState<CostCategory>("basic");
+  const [editSubcategory, setEditSubcategory] = React.useState<CostSubcategory>("other");
+
   function openEdit(row: CostRow) {
     setEditCategory(row.category);
+    setEditSubcategory(row.subcategory);
     setEditing(row);
   }
 
@@ -225,6 +230,10 @@ export function CostHistoryTable({ userId }: { userId: string }) {
                 const subcategory = (formEl.elements.namedItem("subcategory") as HTMLSelectElement)
                   .value as CostSubcategory;
                 const description = (formEl.elements.namedItem("description") as HTMLInputElement).value;
+                if (subcategory === "other" && !description.trim()) {
+                  toast.error("Please specify a reason when selecting 'Other'");
+                  return;
+                }
                 updateMutation.mutate({ id: editing.id, amount, date, category, subcategory, description });
               }}
               className="flex flex-col gap-4 py-2"
@@ -236,7 +245,14 @@ export function CostHistoryTable({ userId }: { userId: string }) {
                     id="category"
                     name="category"
                     defaultValue={editing.category}
-                    onChange={(e) => setEditCategory(e.target.value as CostCategory)}
+                    onChange={(e) => {
+                      const nextCat = e.target.value as CostCategory;
+                      setEditCategory(nextCat);
+                      const nextSubs = CATEGORY_SUBCATEGORY_MAP[nextCat];
+                      if (nextSubs && nextSubs.length > 0) {
+                        setEditSubcategory(nextSubs[0]);
+                      }
+                    }}
                     className="h-10 rounded-xl border border-input bg-card px-3 text-sm"
                   >
                     {Object.entries(COST_CATEGORY_LABELS).map(([value, label]) => (
@@ -251,7 +267,8 @@ export function CostHistoryTable({ userId }: { userId: string }) {
                   <select
                     id="subcategory"
                     name="subcategory"
-                    defaultValue={editing.subcategory}
+                    value={editSubcategory}
+                    onChange={(e) => setEditSubcategory(e.target.value as CostSubcategory)}
                     key={editCategory}
                     className="h-10 rounded-xl border border-input bg-card px-3 text-sm"
                   >
@@ -272,13 +289,18 @@ export function CostHistoryTable({ userId }: { userId: string }) {
                 <Input id="date" name="date" type="date" defaultValue={editing.date} className="rounded-xl" />
               </div>
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="description">Description</Label>
+                <Label
+                  htmlFor="description"
+                  className={editSubcategory === "other" ? "font-semibold text-primary" : ""}
+                >
+                  {editSubcategory === "other" ? "Reason (Required) *" : "Description"}
+                </Label>
                 <Textarea
                   id="description"
                   name="description"
                   defaultValue={editing.description ?? ""}
-                  placeholder="Add notes or details..."
-                  className="rounded-xl min-h-[70px]"
+                  placeholder={editSubcategory === "other" ? "State the reason for this expense..." : "Add notes or details..."}
+                  className={`rounded-xl min-h-[70px] ${editSubcategory === "other" ? "border-primary/60 focus-visible:ring-primary" : ""}`}
                 />
               </div>
               <DialogFooter className="pt-2">
