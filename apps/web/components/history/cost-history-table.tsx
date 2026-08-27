@@ -26,6 +26,7 @@ export function CostHistoryTable({ userId }: { userId: string }) {
   const supabase = React.useMemo(() => createClient(), []);
   const [editing, setEditing] = React.useState<CostRow | null>(null);
   const [editCategory, setEditCategory] = React.useState<CostCategory>("basic");
+  const [editSubcategory, setEditSubcategory] = React.useState<CostSubcategory>("other");
   const [search, setSearch] = React.useState("");
   const [categoryFilter, setCategoryFilter] = React.useState<string>("all");
 
@@ -81,10 +82,6 @@ export function CostHistoryTable({ userId }: { userId: string }) {
     },
     onError: (error) => toast.error(error instanceof Error ? error.message : "Failed to update"),
   });
-
-  const [editing, setEditing] = React.useState<CostRow | null>(null);
-  const [editCategory, setEditCategory] = React.useState<CostCategory>("basic");
-  const [editSubcategory, setEditSubcategory] = React.useState<CostSubcategory>("other");
 
   function openEdit(row: CostRow) {
     setEditCategory(row.category);
@@ -249,8 +246,9 @@ export function CostHistoryTable({ userId }: { userId: string }) {
                       const nextCat = e.target.value as CostCategory;
                       setEditCategory(nextCat);
                       const nextSubs = CATEGORY_SUBCATEGORY_MAP[nextCat];
-                      if (nextSubs && nextSubs.length > 0) {
-                        setEditSubcategory(nextSubs[0]);
+                      const firstSub = nextSubs[0];
+                      if (firstSub) {
+                        setEditSubcategory(firstSub);
                       }
                     }}
                     className="h-10 rounded-xl border border-input bg-card px-3 text-sm"
