@@ -10,6 +10,7 @@ import { SummaryCards } from "@/components/dashboard/summary-cards";
 import { CostCategoryPieChart } from "@/components/dashboard/cost-category-pie-chart";
 import { CostSubcategoryPieChart } from "@/components/dashboard/cost-subcategory-pie-chart";
 import { IncomeExpenseTrendChart } from "@/components/dashboard/income-expense-trend-chart";
+import { MonthComparisonSection } from "@/components/dashboard/month-comparison-section";
 import { cn } from "@/lib/utils";
 
 function stepDate(timeframe: TimeFrame, date: Date, direction: 1 | -1): Date {
@@ -34,10 +35,10 @@ interface DashboardClientProps {
 
 /**
  * The client island: owns timeframe/reference-date state and TanStack
- * Query, ties the summary cards + both pie charts + the trend chart
- * together. Server-rendered `initialData` seeds the query cache for the
- * default (timeframe, referenceDate) pair so there's no refetch flash on
- * first paint.
+ * Query, ties the summary cards + both pie charts + the trend chart +
+ * month comparison section together. Server-rendered `initialData` seeds
+ * the query cache for the default (timeframe, referenceDate) pair so
+ * there's no refetch flash on first paint.
  */
 export function DashboardClient({ userId, initialTimeframe, initialReferenceDate, initialData }: DashboardClientProps) {
   const [timeframe, setTimeframe] = React.useState<TimeFrame>(initialTimeframe);
@@ -85,6 +86,7 @@ export function DashboardClient({ userId, initialTimeframe, initialReferenceDate
         />
       </div>
       <IncomeExpenseTrendChart data={data.trend} />
+      <MonthComparisonSection userId={userId} />
     </div>
   );
 }
