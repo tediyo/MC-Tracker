@@ -11,6 +11,7 @@ import {
   type CreatePlanInput,
   type UpdatePlanInput,
   type PlanRow,
+  ETHIOPIAN_MONTHS,
 } from "@mc-tracker/shared-types";
 import { createClient } from "@/lib/supabase/client";
 import { createPlan, updatePlan } from "@/lib/data/plans";
@@ -18,11 +19,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { PlanMonthYearPicker } from "@/components/forms/plan-month-year-picker";
-
-const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
 
 interface PlanFormProps {
   userId: string;
@@ -63,8 +59,9 @@ export function PlanForm({ userId, mode, initialMonth, initialYear, existingPeri
     const supabase = createClient();
     const { plan: created, duplicate } = await createPlan(supabase, userId, { ...values, month, year });
     if (duplicate) {
+      const monthLabel = ETHIOPIAN_MONTHS[month - 1]?.label ?? `Month ${month}`;
       setDuplicateError(
-        `A plan for ${MONTH_NAMES[month - 1]} ${year} already exists. Edit it instead of creating a new one.`,
+        `A plan for ${monthLabel} ${year} E.C. already exists. Edit it instead of creating a new one.`,
       );
       return;
     }
@@ -91,12 +88,13 @@ export function PlanForm({ userId, mode, initialMonth, initialYear, existingPeri
   }
 
   if (mode === "edit") {
+    const monthLabel = ETHIOPIAN_MONTHS[initialMonth - 1]?.label ?? `Month ${initialMonth}`;
     return (
       <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="flex flex-col gap-4">
         <div>
           <Label>Period</Label>
           <p className="text-sm font-medium">
-            {MONTH_NAMES[initialMonth - 1]} {initialYear}
+            {monthLabel} {initialYear} E.C. (ዓ.ም.)
           </p>
           <p className="text-xs text-muted-foreground">The month/year of a plan can&rsquo;t be changed after creation.</p>
         </div>

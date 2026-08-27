@@ -2,11 +2,7 @@
 
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
+import { ETHIOPIAN_MONTHS, getEthiopianDate } from "@mc-tracker/shared-types";
 
 interface PlanMonthYearPickerProps {
   month: number;
@@ -22,24 +18,23 @@ function periodKey(month: number, year: number) {
 }
 
 export function PlanMonthYearPicker({ month, year, onMonthChange, onYearChange, existingPeriods }: PlanMonthYearPickerProps) {
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 6 }, (_, i) => currentYear - 1 + i);
+  const currentEthYear = getEthiopianDate(new Date()).year;
+  const years = Array.from({ length: 6 }, (_, i) => currentEthYear - 1 + i);
 
   return (
     <div className="grid grid-cols-2 gap-3">
       <div className="flex flex-col gap-1">
-        <Label htmlFor="plan-month">Month</Label>
+        <Label htmlFor="plan-month">Month (Ethiopian Calendar)</Label>
         <Select value={String(month)} onValueChange={(v) => onMonthChange(Number(v))}>
           <SelectTrigger id="plan-month">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {MONTH_NAMES.map((name, index) => {
-              const monthNumber = index + 1;
-              const disabled = existingPeriods.has(periodKey(monthNumber, year));
+            {ETHIOPIAN_MONTHS.map((item) => {
+              const disabled = existingPeriods.has(periodKey(item.number, year));
               return (
-                <SelectItem key={monthNumber} value={String(monthNumber)} disabled={disabled}>
-                  {name}
+                <SelectItem key={item.number} value={String(item.number)} disabled={disabled}>
+                  {item.label}
                   {disabled ? " (plan exists)" : ""}
                 </SelectItem>
               );
@@ -48,7 +43,7 @@ export function PlanMonthYearPicker({ month, year, onMonthChange, onYearChange, 
         </Select>
       </div>
       <div className="flex flex-col gap-1">
-        <Label htmlFor="plan-year">Year</Label>
+        <Label htmlFor="plan-year">Year (E.C. / ዓ.ም.)</Label>
         <Select value={String(year)} onValueChange={(v) => onYearChange(Number(v))}>
           <SelectTrigger id="plan-year">
             <SelectValue />
@@ -56,7 +51,7 @@ export function PlanMonthYearPicker({ month, year, onMonthChange, onYearChange, 
           <SelectContent>
             {years.map((y) => (
               <SelectItem key={y} value={String(y)}>
-                {y}
+                {y} E.C.
               </SelectItem>
             ))}
           </SelectContent>

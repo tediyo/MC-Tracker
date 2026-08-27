@@ -49,8 +49,9 @@ describe("calculatePeriodMetrics", () => {
     expect(metrics.netProfitLoss).toBe(900);
   });
 
-  it("resolves the monthly target directly from the plan for that (year, month)", () => {
-    const plans = [plan(2026, 8, 2000, 500)];
+  it("resolves the monthly target directly from the Ethiopian plan for that (year, month)", () => {
+    // 2026-08-09 Gregorian is Ethiopian Year 2018, Month 12 (Nehase)
+    const plans = [plan(2018, 12, 2000, 500)];
     const metrics = calculatePeriodMetrics([], [cost("2026-08-02", 2500)], plans, "monthly", referenceDate);
 
     expect(metrics.targetCostLimit).toBe(2000);
@@ -65,20 +66,22 @@ describe("calculatePeriodMetrics", () => {
   });
 
   it("pro-rates the monthly plan for a daily view", () => {
-    const plans = [plan(2026, 8, 3100, 310)]; // August 2026 has 31 days -> 100/day, 10/day
+    // 2026-08-09 Gregorian -> Ethiopian Year 2018, Month 12 (Nehase: 30 days)
+    const plans = [plan(2018, 12, 3000, 300)]; // 3000/30 = 100/day, 300/30 = 10/day
     const metrics = calculatePeriodMetrics([], [], plans, "daily", referenceDate);
     expect(metrics.targetCostLimit).toBeCloseTo(100);
     expect(metrics.targetSavingsGoal).toBeCloseTo(10);
   });
 
   it("pro-rates the monthly plan for a weekly view (daily rate * 7)", () => {
-    const plans = [plan(2026, 8, 3100, 310)];
+    // Week start for 2026-08-09 is 2026-08-03 (Monday), which falls in Ethiopian Month 11 (Hamle)
+    const plans = [plan(2018, 11, 3000, 300)];
     const metrics = calculatePeriodMetrics([], [], plans, "weekly", referenceDate);
     expect(metrics.targetCostLimit).toBeCloseTo(100 * 7);
   });
 
-  it("sums every plan in the year for a yearly view", () => {
-    const plans = [plan(2026, 1, 1000, 100), plan(2026, 2, 2000, 200), plan(2025, 12, 999, 99)];
+  it("sums every plan in the Ethiopian year for a yearly view", () => {
+    const plans = [plan(2018, 1, 1000, 100), plan(2018, 2, 2000, 200), plan(2017, 12, 999, 99)];
     const metrics = calculatePeriodMetrics([], [], plans, "yearly", referenceDate);
     expect(metrics.targetCostLimit).toBe(3000);
     expect(metrics.targetSavingsGoal).toBe(300);

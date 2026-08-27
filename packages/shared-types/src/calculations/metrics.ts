@@ -2,6 +2,7 @@ import { getDaysInMonth } from "date-fns";
 import { getPeriodRange, type TimeFrame, type PeriodRange } from "./period";
 import { sumIncome, sumCosts, type DateRange } from "./aggregate";
 import type { IncomeRow, CostRow, PlanRow } from "../db";
+import { getEthiopianDate, getDaysInEthiopianMonth } from "../ethiopian-calendar";
 
 export interface PeriodMetrics {
   timeframe: TimeFrame;
@@ -47,14 +48,11 @@ interface ResolvedTarget {
 }
 
 /**
- * Plans are monthly-only, so daily/weekly/yearly views need a documented
- * rule for "what's the target for this period":
- *  - monthly: the plan for that exact (year, month), if one exists.
- *  - daily/weekly: the monthly plan covering the period's start date,
- *    pro-rated by (limit / daysInMonth) * (1 for daily, 7 for weekly).
- *  - yearly: the sum of every monthly plan that falls within that year
- *    (partial coverage is summed as-is; `null` only if the year has zero
- *    plans at all).
+ * Plans are monthly-only based on the Ethiopian calendar (13 months).
+ *  - monthly: the Ethiopian plan for that exact (ethYear, ethMonth), if one exists.
+ *  - daily/weekly: the Ethiopian monthly plan covering period's start date,
+ *    pro-rated by (limit / daysInEthiopianMonth) * (1 for daily, 7 for weekly).
+ *  - yearly: the sum of every Ethiopian monthly plan that falls within that Ethiopian year.
  */
 function resolveTarget(
   plans: readonly PlanRow[],
@@ -63,7 +61,8 @@ function resolveTarget(
   referenceDate: Date,
 ): ResolvedTarget {
   if (timeframe === "monthly") {
-    const plan = findPlanForMonth(plans, referenceDate.getFullYear(), referenceDate.getMonth() + 1);
+    const eth = getEthiopianDate(referenceDate);
+    const plan = findPlanForMonth(plans, eth.year, eth.month);
     return plan
       ? { targetCostLimit: Number(plan.target_cost_limit), targetSavingsGoal: Number(plan.target_savings_goal) }
       : { targetCostLimit: null, targetSavingsGoal: null };
@@ -71,9 +70,10 @@ function resolveTarget(
 
   if (timeframe === "daily" || timeframe === "weekly") {
     const anchor = range.start;
-    const plan = findPlanForMonth(plans, anchor.getFullYear(), anchor.getMonth() + 1);
+    const eth = getEthiopianDate(anchor);
+    const plan = findPlanForMonth(plans, eth.year, eth.month);
     if (!plan) return { targetCostLimit: null, targetSavingsGoal: null };
-    const daysInMonth = getDaysInMonth(anchor);
+    const daysInMonth = getDaysInEthiopianMonth(eth.year, eth.month);
     const multiplier = timeframe === "daily" ? 1 : 7;
     return {
       targetCostLimit: (Number(plan.target_cost_limit) / daysInMonth) * multiplier,
@@ -82,7 +82,8 @@ function resolveTarget(
   }
 
   // yearly
-  const plansThisYear = plans.filter((p) => p.year === referenceDate.getFullYear());
+  const ethRef = getEthiopianDate(referenceDate);
+  const plansThisYear = plans.filter((p) => p.year === ethRef.year);
   if (plansThisYear.length === 0) return { targetCostLimit: null, targetSavingsGoal: null };
   return {
     targetCostLimit: plansThisYear.reduce((sum, p) => sum + Number(p.target_cost_limit), 0),

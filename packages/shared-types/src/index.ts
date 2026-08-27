@@ -4,4 +4,6 @@ export * from "./schemas";
 export * from "./calculations";
 export * from "./db";
 export * from "./dto";
+export * from "./ethiopian-calendar";
 export type { Database, Json } from "./database.types";
+

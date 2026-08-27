@@ -45,9 +45,10 @@ describe("buildTrendSeries", () => {
   });
 
   it("attaches the owning month's plan target_cost_limit to each bucket, unprorated", () => {
-    const plans = [plan(2026, 8, 3000)];
+    // August 1, 2026 (monthly bucket index 7) corresponds to Ethiopian Year 2018, Month 11 (Hamle)
+    const plans = [plan(2018, 11, 3000)];
     const series = buildTrendSeries(incomes, [], plans, "monthly", referenceDate);
-    expect(series.at(7)?.targetCostLimit).toBe(3000); // index 7 = August
+    expect(series.at(7)?.targetCostLimit).toBe(3000); // index 7 = August (Hamle 2018)
     expect(series.at(0)?.targetCostLimit).toBeNull(); // January has no plan
   });
 });

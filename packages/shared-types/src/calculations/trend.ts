@@ -17,6 +17,7 @@ import type { TimeFrame } from "./period";
 import { WEEK_STARTS_ON } from "./period";
 import { parseISOCached } from "./aggregate";
 import type { IncomeRow, CostRow, PlanRow } from "../db";
+import { getEthiopianDate } from "../ethiopian-calendar";
 
 export interface TrendPoint {
   bucketLabel: string;
@@ -155,8 +156,10 @@ export function buildTrendSeries(
     }
   }
 
-  const planForMonth = (start: Date): PlanRow | undefined =>
-    plans.find((p) => p.year === start.getFullYear() && p.month === start.getMonth() + 1);
+  const planForMonth = (start: Date): PlanRow | undefined => {
+    const eth = getEthiopianDate(start);
+    return plans.find((p) => p.year === eth.year && p.month === eth.month);
+  };
 
   let cumulativeCost = 0;
   return bucketSums.map((bucket) => {

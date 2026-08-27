@@ -1,17 +1,14 @@
 import Link from "next/link";
 import { Plus, Edit2, ShieldAlert, Target } from "lucide-react";
-import type { PlanRow } from "@mc-tracker/shared-types";
+import { type PlanRow, ETHIOPIAN_MONTHS, getEthiopianDate } from "@mc-tracker/shared-types";
 import { formatCurrency } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
-
 export function PlanMonthCard({ month, year, plan }: { month: number; year: number; plan?: PlanRow }) {
-  const isCurrentMonth = new Date().getFullYear() === year && new Date().getMonth() + 1 === month;
+  const currentEth = getEthiopianDate(new Date());
+  const isCurrentMonth = currentEth.year === year && currentEth.month === month;
+  const monthInfo = ETHIOPIAN_MONTHS[month - 1];
 
   return (
     <Card className={`relative flex flex-col justify-between border ${
@@ -26,7 +23,7 @@ export function PlanMonthCard({ month, year, plan }: { month: number; year: numb
       <div>
         <CardHeader className="pb-3">
           <CardTitle className="text-foreground flex items-center justify-between font-semibold text-base tracking-tight">
-            <span>{MONTH_NAMES[month - 1]}</span>
+            <span>{monthInfo ? monthInfo.label : `Month ${month}`}</span>
           </CardTitle>
         </CardHeader>
 
