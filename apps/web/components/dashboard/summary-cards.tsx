@@ -39,7 +39,7 @@ export function SummaryCards({ metrics }: { metrics: PeriodMetrics }) {
       <Card className="border-border">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">Total Income</CardTitle>
-          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-500">
             <PiggyBank className="h-4 w-4" />
           </span>
         </CardHeader>
@@ -58,7 +58,7 @@ export function SummaryCards({ metrics }: { metrics: PeriodMetrics }) {
       <Card className="border-border">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">Total Costs</CardTitle>
-          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400">
+          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-500">
             <Receipt className="h-4 w-4" />
           </span>
         </CardHeader>
@@ -77,7 +77,7 @@ export function SummaryCards({ metrics }: { metrics: PeriodMetrics }) {
       <Card className="border-border">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">Net Profit / Loss</CardTitle>
-          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400">
+          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-500">
             <Scale className="h-4 w-4" />
           </span>
         </CardHeader>
@@ -100,7 +100,7 @@ export function SummaryCards({ metrics }: { metrics: PeriodMetrics }) {
       <Card className="border-border">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">Budget Variance</CardTitle>
-          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400">
+          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-500">
             <Target className="h-4 w-4" />
           </span>
         </CardHeader>

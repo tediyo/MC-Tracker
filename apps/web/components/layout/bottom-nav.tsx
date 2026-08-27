@@ -33,7 +33,7 @@ export function BottomNav({ userEmail }: BottomNavProps) {
                 active ? "text-primary font-semibold" : "text-muted-foreground hover:text-foreground",
               )}
             >
-              <Icon className="h-4 w-4" />
+              <Icon className="h-4 w-4 text-emerald-500" />
               <span className="text-[10px] tracking-tight mt-0.5">{label}</span>
             </Link>
           );

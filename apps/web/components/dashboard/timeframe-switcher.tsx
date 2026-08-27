@@ -39,7 +39,7 @@ export function TimeframeSwitcher({
             className={cn(
               "rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all duration-200",
               timeframe === opt.value
-                ? "bg-primary text-primary-foreground shadow-sm scale-100"
+                ? "bg-emerald-500 text-white shadow-sm scale-100"
                 : "text-muted-foreground hover:text-foreground hover:bg-background/60",
             )}
           >
@@ -57,11 +57,11 @@ export function TimeframeSwitcher({
           aria-label="Previous period"
           className="h-8 w-8 rounded-lg border-border/60 hover:bg-accent"
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-4 w-4 text-emerald-500" />
         </Button>
 
         <div className="flex items-center gap-2 rounded-lg border border-border/60 bg-card px-3.5 py-1 text-xs font-semibold text-foreground shadow-sm">
-          <Calendar className="h-3.5 w-3.5 text-primary" />
+          <Calendar className="h-3.5 w-3.5 text-emerald-500" />
           <span className="min-w-32 text-center capitalize">{periodLabel}</span>
         </div>
 
@@ -72,7 +72,7 @@ export function TimeframeSwitcher({
           aria-label="Next period"
           className="h-8 w-8 rounded-lg border-border/60 hover:bg-accent"
         >
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-4 w-4 text-emerald-500" />
         </Button>
       </div>
     </div>

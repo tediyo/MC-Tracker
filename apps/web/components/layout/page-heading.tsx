@@ -18,8 +18,8 @@ export function PageHeading() {
   return (
     <div className="flex items-center gap-2">
       {Icon && (
-        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
-          <Icon className="h-4 w-4" />
+        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-500">
+          <Icon className="h-4 w-4 text-emerald-500" />
         </span>
       )}
       <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">

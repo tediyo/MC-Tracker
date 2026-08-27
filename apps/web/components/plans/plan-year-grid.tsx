@@ -15,24 +15,24 @@ export function PlanYearGrid({ year, plans }: { year: number; plans: PlanRow[] }
         <div className="flex items-center gap-2">
           <Button asChild variant="outline" size="icon" className="h-9 w-9 rounded-xl border-border/60">
             <Link href={`/plans?year=${year - 1}`} aria-label="Previous year">
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4 text-emerald-500" />
             </Link>
           </Button>
 
           <div className="flex items-center gap-2 rounded-xl border border-border/60 bg-card px-4 py-1.5 font-bold text-lg text-foreground shadow-sm">
-            <Calendar className="h-4 w-4 text-primary" />
+            <Calendar className="h-4 w-4 text-emerald-500" />
             <span>{year} E.C. / ዓ.ም.</span>
           </div>
 
           <Button asChild variant="outline" size="icon" className="h-9 w-9 rounded-xl border-border/60">
             <Link href={`/plans?year=${year + 1}`} aria-label="Next year">
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4 text-emerald-500" />
             </Link>
           </Button>
         </div>
 
         <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-          <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-1 text-primary">
+          <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2.5 py-1 text-emerald-600 dark:text-emerald-400">
             {configuredCount} of 13 months planned
           </span>
         </div>

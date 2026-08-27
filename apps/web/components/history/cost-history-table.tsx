@@ -106,7 +106,7 @@ export function CostHistoryTable({ userId }: { userId: string }) {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-1 flex-wrap items-center gap-2">
           <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-emerald-500" />
             <Input
               placeholder="Search expenses..."
               value={search}
@@ -115,7 +115,7 @@ export function CostHistoryTable({ userId }: { userId: string }) {
             />
           </div>
           <div className="flex items-center gap-1.5 rounded-xl border border-border/60 bg-card px-3 py-1.5 text-xs text-muted-foreground">
-            <Filter className="h-3.5 w-3.5" />
+            <Filter className="h-3.5 w-3.5 text-emerald-500" />
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
@@ -186,11 +186,11 @@ export function CostHistoryTable({ userId }: { userId: string }) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground"
+                          className="h-8 w-8 rounded-lg text-emerald-500 hover:text-emerald-600 hover:bg-emerald-500/10"
                           onClick={() => openEdit(row)}
                           aria-label="Edit"
                         >
-                          <Pencil className="h-3.5 w-3.5" />
+                          <Pencil className="h-3.5 w-3.5 text-emerald-500" />
                         </Button>
                         <Button
                           variant="ghost"

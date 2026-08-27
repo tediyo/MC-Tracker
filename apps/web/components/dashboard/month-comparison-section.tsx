@@ -129,15 +129,15 @@ export function MonthComparisonSection({ userId }: MonthComparisonSectionProps) 
       <CardHeader className="cursor-pointer select-none pb-4" onClick={() => setIsOpen(!isOpen)}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary shadow-sm">
-              <GitCompare className="h-5 w-5" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500 shadow-sm">
+              <GitCompare className="h-5 w-5 text-emerald-500" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <CardTitle className="text-base font-bold text-foreground sm:text-lg">
                   Period Comparison Analytics
                 </CardTitle>
-                <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-semibold text-primary capitalize">
+                <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 capitalize">
                   {mode} View
                 </span>
               </div>
@@ -148,11 +148,11 @@ export function MonthComparisonSection({ userId }: MonthComparisonSectionProps) 
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="hidden text-xs font-semibold text-primary sm:inline-block">
+            <span className="hidden text-xs font-semibold text-emerald-600 dark:text-emerald-400 sm:inline-block">
               {isOpen ? "Collapse" : "Expand Comparison"}
             </span>
             <Button variant="outline" size="icon" className="h-9 w-9 rounded-xl border-border/60">
-              {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              {isOpen ? <ChevronUp className="h-4 w-4 text-emerald-500" /> : <ChevronDown className="h-4 w-4 text-emerald-500" />}
             </Button>
           </div>
         </div>
@@ -170,7 +170,7 @@ export function MonthComparisonSection({ userId }: MonthComparisonSectionProps) 
                 onClick={() => setMode("monthly")}
                 className={cn(
                   "rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
-                  mode === "monthly" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
+                  mode === "monthly" ? "bg-emerald-500 text-white shadow-sm" : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 Monthly
@@ -180,7 +180,7 @@ export function MonthComparisonSection({ userId }: MonthComparisonSectionProps) 
                 onClick={() => setMode("weekly")}
                 className={cn(
                   "rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
-                  mode === "weekly" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
+                  mode === "weekly" ? "bg-emerald-500 text-white shadow-sm" : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 Weekly
@@ -190,7 +190,7 @@ export function MonthComparisonSection({ userId }: MonthComparisonSectionProps) 
                 onClick={() => setMode("yearly")}
                 className={cn(
                   "rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
-                  mode === "yearly" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
+                  mode === "yearly" ? "bg-emerald-500 text-white shadow-sm" : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 Yearly
@@ -235,7 +235,7 @@ export function MonthComparisonSection({ userId }: MonthComparisonSectionProps) 
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-center rounded-full bg-primary/10 px-2 py-1 text-xs font-black text-primary uppercase">
+                  <div className="flex items-center justify-center rounded-full bg-emerald-500/10 px-2 py-1 text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase">
                     VS
                   </div>
 
@@ -325,7 +325,7 @@ export function MonthComparisonSection({ userId }: MonthComparisonSectionProps) 
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-center rounded-full bg-primary/10 px-2 py-1 text-xs font-black text-primary uppercase">
+                  <div className="flex items-center justify-center rounded-full bg-emerald-500/10 px-2 py-1 text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase">
                     VS
                   </div>
 
@@ -369,7 +369,7 @@ export function MonthComparisonSection({ userId }: MonthComparisonSectionProps) 
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-center rounded-full bg-primary/10 px-2 py-1 text-xs font-black text-primary uppercase">
+                  <div className="flex items-center justify-center rounded-full bg-emerald-500/10 px-2 py-1 text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase">
                     VS
                   </div>
 
@@ -410,7 +410,7 @@ export function MonthComparisonSection({ userId }: MonthComparisonSectionProps) 
                     <span className="text-xs text-muted-foreground tabular-nums truncate">
                       {formatCurrency(data.summaryA.totalIncome)}
                     </span>
-                    <ArrowRight className="h-3 w-3 shrink-0 text-muted-foreground" />
+                    <ArrowRight className="h-3 w-3 shrink-0 text-emerald-500" />
                     <span className="text-sm font-bold text-foreground tabular-nums truncate">
                       {formatCurrency(data.summaryB.totalIncome)}
                     </span>
@@ -423,7 +423,7 @@ export function MonthComparisonSection({ userId }: MonthComparisonSectionProps) 
                         data.delta.income >= 0 ? "text-emerald-500" : "text-rose-500",
                       )}
                     >
-                      {data.delta.income >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                      {data.delta.income >= 0 ? <TrendingUp className="h-3 w-3 text-emerald-500" /> : <TrendingDown className="h-3 w-3 text-rose-500" />}
                       {data.delta.income >= 0 ? "+" : ""}
                       {formatCurrency(data.delta.income)}
                       {data.delta.incomePercent !== null && ` (${data.delta.incomePercent > 0 ? "+" : ""}${data.delta.incomePercent.toFixed(1)}%)`}
@@ -435,13 +435,13 @@ export function MonthComparisonSection({ userId }: MonthComparisonSectionProps) 
                 <div className="flex flex-col justify-between rounded-xl border border-border/50 bg-card p-3.5 shadow-sm">
                   <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
                     <span>Expense Comparison</span>
-                    <ShieldAlert className="h-4 w-4 text-amber-500" />
+                    <ShieldAlert className="h-4 w-4 text-emerald-500" />
                   </div>
                   <div className="mt-2 flex items-baseline justify-between gap-1">
                     <span className="text-xs text-muted-foreground tabular-nums truncate">
                       {formatCurrency(data.summaryA.totalCosts)}
                     </span>
-                    <ArrowRight className="h-3 w-3 shrink-0 text-muted-foreground" />
+                    <ArrowRight className="h-3 w-3 shrink-0 text-emerald-500" />
                     <span className="text-sm font-bold text-foreground tabular-nums truncate">
                       {formatCurrency(data.summaryB.totalCosts)}
                     </span>
@@ -454,7 +454,7 @@ export function MonthComparisonSection({ userId }: MonthComparisonSectionProps) 
                         data.delta.costs <= 0 ? "text-emerald-500" : "text-rose-500",
                       )}
                     >
-                      {data.delta.costs <= 0 ? <TrendingDown className="h-3 w-3" /> : <TrendingUp className="h-3 w-3" />}
+                      {data.delta.costs <= 0 ? <TrendingDown className="h-3 w-3 text-emerald-500" /> : <TrendingUp className="h-3 w-3 text-rose-500" />}
                       {data.delta.costs >= 0 ? "+" : ""}
                       {formatCurrency(data.delta.costs)}
                       {data.delta.costsPercent !== null && ` (${data.delta.costsPercent > 0 ? "+" : ""}${data.delta.costsPercent.toFixed(1)}%)`}
@@ -466,13 +466,13 @@ export function MonthComparisonSection({ userId }: MonthComparisonSectionProps) 
                 <div className="flex flex-col justify-between rounded-xl border border-border/50 bg-card p-3.5 shadow-sm">
                   <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
                     <span>Net Savings</span>
-                    <TrendingUp className="h-4 w-4 text-primary" />
+                    <TrendingUp className="h-4 w-4 text-emerald-500" />
                   </div>
                   <div className="mt-2 flex items-baseline justify-between gap-1">
                     <span className="text-xs text-muted-foreground tabular-nums truncate">
                       {formatCurrency(data.summaryA.netProfitLoss)}
                     </span>
-                    <ArrowRight className="h-3 w-3 shrink-0 text-muted-foreground" />
+                    <ArrowRight className="h-3 w-3 shrink-0 text-emerald-500" />
                     <span className="text-sm font-bold text-foreground tabular-nums truncate">
                       {formatCurrency(data.summaryB.netProfitLoss)}
                     </span>
@@ -485,7 +485,7 @@ export function MonthComparisonSection({ userId }: MonthComparisonSectionProps) 
                         data.delta.net >= 0 ? "text-emerald-500" : "text-rose-500",
                       )}
                     >
-                      {data.delta.net >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+                      {data.delta.net >= 0 ? <TrendingUp className="h-3 w-3 text-emerald-500" /> : <TrendingDown className="h-3 w-3 text-rose-500" />}
                       {data.delta.net >= 0 ? "+" : ""}
                       {formatCurrency(data.delta.net)}
                     </span>
@@ -502,7 +502,7 @@ export function MonthComparisonSection({ userId }: MonthComparisonSectionProps) 
                     <span className="text-xs text-muted-foreground tabular-nums truncate">
                       {data.summaryA.targetCostLimit !== null ? formatCurrency(data.summaryA.targetCostLimit) : "No Plan"}
                     </span>
-                    <ArrowRight className="h-3 w-3 shrink-0 text-muted-foreground" />
+                    <ArrowRight className="h-3 w-3 shrink-0 text-emerald-500" />
                     <span className="text-sm font-bold text-foreground tabular-nums truncate">
                       {data.summaryB.targetCostLimit !== null ? formatCurrency(data.summaryB.targetCostLimit) : "No Plan"}
                     </span>
@@ -525,7 +525,7 @@ export function MonthComparisonSection({ userId }: MonthComparisonSectionProps) 
                 {/* Financial Overview Grouped Bar Chart */}
                 <div className="flex flex-col gap-2 rounded-xl border border-border/50 bg-card/60 p-4">
                   <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-primary" /> Overall Financial Comparison
+                    <DollarSign className="h-4 w-4 text-emerald-500" /> Overall Financial Comparison
                   </h3>
                   <ResponsiveContainer width="100%" height={280}>
                     <BarChart data={overviewChartData} margin={{ top: 12, right: 12, left: 0, bottom: 4 }}>
@@ -557,7 +557,7 @@ export function MonthComparisonSection({ userId }: MonthComparisonSectionProps) 
                 {/* Expense Category Comparison Grouped Bar Chart */}
                 <div className="flex flex-col gap-2 rounded-xl border border-border/50 bg-card/60 p-4">
                   <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    <PieChart className="h-4 w-4 text-amber-500" /> Expense Categories Comparison
+                    <PieChart className="h-4 w-4 text-emerald-500" /> Expense Categories Comparison
                   </h3>
                   <ResponsiveContainer width="100%" height={280}>
                     <BarChart data={categoryChartData} margin={{ top: 12, right: 12, left: 0, bottom: 4 }}>

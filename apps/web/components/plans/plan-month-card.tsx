@@ -32,7 +32,7 @@ export function PlanMonthCard({ month, year, plan }: { month: number; year: numb
             <div className="space-y-2">
               <div className="flex items-center justify-between rounded-md bg-muted/40 p-2 text-xs">
                 <span className="text-muted-foreground font-medium flex items-center gap-1.5">
-                  <ShieldAlert className="h-3.5 w-3.5 text-amber-500" /> Cost Limit
+                  <ShieldAlert className="h-3.5 w-3.5 text-emerald-500" /> Cost Limit
                 </span>
                 <span className="font-semibold text-foreground tabular-nums">
                   {formatCurrency(Number(plan.target_cost_limit))}
@@ -60,14 +60,14 @@ export function PlanMonthCard({ month, year, plan }: { month: number; year: numb
         {plan ? (
           <Button asChild variant="outline" size="sm" className="w-full gap-2 text-xs font-medium">
             <Link href={`/plans/${plan.id}/edit`} prefetch={true}>
-              <Edit2 className="h-3.5 w-3.5 text-muted-foreground" />
+              <Edit2 className="h-3.5 w-3.5 text-emerald-500" />
               Edit Budget Plan
             </Link>
           </Button>
         ) : (
           <Button asChild variant="default" size="sm" className="w-full gap-2 text-xs font-medium">
             <Link href={`/plans/new?month=${month}&year=${year}`} prefetch={true}>
-              <Plus className="h-3.5 w-3.5" />
+              <Plus className="h-3.5 w-3.5 text-white" />
               Create Plan
             </Link>
           </Button>
