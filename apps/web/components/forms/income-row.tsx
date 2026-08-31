@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+import { EthiopianDatePicker } from "@/components/ui/ethiopian-date-picker";
+
 export function IncomeRow({
   form,
   index,
@@ -33,8 +35,18 @@ export function IncomeRow({
         {rowErrors?.amount ? <p className="text-xs text-destructive">{rowErrors.amount.message}</p> : null}
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor={`rows.${index}.date`}>Date</Label>
-        <Input id={`rows.${index}.date`} type="date" className="rounded-xl" {...register(`rows.${index}.date`)} />
+        <Controller
+          control={control}
+          name={`rows.${index}.date`}
+          render={({ field }) => (
+            <EthiopianDatePicker
+              label="Date"
+              value={field.value}
+              onChange={field.onChange}
+              required
+            />
+          )}
+        />
         {rowErrors?.date ? <p className="text-xs text-destructive">{rowErrors.date.message}</p> : null}
       </div>
       <div className="flex flex-col gap-1.5">

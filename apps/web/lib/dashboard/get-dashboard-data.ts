@@ -10,6 +10,7 @@ import {
   type TrendPoint,
   type Database,
   type CostRow,
+  type IncomeRow,
   type CostCategory,
 } from "@mc-tracker/shared-types";
 import { fetchIncomesInRange } from "@/lib/data/incomes";
@@ -22,6 +23,7 @@ export interface DashboardData {
   costsByCategory: Record<CostCategory, number>;
   /** Cost rows within the current (to-date) period - used by the subcategory drill-down pie on category click. */
   currentPeriodCosts: CostRow[];
+  currentPeriodIncomes: IncomeRow[];
 }
 
 function toIsoDate(date: Date): string {
@@ -84,6 +86,10 @@ export async function getDashboardData(
   const currentRange = { start: metrics.range.start, end: referenceDate };
   const costsByCategory = groupCostsByCategory(costs, currentRange);
   const currentPeriodCosts = filterCostsInRange(costs, currentRange);
+  const currentPeriodIncomes = incomes.filter((i) => {
+    const d = new Date(i.date);
+    return d >= currentRange.start && d <= currentRange.end;
+  });
 
-  return { metrics, trend, costsByCategory, currentPeriodCosts };
+  return { metrics, trend, costsByCategory, currentPeriodCosts, currentPeriodIncomes };
 }

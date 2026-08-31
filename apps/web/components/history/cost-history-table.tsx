@@ -26,6 +26,7 @@ export function CostHistoryTable({ userId }: { userId: string }) {
   const supabase = React.useMemo(() => createClient(), []);
   const [editing, setEditing] = React.useState<CostRow | null>(null);
   const [editCategory, setEditCategory] = React.useState<CostCategory>("basic");
+  const [editSubcategory, setEditSubcategory] = React.useState<CostSubcategory>("other");
   const [search, setSearch] = React.useState("");
   const [categoryFilter, setCategoryFilter] = React.useState<string>("all");
 
@@ -82,10 +83,6 @@ export function CostHistoryTable({ userId }: { userId: string }) {
     onError: (error) => toast.error(error instanceof Error ? error.message : "Failed to update"),
   });
 
-  const [editing, setEditing] = React.useState<CostRow | null>(null);
-  const [editCategory, setEditCategory] = React.useState<CostCategory>("basic");
-  const [editSubcategory, setEditSubcategory] = React.useState<CostSubcategory>("other");
-
   function openEdit(row: CostRow) {
     setEditCategory(row.category);
     setEditSubcategory(row.subcategory);
@@ -107,12 +104,12 @@ export function CostHistoryTable({ userId }: { userId: string }) {
         <div className="flex flex-1 flex-wrap items-center gap-2">
           <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-emerald-500" />
-            <Input
+            {/* <Input
               placeholder="Search expenses..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9 text-xs rounded-xl"
-            />
+            /> */}
           </div>
           <div className="flex items-center gap-1.5 rounded-xl border border-border/60 bg-card px-3 py-1.5 text-xs text-muted-foreground">
             <Filter className="h-3.5 w-3.5 text-emerald-500" />
@@ -249,8 +246,8 @@ export function CostHistoryTable({ userId }: { userId: string }) {
                       const nextCat = e.target.value as CostCategory;
                       setEditCategory(nextCat);
                       const nextSubs = CATEGORY_SUBCATEGORY_MAP[nextCat];
-                      if (nextSubs && nextSubs.length > 0) {
-                        setEditSubcategory(nextSubs[0]);
+                      if (nextSubs && nextSubs[0]) {
+                        setEditSubcategory(nextSubs[0] as CostSubcategory);
                       }
                     }}
                     className="h-10 rounded-xl border border-input bg-card px-3 text-sm"

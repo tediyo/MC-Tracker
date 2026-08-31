@@ -11,6 +11,8 @@ import { CostCategoryPieChart } from "@/components/dashboard/cost-category-pie-c
 import { CostSubcategoryPieChart } from "@/components/dashboard/cost-subcategory-pie-chart";
 import { IncomeExpenseTrendChart } from "@/components/dashboard/income-expense-trend-chart";
 import { MonthComparisonSection } from "@/components/dashboard/month-comparison-section";
+import { PdfReportButton } from "@/components/dashboard/pdf-report-button";
+import { RecentTransactionsWidget } from "@/components/dashboard/recent-transactions-widget";
 import { cn } from "@/lib/utils";
 
 function stepDate(timeframe: TimeFrame, date: Date, direction: 1 | -1): Date {
@@ -44,6 +46,7 @@ export function DashboardClient({ userId, initialTimeframe, initialReferenceDate
   const [timeframe, setTimeframe] = React.useState<TimeFrame>(initialTimeframe);
   const [referenceDate, setReferenceDate] = React.useState<Date>(initialReferenceDate);
   const [selectedCategory, setSelectedCategory] = React.useState<CostCategory | null>(null);
+  const [showBalances, setShowBalances] = React.useState<boolean>(true);
 
   const isDefaultKey =
     timeframe === initialTimeframe && referenceDate.getTime() === initialReferenceDate.getTime();
@@ -65,14 +68,23 @@ export function DashboardClient({ userId, initialTimeframe, initialReferenceDate
 
   return (
     <div className={cn("viz-root flex flex-col gap-6 transition-opacity", isFetching && "opacity-70")}>
-      <TimeframeSwitcher
-        timeframe={timeframe}
-        onTimeframeChange={handleTimeframeChange}
-        periodLabel={data.metrics.range.label}
-        onPrevious={() => setReferenceDate((d) => stepDate(timeframe, d, -1))}
-        onNext={() => setReferenceDate((d) => stepDate(timeframe, d, 1))}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <TimeframeSwitcher
+          timeframe={timeframe}
+          onTimeframeChange={handleTimeframeChange}
+          periodLabel={data.metrics.range.label}
+          onPrevious={() => setReferenceDate((d) => stepDate(timeframe, d, -1))}
+          onNext={() => setReferenceDate((d) => stepDate(timeframe, d, 1))}
+        />
+        <PdfReportButton data={data} />
+      </div>
+
+      <SummaryCards
+        metrics={data.metrics}
+        showBalances={showBalances}
+        onToggleShowBalances={() => setShowBalances(!showBalances)}
       />
-      <SummaryCards metrics={data.metrics} />
+
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <CostCategoryPieChart
           data={data.costsByCategory}
@@ -85,6 +97,13 @@ export function DashboardClient({ userId, initialTimeframe, initialReferenceDate
           range={{ start: data.metrics.range.start, end: referenceDate }}
         />
       </div>
+
+      <RecentTransactionsWidget
+        costs={data.currentPeriodCosts || []}
+        incomes={data.currentPeriodIncomes || []}
+        showBalances={showBalances}
+      />
+
       <IncomeExpenseTrendChart data={data.trend} />
       <MonthComparisonSection userId={userId} />
     </div>

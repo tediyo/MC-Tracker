@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
-import type { TimeFrame } from "@mc-tracker/shared-types";
+import { getEthiopianDate, ETHIOPIAN_MONTHS, type TimeFrame } from "@mc-tracker/shared-types";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +27,9 @@ export function TimeframeSwitcher({
   onPrevious,
   onNext,
 }: TimeframeSwitcherProps) {
+  const ethToday = getEthiopianDate(new Date());
+  const ethMonth = ETHIOPIAN_MONTHS.find((m) => m.number === ethToday.month);
+
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between bg-card/50 p-2.5 rounded-2xl border border-border/50 shadow-sm">
       {/* Segmented Pills */}
@@ -60,9 +63,14 @@ export function TimeframeSwitcher({
           <ChevronLeft className="h-4 w-4 text-emerald-500" />
         </Button>
 
-        <div className="flex items-center gap-2 rounded-lg border border-border/60 bg-card px-3.5 py-1 text-xs font-semibold text-foreground shadow-sm">
-          <Calendar className="h-3.5 w-3.5 text-emerald-500" />
-          <span className="min-w-32 text-center capitalize">{periodLabel}</span>
+        <div className="flex flex-col items-center justify-center rounded-lg border border-border/60 bg-card px-3.5 py-1 text-xs font-semibold text-foreground shadow-sm">
+          <div className="flex items-center gap-1.5">
+            <Calendar className="h-3.5 w-3.5 text-emerald-500" />
+            <span className="min-w-28 text-center capitalize">{periodLabel}</span>
+          </div>
+          <span className="text-[10px] font-normal text-muted-foreground">
+            {ethMonth?.nameEn} {ethToday.year} E.C.
+          </span>
         </div>
 
         <Button

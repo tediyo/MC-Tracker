@@ -91,6 +91,12 @@ body {
   font-feature-settings: "rlig" 1, "calt" 1;
 }
 
+/* Hide default browser password reveal icons (Edge / IE) */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none !important;
+}
+
 /* ---------------------------------------------------------------------
  * Chart tokens - validated palette from the `dataviz` skill
  * (references/palette.md). Scoped under `.viz-root`, which wraps the
