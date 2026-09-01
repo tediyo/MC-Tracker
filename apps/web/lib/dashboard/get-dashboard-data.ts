@@ -5,6 +5,9 @@ import {
   buildTrendSeries,
   groupCostsByCategory,
   filterCostsInRange,
+  filterIncomesInRange,
+  getPeriodRange,
+  capEnd,
   type TimeFrame,
   type PeriodMetrics,
   type TrendPoint,
@@ -67,8 +70,9 @@ export async function getDashboardData(
   timeframe: TimeFrame,
   referenceDate: Date,
 ): Promise<DashboardData> {
+  const periodRange = getPeriodRange(timeframe, referenceDate);
   const start = toIsoDate(fetchWindowStart(timeframe, referenceDate));
-  const end = toIsoDate(endOfDay(referenceDate));
+  const end = toIsoDate(endOfDay(periodRange.end));
 
   const [incomes, costs, plans] = await Promise.all([
     fetchIncomesInRange(supabase, userId, start, end),
@@ -83,13 +87,10 @@ export async function getDashboardData(
   // as local midnight consistently - not the native `new Date(dateOnly)`,
   // which parses as UTC and can misattribute a row's date near a server
   // timezone's midnight boundary).
-  const currentRange = { start: metrics.range.start, end: referenceDate };
+  const currentRange = capEnd(metrics.range, referenceDate);
   const costsByCategory = groupCostsByCategory(costs, currentRange);
   const currentPeriodCosts = filterCostsInRange(costs, currentRange);
-  const currentPeriodIncomes = incomes.filter((i) => {
-    const d = new Date(i.date);
-    return d >= currentRange.start && d <= currentRange.end;
-  });
+  const currentPeriodIncomes = filterIncomesInRange(incomes, currentRange);
 
   return { metrics, trend, costsByCategory, currentPeriodCosts, currentPeriodIncomes };
 }

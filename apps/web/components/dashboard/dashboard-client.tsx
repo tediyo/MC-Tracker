@@ -76,7 +76,7 @@ export function DashboardClient({ userId, initialTimeframe, initialReferenceDate
           onPrevious={() => setReferenceDate((d) => stepDate(timeframe, d, -1))}
           onNext={() => setReferenceDate((d) => stepDate(timeframe, d, 1))}
         />
-        <PdfReportButton data={data} />
+        <PdfReportButton data={data} showBalances={showBalances} timeframe={timeframe} />
       </div>
 
       <SummaryCards
