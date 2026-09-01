@@ -1,4 +1,4 @@
-import { LayoutDashboard, PiggyBank, Receipt, Target, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, PiggyBank, Receipt, Target, Settings, type LucideIcon } from "lucide-react";
 
 export interface NavItem {
   href: string;
@@ -14,4 +14,5 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/income", label: "Income", icon: PiggyBank },
   { href: "/costs", label: "Costs", icon: Receipt },
   { href: "/plans", label: "Plans", icon: Target },
+  { href: "/settings", label: "Settings", icon: Settings },
 ];
