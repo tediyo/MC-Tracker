@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 import { login, type ActionResult } from "@/lib/auth/actions";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +13,7 @@ const initialState: ActionResult = { error: null };
 
 export function LoginForm() {
   const [state, formAction] = useActionState(login, initialState);
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <Card>
@@ -31,7 +33,33 @@ export function LoginForm() {
                 Forgot password?
               </Link>
             </div>
-            <Input id="password" name="password" type="password" autoComplete="current-password" required />
+            <div className="relative flex items-center">
+              <Input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                className="pr-10"
+                required
+              />
+              <button
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowPassword((prev) => !prev);
+                }}
+                className="absolute right-0 top-0 h-full px-3 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-r-md flex items-center justify-center cursor-pointer z-10"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4 pointer-events-none" aria-hidden="true" />
+                ) : (
+                  <Eye className="h-4 w-4 pointer-events-none" aria-hidden="true" />
+                )}
+              </button>
+            </div>
           </div>
           {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
         </CardContent>

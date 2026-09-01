@@ -104,12 +104,12 @@ export function CostHistoryTable({ userId }: { userId: string }) {
         <div className="flex flex-1 flex-wrap items-center gap-2">
           <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-emerald-500" />
-            <Input
+            {/* <Input
               placeholder="Search expenses..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9 text-xs rounded-xl"
-            />
+            /> */}
           </div>
           <div className="flex items-center gap-1.5 rounded-xl border border-border/60 bg-card px-3 py-1.5 text-xs text-muted-foreground">
             <Filter className="h-3.5 w-3.5 text-emerald-500" />
@@ -246,9 +246,8 @@ export function CostHistoryTable({ userId }: { userId: string }) {
                       const nextCat = e.target.value as CostCategory;
                       setEditCategory(nextCat);
                       const nextSubs = CATEGORY_SUBCATEGORY_MAP[nextCat];
-                      const firstSub = nextSubs[0];
-                      if (firstSub) {
-                        setEditSubcategory(firstSub);
+                      if (nextSubs && nextSubs[0]) {
+                        setEditSubcategory(nextSubs[0] as CostSubcategory);
                       }
                     }}
                     className="h-10 rounded-xl border border-input bg-card px-3 text-sm"

@@ -5,11 +5,15 @@ import {
   buildTrendSeries,
   groupCostsByCategory,
   filterCostsInRange,
+  filterIncomesInRange,
+  getPeriodRange,
+  capEnd,
   type TimeFrame,
   type PeriodMetrics,
   type TrendPoint,
   type Database,
   type CostRow,
+  type IncomeRow,
   type CostCategory,
 } from "@mc-tracker/shared-types";
 import { fetchIncomesInRange } from "@/lib/data/incomes";
@@ -22,6 +26,7 @@ export interface DashboardData {
   costsByCategory: Record<CostCategory, number>;
   /** Cost rows within the current (to-date) period - used by the subcategory drill-down pie on category click. */
   currentPeriodCosts: CostRow[];
+  currentPeriodIncomes: IncomeRow[];
 }
 
 function toIsoDate(date: Date): string {
@@ -65,8 +70,9 @@ export async function getDashboardData(
   timeframe: TimeFrame,
   referenceDate: Date,
 ): Promise<DashboardData> {
+  const periodRange = getPeriodRange(timeframe, referenceDate);
   const start = toIsoDate(fetchWindowStart(timeframe, referenceDate));
-  const end = toIsoDate(endOfDay(referenceDate));
+  const end = toIsoDate(endOfDay(periodRange.end));
 
   const [incomes, costs, plans] = await Promise.all([
     fetchIncomesInRange(supabase, userId, start, end),
@@ -81,9 +87,10 @@ export async function getDashboardData(
   // as local midnight consistently - not the native `new Date(dateOnly)`,
   // which parses as UTC and can misattribute a row's date near a server
   // timezone's midnight boundary).
-  const currentRange = { start: metrics.range.start, end: referenceDate };
+  const currentRange = capEnd(metrics.range, referenceDate);
   const costsByCategory = groupCostsByCategory(costs, currentRange);
   const currentPeriodCosts = filterCostsInRange(costs, currentRange);
+  const currentPeriodIncomes = filterIncomesInRange(incomes, currentRange);
 
-  return { metrics, trend, costsByCategory, currentPeriodCosts };
+  return { metrics, trend, costsByCategory, currentPeriodCosts, currentPeriodIncomes };
 }

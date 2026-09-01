@@ -10,8 +10,8 @@ import {
 describe("ethiopian-calendar", () => {
   it("defines 13 Ethiopian months", () => {
     expect(ETHIOPIAN_MONTHS).toHaveLength(13);
-    expect(ETHIOPIAN_MONTHS[0].nameEn).toBe("Meskerem");
-    expect(ETHIOPIAN_MONTHS[12].nameEn).toBe("Pagume");
+    expect(ETHIOPIAN_MONTHS[0]?.nameEn).toBe("Meskerem");
+    expect(ETHIOPIAN_MONTHS[12]?.nameEn).toBe("Pagume");
   });
 
   it("calculates leap years correctly", () => {

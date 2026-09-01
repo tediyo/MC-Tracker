@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -15,8 +15,7 @@ import { insertCostBatch } from "@/lib/data/costs";
 import { todayIsoDate } from "@/lib/utils";
 import { RowArrayList } from "@/components/forms/row-array-list";
 import { CostRow } from "@/components/forms/cost-row";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { EthiopianDatePicker } from "@/components/ui/ethiopian-date-picker";
 import { Button } from "@/components/ui/button";
 
 function newRow(): CostRowInput {
@@ -47,9 +46,19 @@ export function CostEntryForm({ userId }: { userId: string }) {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-      <div className="flex max-w-xs flex-col gap-1">
-        <Label htmlFor="date">Date (applies to every row below)</Label>
-        <Input id="date" type="date" {...form.register("date")} />
+      <div className="flex max-w-sm flex-col gap-1">
+        <Controller
+          control={form.control}
+          name="date"
+          render={({ field }) => (
+            <EthiopianDatePicker
+              label="Date (applies to every row below)"
+              value={field.value}
+              onChange={field.onChange}
+              required
+            />
+          )}
+        />
         {form.formState.errors.date ? (
           <p className="text-xs text-destructive">{form.formState.errors.date.message}</p>
         ) : null}

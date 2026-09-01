@@ -73,7 +73,7 @@ export function getEthiopianDate(gregorianInput: Date | string): EthiopianDate {
   let gd: number;
 
   if (typeof gregorianInput === "string") {
-    const datePart = gregorianInput.split("T")[0] ?? "";
+    const datePart = (gregorianInput.split("T")[0] || gregorianInput) as string;
     const parts = datePart.split("-");
     const p0 = parts[0];
     const p1 = parts[1];
