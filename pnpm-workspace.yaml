@@ -4,18 +4,17 @@ packages:
   - "Mobile"
 
 allowBuilds:
+  '@firebase/util': true
   '@nestjs/core': true
   esbuild: true
+  protobufjs: true
   sharp: true
   unrs-resolver: true
 
-# esbuild: vitest's transitive native binary build.
-# sharp: Next.js's image-optimization native binary build.
-# unrs-resolver: native resolver used transitively by eslint-config-next.
-# @nestjs/core: postinstall banner/telemetry-opt-out script, no native code.
-# All well-known, widely-used tooling deps - safe to allow.
 onlyBuiltDependencies:
   - esbuild
   - sharp
   - unrs-resolver
   - '@nestjs/core'
+  - '@firebase/util'
+  - protobufjs

@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { WebTableSkeleton } from "@/components/ui/skeleton";
 
 const CATEGORY_BADGE_STYLES: Record<CostCategory, string> = {
   basic: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
@@ -132,7 +133,9 @@ export function CostHistoryTable({ userId }: { userId: string }) {
         </div>
       </div>
 
-      {filteredCosts.length === 0 ? (
+      {isLoading ? (
+        <WebTableSkeleton rows={5} />
+      ) : filteredCosts.length === 0 ? (
         <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
           {search || categoryFilter !== "all"
             ? "No matching cost records found."

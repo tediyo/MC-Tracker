@@ -19,6 +19,7 @@ import { IncomeExpenseTrendChart } from "@/components/dashboard/income-expense-t
 import { MonthComparisonSection } from "@/components/dashboard/month-comparison-section";
 import { PdfReportButton } from "@/components/dashboard/pdf-report-button";
 import { RecentTransactionsWidget } from "@/components/dashboard/recent-transactions-widget";
+import { WebDashboardSkeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 function stepCalendarDate(
@@ -121,7 +122,7 @@ export function DashboardClient({
   }
 
   if (!data) {
-    return <p className="text-sm text-muted-foreground">Loading dashboard…</p>;
+    return <WebDashboardSkeleton />;
   }
 
   return (

@@ -20,6 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { WebTableSkeleton } from "@/components/ui/skeleton";
 
 export function IncomeHistoryTable({ userId }: { userId: string }) {
   const queryClient = useQueryClient();
@@ -90,7 +91,9 @@ export function IncomeHistoryTable({ userId }: { userId: string }) {
         </div>
       </div>
 
-      {filteredIncomes.length === 0 ? (
+      {isLoading ? (
+        <WebTableSkeleton rows={5} />
+      ) : filteredIncomes.length === 0 ? (
         <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
           {search ? "No matching income records found." : "No income logged yet."}
         </div>

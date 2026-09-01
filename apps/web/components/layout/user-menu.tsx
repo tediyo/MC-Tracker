@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogOut, User } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { logout } from "@/lib/auth/actions";
 import { Button } from "@/components/ui/button";
 
@@ -11,7 +11,7 @@ export function UserMenu({ email }: { email: string }) {
   const initial = email ? email.charAt(0).toUpperCase() : "U";
 
   return (
-    <div className="hidden items-center gap-2 md:flex">
+    <div className="flex items-center gap-1.5">
       <Link
         href="/profile"
         prefetch={true}
@@ -23,7 +23,7 @@ export function UserMenu({ email }: { email: string }) {
         <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
           {initial}
         </span>
-        <span className="max-w-[150px] truncate text-xs font-medium text-foreground">
+        <span className="hidden sm:inline max-w-[150px] truncate text-xs font-medium text-foreground">
           {email}
         </span>
       </Link>
@@ -41,4 +41,3 @@ export function UserMenu({ email }: { email: string }) {
     </div>
   );
 }
-
