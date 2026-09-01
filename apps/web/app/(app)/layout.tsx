@@ -22,6 +22,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="flex min-h-screen bg-background font-sans antialiased">
       <Sidebar userEmail={user.email ?? ""} />
       <div className="relative flex flex-1 flex-col min-w-0">
+        {/* Top-Right Corner: Theme Toggle ONLY */}
         <div className="absolute top-4 right-4 z-30 md:top-6 md:right-8">
           <ThemeToggle />
         </div>
