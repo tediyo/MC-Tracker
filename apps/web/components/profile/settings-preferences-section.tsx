@@ -1,9 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { Calendar, Sun, Moon, Laptop, CheckCircle2, Settings2 } from "lucide-react";
+import { Calendar, Sun, Moon, Laptop, CheckCircle2, Settings2, Sparkles } from "lucide-react";
 import { useCalendarPreference } from "@/components/providers/calendar-provider";
 import { useTheme } from "@/components/providers/theme-provider";
+import { useLiveModePreference } from "@/components/providers/live-mode-provider";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -11,6 +12,7 @@ import { cn } from "@/lib/utils";
 export function SettingsPreferencesSection() {
   const { calendarMode, setCalendarMode } = useCalendarPreference();
   const { theme, setTheme } = useTheme();
+  const { isLiveMode, setIsLiveMode } = useLiveModePreference();
 
   return (
     <div className="flex flex-col gap-6 w-full mt-2">
@@ -157,6 +159,54 @@ export function SettingsPreferencesSection() {
           >
             <Laptop className="h-3.5 w-3.5" />
             <span>System Preference</span>
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Live Mode Floating Icon Preference */}
+      <Card className="viz-root border-border/60 shadow-sm">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <CardTitle className="text-base">Live Mode Floating Icon</CardTitle>
+            </div>
+            <span
+              className={cn(
+                "rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+                isLiveMode
+                  ? "bg-primary/10 text-primary"
+                  : "bg-muted text-muted-foreground"
+              )}
+            >
+              {isLiveMode ? "Active" : "Hidden (Default)"}
+            </span>
+          </div>
+          <CardDescription className="text-xs">
+            Enable a draggable floating action button on your computer screen for quick access to log expenses, income, and budget plans.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex items-center gap-3">
+          <Button
+            variant={isLiveMode ? "default" : "outline"}
+            onClick={() => setIsLiveMode(true)}
+            className={cn(
+              "gap-2 rounded-xl h-9 px-4 text-xs font-semibold",
+              isLiveMode && "bg-primary hover:bg-primary/90 text-primary-foreground"
+            )}
+          >
+            <span>Live Mode ON</span>
+          </Button>
+
+          <Button
+            variant={!isLiveMode ? "default" : "outline"}
+            onClick={() => setIsLiveMode(false)}
+            className={cn(
+              "gap-2 rounded-xl h-9 px-4 text-xs font-semibold",
+              !isLiveMode && "bg-muted-foreground/20 hover:bg-muted-foreground/30 text-foreground"
+            )}
+          >
+            <span>Live Mode OFF (Hidden)</span>
           </Button>
         </CardContent>
       </Card>

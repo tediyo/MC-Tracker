@@ -17,9 +17,11 @@ import {
   TrendingUp,
   Receipt,
   Target,
+  Sparkles,
 } from "lucide-react";
 import { useCalendarPreference } from "@/components/providers/calendar-provider";
 import { useTheme } from "@/components/providers/theme-provider";
+import { useLiveModePreference } from "@/components/providers/live-mode-provider";
 import { logout } from "@/lib/auth/actions";
 import { UpdateProfileForm } from "@/components/profile/update-email-form";
 import { ChangePasswordForm } from "@/components/profile/change-password-form";
@@ -124,7 +126,7 @@ export function MobileStyleProfile({
 }) {
   const { calendarMode, setCalendarMode } = useCalendarPreference();
   const { theme, setTheme } = useTheme();
-
+  const { isLiveMode, setIsLiveMode } = useLiveModePreference();
   const [activeModal, setActiveModal] = React.useState<string | null>(null);
   const [infoTitle, setInfoTitle] = React.useState("");
   const [infoText, setInfoText] = React.useState("");
@@ -214,6 +216,17 @@ export function MobileStyleProfile({
             hasSwitch={true}
             switchValue={isDarkMode}
             onSwitchChange={(val) => setTheme(val ? "dark" : "light")}
+            showDivider={true}
+          />
+
+          {/* Live Floating Icon Toggle */}
+          <SettingRow
+            icon={Sparkles}
+            title="Live Floating Icon"
+            subtitle={isLiveMode ? "On (Visible on screen)" : "Off (Hidden by default)"}
+            hasSwitch={true}
+            switchValue={isLiveMode}
+            onSwitchChange={(val) => setIsLiveMode(val)}
             showDivider={true}
           />
 
