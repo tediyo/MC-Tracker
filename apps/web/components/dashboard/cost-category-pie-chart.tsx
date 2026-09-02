@@ -41,15 +41,18 @@ export function CostCategoryPieChart({ data, selectedCategory, onSelectCategory 
             —
           </p>
         ) : (
-          <ResponsiveContainer width="100%" height={260}>
-            <PieChart>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart margin={{ top: 20, right: 25, left: 25, bottom: 10 }}>
               <Pie
                 data={chartData}
                 dataKey="value"
                 nameKey="label"
+                cx="50%"
+                cy="42%"
                 innerRadius={0}
-                outerRadius={100}
+                outerRadius={72}
                 paddingAngle={2}
+                labelLine={true}
                 label={({ label, value }) => `${label}: ${formatCurrency(value)}`}
                 onClick={(entry) => onSelectCategory(entry.category as CostCategory)}
                 cursor="pointer"
@@ -65,7 +68,7 @@ export function CostCategoryPieChart({ data, selectedCategory, onSelectCategory 
                 ))}
               </Pie>
               <Tooltip formatter={(value: number) => formatCurrency(value)} />
-              <Legend />
+              <Legend verticalAlign="bottom" wrapperStyle={{ paddingTop: 10 }} />
             </PieChart>
           </ResponsiveContainer>
         )}
