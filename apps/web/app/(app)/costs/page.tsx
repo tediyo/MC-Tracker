@@ -17,22 +17,19 @@ export default async function CostsPage() {
       <div className="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Log Expenses</h1>
-          <p className="text-sm text-muted-foreground">
-            Add daily expenses, categorizing costs into Basic, Fancy, or Extra tiers.
-          </p>
         </div>
-        <Button asChild variant="outline" size="sm" className="gap-2 self-start sm:self-auto">
+        <Button asChild variant="outline" size="sm" className="gap-2 self-start sm:self-auto rounded-xl">
           <Link href="/costs/history" prefetch={true}>
             <History className="h-4 w-4" />
-            View Expense History
+            Expense History
           </Link>
         </Button>
       </div>
 
-      <Card className="border-border shadow-none">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-sm font-semibold tracking-wide uppercase text-muted-foreground">
-            Daily Cost Entry Form
+      <Card className="border-border shadow-sm">
+        <CardHeader className="pb-3 border-b border-border/40">
+          <CardTitle className="text-sm font-bold text-foreground">
+            Expense Entry
           </CardTitle>
         </CardHeader>
         <CardContent>

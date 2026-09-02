@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "MC Tracker — Floating Action Button",
+  "version": "1.0.0",
+  "description": "Draggable Floating Quick Action Button overlay for MC Tracker across all websites and browser tabs.",
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "MC Tracker Live Mode"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>", "http://*/*", "https://*/*"],
+      "css": ["content.css"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

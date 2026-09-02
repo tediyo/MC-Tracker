@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowUpRight, ArrowDownRight, ChevronRight, Receipt, PiggyBank, History } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, ChevronRight, Receipt, TrendingUp, History } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import {
   getEthiopianDate,
@@ -87,7 +87,7 @@ export function RecentTransactionsWidget({
       </CardHeader>
       <CardContent>
         {combined.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-4 text-center">No recent transactions logged yet.</p>
+          <p className="text-sm text-muted-foreground/60 py-4 text-center">—</p>
         ) : (
           <div className="flex flex-col divide-y divide-border/50">
             {combined.map((tx) => {
@@ -97,10 +97,10 @@ export function RecentTransactionsWidget({
                   <div className="flex items-center gap-3">
                     <span
                       className={`flex h-9 w-9 items-center justify-center rounded-xl ${
-                        isIncome ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-rose-500/10 text-rose-600 dark:text-rose-400"
+                        isIncome ? "bg-primary/10 text-primary" : "bg-rose-500/10 text-rose-600 dark:text-rose-400"
                       }`}
                     >
-                      {isIncome ? <PiggyBank className="h-4 w-4" /> : <Receipt className="h-4 w-4" />}
+                      {isIncome ? <TrendingUp className="h-4 w-4" /> : <Receipt className="h-4 w-4" />}
                     </span>
                     <div className="flex flex-col">
                       <span className="text-sm font-semibold text-foreground">

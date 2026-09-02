@@ -138,8 +138,8 @@ export function CostHistoryTable({ userId }: { userId: string }) {
       ) : filteredCosts.length === 0 ? (
         <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
           {search || categoryFilter !== "all"
-            ? "No matching cost records found."
-            : "No costs logged yet."}
+            ? "No matching records found."
+            : "—"}
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm">

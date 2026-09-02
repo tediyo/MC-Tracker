@@ -82,11 +82,11 @@ export function Sidebar({ userEmail }: SidebarProps) {
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 active
-                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold"
+                  ? "bg-primary/10 text-primary font-semibold"
                   : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
               )}
             >
-              <Icon className="h-4 w-4 shrink-0 text-emerald-500" />
+              <Icon className="h-4 w-4 shrink-0 text-primary" />
               <span>{label}</span>
             </Link>
           );
@@ -95,32 +95,26 @@ export function Sidebar({ userEmail }: SidebarProps) {
 
       {/* User Info & Sign Out Footer */}
       {userEmail && (
-        <div className="mt-auto border-t border-border pt-3 px-1 flex flex-col gap-2">
+        <div className="mt-auto border-t border-border/60 pt-3 px-1 flex items-center justify-between gap-2">
           <Link
             href="/profile"
-            className="flex items-center gap-3 rounded-lg border border-border bg-card p-2 transition-colors hover:bg-accent"
+            className="flex items-center gap-2.5 min-w-0 flex-1 rounded-lg p-1.5 hover:bg-accent transition-colors"
             title="View profile"
           >
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500 font-bold text-xs">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-xs">
               {userEmail.charAt(0).toUpperCase()}
             </div>
-            <div className="flex flex-col min-w-0 flex-1">
-              <span className="truncate text-xs font-medium text-foreground">
-                {userEmail}
-              </span>
-              <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                <UserCheck className="h-3 w-3 text-emerald-500" /> Active session
-              </span>
-            </div>
+            <span className="truncate text-xs font-semibold text-foreground">
+              {userEmail}
+            </span>
           </Link>
-
           <form action={logout}>
             <button
               type="submit"
-              className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium text-emerald-600 dark:text-emerald-400 transition-colors hover:bg-emerald-500/10"
+              className="p-2 rounded-lg text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
+              title="Sign Out"
             >
-              <LogOut className="h-4 w-4 shrink-0 text-emerald-500" />
-              <span>Sign out</span>
+              <LogOut className="h-4 w-4" />
             </button>
           </form>
         </div>

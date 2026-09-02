@@ -95,7 +95,7 @@ export function IncomeHistoryTable({ userId }: { userId: string }) {
         <WebTableSkeleton rows={5} />
       ) : filteredIncomes.length === 0 ? (
         <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
-          {search ? "No matching income records found." : "No income logged yet."}
+          {search ? "No matching records found." : "—"}
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-border/60 bg-card shadow-sm">

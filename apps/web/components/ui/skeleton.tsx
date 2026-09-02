@@ -29,8 +29,8 @@ export function WebDashboardSkeleton() {
       </div>
 
       {/* Analytics Charts Skeleton */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 p-6 rounded-xl border border-border bg-card space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="p-6 rounded-xl border border-border bg-card space-y-4">
           <Skeleton className="h-5 w-44" />
           <Skeleton className="h-64 w-full rounded-lg" />
         </div>
@@ -38,6 +38,12 @@ export function WebDashboardSkeleton() {
           <Skeleton className="h-5 w-36" />
           <Skeleton className="h-64 w-full rounded-lg" />
         </div>
+      </div>
+
+      {/* Recent Transactions Skeleton */}
+      <div className="p-6 rounded-xl border border-border bg-card space-y-3">
+        <Skeleton className="h-5 w-48" />
+        <Skeleton className="h-20 w-full rounded-lg" />
       </div>
     </div>
   );

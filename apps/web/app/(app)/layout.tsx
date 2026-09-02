@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/layout/sidebar";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { DraggableFab } from "@/components/ui/draggable-fab";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +30,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <main className="flex-1 p-4 pb-24 md:p-6 md:pb-6 lg:p-8 lg:pb-8 max-w-7xl w-full mx-auto">{children}</main>
       </div>
       <BottomNav userEmail={user.email ?? ""} />
+      <DraggableFab />
     </div>
   );
 }

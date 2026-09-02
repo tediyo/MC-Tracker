@@ -25,6 +25,7 @@ export function useDashboardData(
     queryKey: ["dashboard", userId, timeframe, referenceDateIso],
     queryFn: () => getDashboardData(createClient(), userId, timeframe, referenceDate),
     initialData,
-    placeholderData: keepPreviousData,
+    staleTime: 0,
+    placeholderData: undefined,
   });
 }

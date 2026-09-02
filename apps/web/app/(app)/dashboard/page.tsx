@@ -18,9 +18,6 @@ export default async function DashboardPage() {
           <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
             Dashboard Overview
           </h1>
-          <p className="text-sm text-muted-foreground">
-            Track your real-time financial metrics, cash flow trends, and budget targets.
-          </p>
         </div>
       </div>
 

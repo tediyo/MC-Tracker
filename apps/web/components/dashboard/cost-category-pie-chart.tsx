@@ -37,8 +37,8 @@ export function CostCategoryPieChart({ data, selectedCategory, onSelectCategory 
       </CardHeader>
       <CardContent>
         {total === 0 ? (
-          <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-            No costs logged for this period yet.
+          <p className="text-sm text-muted-foreground/60">
+            —
           </p>
         ) : (
           <ResponsiveContainer width="100%" height={260}>
@@ -69,9 +69,6 @@ export function CostCategoryPieChart({ data, selectedCategory, onSelectCategory 
             </PieChart>
           </ResponsiveContainer>
         )}
-        <p className="mt-2 text-xs" style={{ color: "var(--text-muted)" }}>
-          Click a slice to see its subcategory breakdown below.
-        </p>
       </CardContent>
     </Card>
   );

@@ -386,7 +386,7 @@ export function PdfReportButton({
               <h3 class="box-title">Cost by Category</h3>
               ${
                 totalCategoryCosts === 0
-                  ? '<p class="empty-text">No costs logged for this period yet.</p>'
+                  ? '<p class="empty-text">—</p>'
                   : `
                 <table>
                   <thead>
@@ -424,7 +424,7 @@ export function PdfReportButton({
               <h3 class="box-title">Subcategory Breakdown</h3>
               ${
                 subcategoryEntries.length === 0
-                  ? '<p class="empty-text">Select a category above to see its breakdown / No subcategory costs logged for this period yet.</p>'
+                  ? '<p class="empty-text">—</p>'
                   : `
                 <table>
                   <thead>

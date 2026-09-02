@@ -40,8 +40,8 @@ describe("calculatePeriodMetrics", () => {
   const referenceDate = new Date(2026, 7, 9); // Aug 9, 2026 — partial month "to date"
 
   it("caps the current period at referenceDate but uses the FULL previous period", () => {
-    const incomes = [income("2026-08-05", 1000), income("2026-08-20", 500) /* after referenceDate: excluded */];
-    const costs = [cost("2026-08-02", 100), cost("2026-08-25", 200) /* after referenceDate: excluded */];
+    const incomes = [income("2026-08-08", 1000), income("2026-08-20", 500) /* after referenceDate: excluded */];
+    const costs = [cost("2026-08-08", 100), cost("2026-08-25", 200) /* after referenceDate: excluded */];
     const metrics = calculatePeriodMetrics(incomes, costs, [], "monthly", referenceDate);
 
     expect(metrics.totalIncome).toBe(1000);
@@ -52,7 +52,7 @@ describe("calculatePeriodMetrics", () => {
   it("resolves the monthly target directly from the Ethiopian plan for that (year, month)", () => {
     // 2026-08-09 Gregorian is Ethiopian Year 2018, Month 12 (Nehase)
     const plans = [plan(2018, 12, 2000, 500)];
-    const metrics = calculatePeriodMetrics([], [cost("2026-08-02", 2500)], plans, "monthly", referenceDate);
+    const metrics = calculatePeriodMetrics([], [cost("2026-08-08", 2500)], plans, "monthly", referenceDate);
 
     expect(metrics.targetCostLimit).toBe(2000);
     expect(metrics.targetSavingsGoal).toBe(500);
