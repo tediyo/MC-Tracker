@@ -5,7 +5,7 @@ import { IncomeEntryForm } from "@/components/forms/income-entry-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-import { PiggyBank, History } from "lucide-react";
+import { TrendingUp, History } from "lucide-react";
 
 export default async function IncomePage() {
   const supabase = await createClient();
@@ -17,22 +17,19 @@ export default async function IncomePage() {
       <div className="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Log Income</h1>
-          <p className="text-sm text-muted-foreground">
-            Record salary, freelance earnings, or secondary income streams.
-          </p>
         </div>
-        <Button asChild variant="outline" size="sm" className="gap-2 self-start sm:self-auto">
+        <Button asChild variant="outline" size="sm" className="gap-2 self-start sm:self-auto rounded-xl">
           <Link href="/income/history" prefetch={true}>
             <History className="h-4 w-4" />
-            View Income History
+            Income History
           </Link>
         </Button>
       </div>
 
-      <Card className="border-border shadow-none">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-sm font-semibold tracking-wide uppercase text-muted-foreground">
-            Income Entry Form
+      <Card className="border-border shadow-sm">
+        <CardHeader className="pb-3 border-b border-border/40">
+          <CardTitle className="text-sm font-bold text-foreground">
+            Income Entry
           </CardTitle>
         </CardHeader>
         <CardContent>

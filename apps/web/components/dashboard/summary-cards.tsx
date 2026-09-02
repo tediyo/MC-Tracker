@@ -3,11 +3,11 @@ import { formatCurrency, formatPercent } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { VarianceBadge } from "@/components/dashboard/variance-badge";
 import { Button } from "@/components/ui/button";
-import { ArrowUpRight, ArrowDownRight, ArrowRight, PiggyBank, Receipt, Scale, Target, Eye, EyeOff } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, ArrowRight, TrendingUp, Receipt, Scale, Target, Eye, EyeOff } from "lucide-react";
 
 function ChangeBadge({ value, invert = false }: { value: number | null; invert?: boolean }) {
   if (value === null) {
-    return <span className="text-xs text-muted-foreground">No prior data</span>;
+    return <span className="text-xs text-muted-foreground/50">—</span>;
   }
   
   const isPositive = value > 0;
@@ -62,18 +62,17 @@ export function SummaryCards({ metrics, showBalances = true, onToggleShowBalance
         {/* Total Income */}
         <Card className="border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Income</CardTitle>
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-500">
-              <PiggyBank className="h-4 w-4" />
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Total Income</CardTitle>
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <TrendingUp className="h-4 w-4" />
             </span>
           </CardHeader>
           <CardContent className="space-y-1">
             <p className="text-2xl font-bold tracking-tight tabular-nums text-foreground">
               {displayVal(metrics.totalIncome)}
             </p>
-            <div className="flex items-center gap-2 pt-1">
+            <div className="pt-1">
               <ChangeBadge value={metrics.percentChangeIncome} />
-              <span className="text-xs text-muted-foreground">vs prev period</span>
             </div>
           </CardContent>
         </Card>
@@ -81,8 +80,8 @@ export function SummaryCards({ metrics, showBalances = true, onToggleShowBalance
         {/* Total Costs */}
         <Card className="border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Costs</CardTitle>
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-500">
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Total Expenses</CardTitle>
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <Receipt className="h-4 w-4" />
             </span>
           </CardHeader>
@@ -90,32 +89,30 @@ export function SummaryCards({ metrics, showBalances = true, onToggleShowBalance
             <p className="text-2xl font-bold tracking-tight tabular-nums text-foreground">
               {displayVal(metrics.totalCosts)}
             </p>
-            <div className="flex items-center gap-2 pt-1">
+            <div className="pt-1">
               <ChangeBadge value={metrics.percentChangeCosts} invert />
-              <span className="text-xs text-muted-foreground">vs prev period</span>
             </div>
           </CardContent>
         </Card>
 
-        {/* Net Profit / Loss */}
+        {/* Net Balance */}
         <Card className="border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Net Profit / Loss</CardTitle>
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-500">
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Net Balance</CardTitle>
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <Scale className="h-4 w-4" />
             </span>
           </CardHeader>
           <CardContent className="space-y-1">
             <p
               className={`text-2xl font-bold tracking-tight tabular-nums ${
-                metrics.netProfitLoss >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
+                metrics.netProfitLoss >= 0 ? "text-primary" : "text-rose-600 dark:text-rose-400"
               }`}
             >
               {displayVal(metrics.netProfitLoss)}
             </p>
-            <div className="flex items-center gap-2 pt-1">
+            <div className="pt-1">
               <ChangeBadge value={metrics.percentChangeNet} />
-              <span className="text-xs text-muted-foreground">vs prev period</span>
             </div>
           </CardContent>
         </Card>
@@ -123,8 +120,8 @@ export function SummaryCards({ metrics, showBalances = true, onToggleShowBalance
         {/* Budget Variance */}
         <Card className="border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Budget Variance</CardTitle>
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-500">
+            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Budget Variance</CardTitle>
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-500">
               <Target className="h-4 w-4" />
             </span>
           </CardHeader>

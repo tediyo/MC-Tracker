@@ -36,6 +36,7 @@ export async function login(_prevState: ActionResult, formData: FormData): Promi
 
 export async function signup(_prevState: ActionResult, formData: FormData): Promise<ActionResult> {
   const supabase = await createClient();
+  const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
 
@@ -43,6 +44,10 @@ export async function signup(_prevState: ActionResult, formData: FormData): Prom
     email,
     password,
     options: {
+      data: {
+        name,
+        full_name: name,
+      },
       emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
     },
   });
@@ -91,25 +96,50 @@ export interface ProfileActionResult {
  * /profile after submitting - `success` carries the confirmation message
  * instead of a redirect ending the interaction.
  */
-export async function updateEmail(
+export async function updateProfile(
   _prevState: ProfileActionResult,
   formData: FormData,
 ): Promise<ProfileActionResult> {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { error: "Not signed in.", success: null };
+
+  const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
 
-  const { error } = await supabase.auth.updateUser(
-    { email },
-    { emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback` },
-  );
-  if (error) return { error: error.message, success: null };
+  let emailChanged = false;
+  if (email && email !== user.email) {
+    const { error: emailError } = await supabase.auth.updateUser(
+      { email },
+      { emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback` },
+    );
+    if (emailError) return { error: emailError.message, success: null };
+    emailChanged = true;
+  }
+
+  // Update name and email in public.users
+  const { error: dbError } = await (supabase.from("users") as any)
+    .update({ name, email })
+    .eq("id", user.id);
+  if (dbError) return { error: dbError.message, success: null };
+
+  // Update Supabase Auth user_metadata
+  await supabase.auth.updateUser({
+    data: { name, full_name: name },
+  });
 
   revalidatePath("/profile");
   return {
     error: null,
-    success: `Confirmation link sent to ${email} - your email won't change until you click it.`,
+    success: emailChanged
+      ? `Profile updated. Confirmation link sent to ${email} to verify email change.`
+      : "Profile updated successfully.",
   };
 }
+
+export const updateEmail = updateProfile;
 
 export async function changePassword(
   _prevState: ProfileActionResult,

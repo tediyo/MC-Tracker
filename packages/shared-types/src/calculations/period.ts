@@ -14,6 +14,13 @@ import {
   format,
 } from "date-fns";
 
+import {
+  getEthiopianDate,
+  getDaysInEthiopianMonth,
+  toGregorianDate,
+  ETHIOPIAN_MONTHS,
+} from "../ethiopian-calendar";
+
 export const TIME_FRAMES = ["daily", "weekly", "monthly", "yearly"] as const;
 export type TimeFrame = (typeof TIME_FRAMES)[number];
 
@@ -70,25 +77,51 @@ export function getPeriodRange(timeframe: TimeFrame, referenceDate: Date): Perio
       };
     }
     case "monthly": {
-      const previousRef = subMonths(referenceDate, 1);
+      const eth = getEthiopianDate(referenceDate);
+      const daysInMonth = getDaysInEthiopianMonth(eth.year, eth.month);
+      const start = startOfDay(toGregorianDate(eth.year, eth.month, 1));
+      const end = endOfDay(toGregorianDate(eth.year, eth.month, daysInMonth));
+
+      let prevYear = eth.year;
+      let prevMonth = eth.month - 1;
+      if (prevMonth < 1) {
+        prevMonth = 13;
+        prevYear -= 1;
+      }
+      const daysInPrevMonth = getDaysInEthiopianMonth(prevYear, prevMonth);
+      const previousStart = startOfDay(toGregorianDate(prevYear, prevMonth, 1));
+      const previousEnd = endOfDay(toGregorianDate(prevYear, prevMonth, daysInPrevMonth));
+
+      const ethMonthObj = ETHIOPIAN_MONTHS.find((m) => m.number === eth.month);
+      const label = `${ethMonthObj?.nameEn || "Month"} ${eth.year} E.C.`;
+
       return {
         timeframe,
-        start: startOfMonth(referenceDate),
-        end: endOfMonth(referenceDate),
-        previousStart: startOfMonth(previousRef),
-        previousEnd: endOfMonth(previousRef),
-        label: format(referenceDate, "MMMM yyyy"),
+        start,
+        end,
+        previousStart,
+        previousEnd,
+        label,
       };
     }
     case "yearly": {
-      const previousRef = subYears(referenceDate, 1);
+      const eth = getEthiopianDate(referenceDate);
+      const start = startOfDay(toGregorianDate(eth.year, 1, 1));
+      const daysInPagume = getDaysInEthiopianMonth(eth.year, 13);
+      const end = endOfDay(toGregorianDate(eth.year, 13, daysInPagume));
+
+      const prevEthYear = eth.year - 1;
+      const daysInPrevPagume = getDaysInEthiopianMonth(prevEthYear, 13);
+      const previousStart = startOfDay(toGregorianDate(prevEthYear, 1, 1));
+      const previousEnd = endOfDay(toGregorianDate(prevEthYear, 13, daysInPrevPagume));
+
       return {
         timeframe,
-        start: startOfYear(referenceDate),
-        end: endOfYear(referenceDate),
-        previousStart: startOfYear(previousRef),
-        previousEnd: endOfYear(previousRef),
-        label: format(referenceDate, "yyyy"),
+        start,
+        end,
+        previousStart,
+        previousEnd,
+        label: `${eth.year} E.C.`,
       };
     }
   }

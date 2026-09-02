@@ -12,6 +12,7 @@ export default async function ProfilePage() {
 
   const profile = await fetchUserProfile(supabase, user.id);
   const email = user.email ?? "";
+  const name = profile?.name || user.user_metadata?.name || user.user_metadata?.full_name || "";
 
-  return <MobileStyleProfile email={email} memberSince={profile?.created_at ?? null} />;
+  return <MobileStyleProfile name={name} email={email} memberSince={profile?.created_at ?? null} />;
 }

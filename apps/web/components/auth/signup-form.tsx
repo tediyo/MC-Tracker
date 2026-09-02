@@ -23,6 +23,10 @@ export function SignupForm() {
       <form action={formAction}>
         <CardContent className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
+            <Label htmlFor="name">Full Name</Label>
+            <Input id="name" name="name" type="text" placeholder="John Doe" autoComplete="name" required />
+          </div>
+          <div className="flex flex-col gap-2">
             <Label htmlFor="email">Email</Label>
             <Input id="email" name="email" type="email" autoComplete="email" required />
           </div>
@@ -56,7 +60,6 @@ export function SignupForm() {
                 )}
               </button>
             </div>
-            <p className="text-xs text-muted-foreground">At least 8 characters.</p>
           </div>
           {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
         </CardContent>

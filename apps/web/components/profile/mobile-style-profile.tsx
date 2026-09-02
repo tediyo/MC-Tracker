@@ -14,14 +14,14 @@ import {
   BookOpen,
   FileText,
   LogOut,
-  PiggyBank,
+  TrendingUp,
   Receipt,
   Target,
 } from "lucide-react";
 import { useCalendarPreference } from "@/components/providers/calendar-provider";
 import { useTheme } from "@/components/providers/theme-provider";
 import { logout } from "@/lib/auth/actions";
-import { UpdateEmailForm } from "@/components/profile/update-email-form";
+import { UpdateProfileForm } from "@/components/profile/update-email-form";
 import { ChangePasswordForm } from "@/components/profile/change-password-form";
 import {
   Dialog,
@@ -114,9 +114,11 @@ function SettingRow({
 }
 
 export function MobileStyleProfile({
+  name,
   email,
   memberSince,
 }: {
+  name?: string;
   email: string;
   memberSince: string | null;
 }) {
@@ -130,7 +132,9 @@ export function MobileStyleProfile({
   const isGregorian = calendarMode === "gregorian";
   const isDarkMode = theme === "dark";
 
-  const initial = email ? email.charAt(0).toUpperCase() : "U";
+  const initial = name?.trim()
+    ? name.trim().charAt(0).toUpperCase()
+    : email ? email.charAt(0).toUpperCase() : "U";
 
   const openInfo = (title: string, text: string) => {
     setInfoTitle(title);
@@ -141,70 +145,61 @@ export function MobileStyleProfile({
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-5 pb-16 animate-in fade-in duration-300">
       {/* 1. Header Profile Card */}
-      <div className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5 shadow-sm">
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border-2 border-emerald-500/40 bg-emerald-500/10 text-xl font-black text-emerald-600 dark:text-emerald-400">
+      <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-5 shadow-sm">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-lg font-bold text-emerald-600 dark:text-emerald-400">
           {initial}
         </div>
 
-        <div className="flex flex-col min-w-0 flex-1 gap-1">
+        <div className="flex flex-col min-w-0 flex-1 gap-0.5">
           <div className="flex items-center justify-between gap-2">
-            <h1 className="text-lg font-bold tracking-tight text-foreground truncate">Your Profile</h1>
+            <h1 className="text-base font-bold tracking-tight text-foreground truncate">
+              {name?.trim() || "Account Profile"}
+            </h1>
             <button
               onClick={() => setActiveModal("email")}
-              className="p-1.5 rounded-lg text-emerald-500 hover:bg-emerald-500/10 transition-colors"
-              title="Edit Email"
+              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+              title="Edit Profile"
             >
               <Pencil className="h-4 w-4" />
             </button>
           </div>
           <p className="text-xs text-muted-foreground truncate">{email}</p>
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 w-max mt-1">
-            <UserCheck className="h-3 w-3" />
-            <span>Active Session</span>
-          </div>
         </div>
       </div>
 
-      {/* 2. Main Feature Quick Links (Navigation Group Card) */}
-      <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+      {/* 2. Main Navigation Links */}
+      <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
         <SettingRow
-          icon={PiggyBank}
+          icon={TrendingUp}
           title="Incomes"
-          subtitle="Manage income entries & categories"
           href="/income"
           showDivider={true}
         />
         <SettingRow
           icon={Receipt}
           title="Costs"
-          subtitle="Track daily expenses & subcategories"
           href="/costs"
           showDivider={true}
         />
         <SettingRow
           icon={Target}
           title="Plans"
-          subtitle="Set monthly budgets & savings goals"
           href="/plans"
           showDivider={false}
         />
       </div>
 
-      {/* 3. Preferences & Toggles Section */}
+      {/* 3. Preferences Section */}
       <div className="flex flex-col gap-2">
-        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">
-          Preferences & Toggles
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-1">
+          Preferences
         </span>
-        <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+        <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
           {/* Gregorian Calendar Toggle */}
           <SettingRow
             icon={Calendar}
             title="Gregorian Calendar"
-            subtitle={
-              isGregorian
-                ? "On (Gregorian G.C. active)"
-                : "Off (Ethiopian E.C. active by default)"
-            }
+            subtitle={isGregorian ? "Gregorian (G.C.)" : "Ethiopian (E.C.)"}
             hasSwitch={true}
             switchValue={isGregorian}
             onSwitchChange={(val) => setCalendarMode(val ? "gregorian" : "ethiopian")}
@@ -215,7 +210,7 @@ export function MobileStyleProfile({
           <SettingRow
             icon={Palette}
             title="Dark Theme"
-            subtitle={isDarkMode ? "On (Dark Mode active)" : "Off (Light Mode active)"}
+            subtitle={isDarkMode ? "Dark Mode" : "Light Mode"}
             hasSwitch={true}
             switchValue={isDarkMode}
             onSwitchChange={(val) => setTheme(val ? "dark" : "light")}
@@ -226,7 +221,6 @@ export function MobileStyleProfile({
           <SettingRow
             icon={Shield}
             title="Change Password"
-            subtitle="Update account password"
             onPress={() => setActiveModal("password")}
             showDivider={false}
           />
@@ -235,10 +229,10 @@ export function MobileStyleProfile({
 
       {/* 4. General Section */}
       <div className="flex flex-col gap-2">
-        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">
-          General
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-1">
+          General & Support
         </span>
-        <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+        <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
           <SettingRow
             icon={Globe}
             title="Language"
@@ -248,12 +242,11 @@ export function MobileStyleProfile({
           />
           <SettingRow
             icon={HelpCircle}
-            title="Help and Support"
-            subtitle="Contact support or read FAQs"
+            title="Help & Support"
             onPress={() =>
               openInfo(
                 "Help & Support",
-                "MC Tracker Support\n\nFor assistance or feedback, contact support@mctracker.com or reach out via your mobile dashboard.",
+                "MC Tracker Support\n\nFor assistance or inquiries, please contact support@mctracker.com.",
               )
             }
             showDivider={false}
@@ -263,17 +256,17 @@ export function MobileStyleProfile({
 
       {/* 5. Legal Section */}
       <div className="flex flex-col gap-2">
-        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-1">
           Legal
         </span>
-        <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+        <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
           <SettingRow
             icon={BookOpen}
             title="Privacy Policy"
             onPress={() =>
               openInfo(
                 "Privacy Policy",
-                "Privacy Policy\n\nYour financial data is encrypted and tied exclusively to your authenticated user account. We do not share your private financial logs with third parties.",
+                "Privacy Policy\n\nYour financial data is encrypted and accessible only by your account.",
               )
             }
             showDivider={true}
@@ -284,7 +277,7 @@ export function MobileStyleProfile({
             onPress={() =>
               openInfo(
                 "Terms & Conditions",
-                "Terms & Conditions\n\nMC Tracker is provided for personal financial management and metrics tracking.",
+                "Terms & Conditions\n\nMC Tracker is provided for financial management and budget tracking.",
               )
             }
             showDivider={false}
@@ -292,15 +285,15 @@ export function MobileStyleProfile({
         </div>
       </div>
 
-      {/* 6. Logout Group Card */}
-      <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden mt-2">
+      {/* 6. Logout Card */}
+      <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden mt-1">
         <form action={logout}>
           <button
             type="submit"
-            className="w-full flex items-center gap-3.5 py-3.5 px-4 text-left font-semibold text-sm text-rose-500 hover:bg-rose-500/10 transition-colors"
+            className="w-full flex items-center gap-3.5 py-3 px-4 text-left font-semibold text-xs text-rose-500 hover:bg-rose-500/10 transition-colors"
           >
-            <LogOut className="h-5 w-5" />
-            <span>Logout</span>
+            <LogOut className="h-4 w-4" />
+            <span>Sign Out</span>
           </button>
         </form>
       </div>
@@ -319,14 +312,14 @@ export function MobileStyleProfile({
         </DialogContent>
       </Dialog>
 
-      {/* Update Email Dialog */}
+      {/* Update Profile Dialog */}
       <Dialog open={activeModal === "email"} onOpenChange={() => setActiveModal(null)}>
         <DialogContent className="sm:max-w-md rounded-2xl">
           <DialogHeader>
-            <DialogTitle className="text-lg font-bold">Update Email Address</DialogTitle>
+            <DialogTitle className="text-lg font-bold">Edit Profile Details</DialogTitle>
           </DialogHeader>
           <div className="py-2">
-            <UpdateEmailForm currentEmail={email} />
+            <UpdateProfileForm currentName={name} currentEmail={email} onSuccess={() => setActiveModal(null)} />
           </div>
         </DialogContent>
       </Dialog>
@@ -338,7 +331,7 @@ export function MobileStyleProfile({
             <DialogTitle className="text-lg font-bold">Change Password</DialogTitle>
           </DialogHeader>
           <div className="py-2">
-            <ChangePasswordForm />
+            <ChangePasswordForm onSuccess={() => setActiveModal(null)} />
           </div>
         </DialogContent>
       </Dialog>

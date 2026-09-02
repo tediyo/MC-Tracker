@@ -32,7 +32,7 @@ export function PlanMonthCard({ month, year, plan }: { month: number; year: numb
             <div className="space-y-2">
               <div className="flex items-center justify-between rounded-md bg-muted/40 p-2 text-xs">
                 <span className="text-muted-foreground font-medium flex items-center gap-1.5">
-                  <ShieldAlert className="h-3.5 w-3.5 text-emerald-500" /> Cost Limit
+                  <ShieldAlert className="h-3.5 w-3.5 text-primary" /> Cost Limit
                 </span>
                 <span className="font-semibold text-foreground tabular-nums">
                   {formatCurrency(Number(plan.target_cost_limit))}
@@ -41,7 +41,7 @@ export function PlanMonthCard({ month, year, plan }: { month: number; year: numb
 
               <div className="flex items-center justify-between rounded-md bg-muted/40 p-2 text-xs">
                 <span className="text-muted-foreground font-medium flex items-center gap-1.5">
-                  <Target className="h-3.5 w-3.5 text-emerald-500" /> Savings Goal
+                  <Target className="h-3.5 w-3.5 text-primary" /> Savings Goal
                 </span>
                 <span className="font-semibold text-foreground tabular-nums">
                   {formatCurrency(Number(plan.target_savings_goal))}
@@ -56,16 +56,16 @@ export function PlanMonthCard({ month, year, plan }: { month: number; year: numb
         </CardContent>
       </div>
 
-      <div className="p-4 pt-0 mt-2">
+      <div className="p-4 pt-0 mt-2 flex justify-center">
         {plan ? (
-          <Button asChild variant="outline" size="sm" className="w-full gap-2 text-xs font-medium">
+          <Button asChild variant="outline" size="sm" className="h-9 px-6 rounded-xl gap-2 text-xs font-semibold shadow-sm border-border/80 hover:bg-accent">
             <Link href={`/plans/${plan.id}/edit`} prefetch={true}>
-              <Edit2 className="h-3.5 w-3.5 text-emerald-500" />
+              <Edit2 className="h-3.5 w-3.5 text-primary" />
               Edit Budget Plan
             </Link>
           </Button>
         ) : (
-          <Button asChild variant="default" size="sm" className="w-full gap-2 text-xs font-medium">
+          <Button asChild variant="default" size="sm" className="h-9 px-6 rounded-xl gap-2 text-xs font-semibold shadow-sm bg-primary hover:bg-primary/90 text-primary-foreground">
             <Link href={`/plans/new?month=${month}&year=${year}`} prefetch={true}>
               <Plus className="h-3.5 w-3.5 text-white" />
               Create Plan

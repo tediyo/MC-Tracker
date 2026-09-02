@@ -101,14 +101,16 @@ export function DashboardClient({
   initialReferenceDate,
   initialData,
 }: DashboardClientProps) {
+  const initialRefDate = React.useMemo(() => new Date(initialReferenceDate), [initialReferenceDate]);
   const [timeframe, setTimeframe] = React.useState<TimeFrame>(initialTimeframe);
-  const [referenceDate, setReferenceDate] = React.useState<Date>(initialReferenceDate);
+  const [referenceDate, setReferenceDate] = React.useState<Date>(initialRefDate);
   const [selectedCategory, setSelectedCategory] = React.useState<CostCategory | null>(null);
   const [showBalances, setShowBalances] = React.useState<boolean>(true);
   const { calendarMode, setCalendarMode } = useCalendarPreference();
 
   const isDefaultKey =
-    timeframe === initialTimeframe && referenceDate.getTime() === initialReferenceDate.getTime();
+    timeframe === initialTimeframe &&
+    referenceDate.toISOString().slice(0, 10) === initialRefDate.toISOString().slice(0, 10);
   const { data, isFetching } = useDashboardData(
     userId,
     timeframe,
@@ -121,52 +123,58 @@ export function DashboardClient({
     setSelectedCategory(null);
   }
 
-  if (!data) {
-    return <WebDashboardSkeleton />;
-  }
+  const showSkeleton = isFetching || !data;
 
   return (
-    <div className={cn("viz-root flex flex-col gap-6 transition-opacity", isFetching && "opacity-70")}>
+    <div className="viz-root flex flex-col gap-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <TimeframeSwitcher
           timeframe={timeframe}
           onTimeframeChange={handleTimeframeChange}
-          periodLabel={data.metrics.range.label}
+          periodLabel={data?.metrics.range.label || "Loading..."}
           referenceDate={referenceDate}
           calendarMode={calendarMode}
           onPrevious={() => setReferenceDate((d) => stepCalendarDate(timeframe, d, -1, calendarMode))}
           onNext={() => setReferenceDate((d) => stepCalendarDate(timeframe, d, 1, calendarMode))}
         />
-        <PdfReportButton data={data} showBalances={showBalances} timeframe={timeframe} />
+        {data ? (
+          <PdfReportButton data={data} showBalances={showBalances} timeframe={timeframe} />
+        ) : null}
       </div>
 
-      <SummaryCards
-        metrics={data.metrics}
-        showBalances={showBalances}
-        onToggleShowBalances={() => setShowBalances(!showBalances)}
-      />
+      {showSkeleton ? (
+        <WebDashboardSkeleton />
+      ) : (
+        <>
+          <SummaryCards
+            metrics={data.metrics}
+            showBalances={showBalances}
+            onToggleShowBalances={() => setShowBalances(!showBalances)}
+          />
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <CostCategoryPieChart
-          data={data.costsByCategory}
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
-        />
-        <CostSubcategoryPieChart
-          category={selectedCategory}
-          costs={data.currentPeriodCosts}
-          range={{ start: data.metrics.range.start, end: referenceDate }}
-        />
-      </div>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <CostCategoryPieChart
+              data={data.costsByCategory}
+              selectedCategory={selectedCategory}
+              onSelectCategory={setSelectedCategory}
+            />
+            <CostSubcategoryPieChart
+              category={selectedCategory}
+              costs={data.currentPeriodCosts}
+              range={{ start: data.metrics.range.start, end: referenceDate }}
+            />
+          </div>
 
-      <RecentTransactionsWidget
-        costs={data.currentPeriodCosts || []}
-        incomes={data.currentPeriodIncomes || []}
-        showBalances={showBalances}
-      />
+          <RecentTransactionsWidget
+            costs={data.currentPeriodCosts || []}
+            incomes={data.currentPeriodIncomes || []}
+            showBalances={showBalances}
+          />
 
-      <IncomeExpenseTrendChart data={data.trend} />
-      <MonthComparisonSection userId={userId} />
+          <IncomeExpenseTrendChart data={data.trend} />
+          <MonthComparisonSection userId={userId} />
+        </>
+      )}
     </div>
   );
 }

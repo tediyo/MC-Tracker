@@ -155,7 +155,7 @@ export function PlanForm({ userId, mode, initialMonth, initialYear, existingPeri
         ) : null}
       </div>
       {duplicateError ? <p className="text-sm text-destructive">{duplicateError}</p> : null}
-      <Button type="submit" disabled={createForm.formState.isSubmitting} className="self-start">
+      <Button type="submit" disabled={createForm.formState.isSubmitting} size="sm" className="h-9 px-6 rounded-xl text-xs font-semibold shadow-sm bg-primary hover:bg-primary/90 text-primary-foreground self-start">
         {createForm.formState.isSubmitting ? "Saving…" : "Create plan"}
       </Button>
     </form>

@@ -45,8 +45,8 @@ export function CostSubcategoryPieChart({ category, costs, range }: CostSubcateg
           <CardTitle style={{ color: "var(--text-secondary)" }}>Subcategory Breakdown</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-            Select a category above to see its breakdown.
+          <p className="text-sm text-muted-foreground/60">
+            —
           </p>
         </CardContent>
       </Card>
@@ -77,8 +77,8 @@ export function CostSubcategoryPieChart({ category, costs, range }: CostSubcateg
       </CardHeader>
       <CardContent>
         {total === 0 ? (
-          <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-            No {COST_CATEGORY_LABELS[category].toLowerCase()} costs logged for this period yet.
+          <p className="text-sm text-muted-foreground/60">
+            —
           </p>
         ) : (
           <ResponsiveContainer width="100%" height={260}>

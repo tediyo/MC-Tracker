@@ -23,11 +23,8 @@ export default async function PlansPage({
       <div className="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Annual Budget Plans (Ethiopian Calendar)
+            Annual Budget Plans
           </h1>
-          <p className="text-sm text-muted-foreground">
-            Set monthly cost limits and savings goals for {year} E.C. (ዓ.ም.).
-          </p>
         </div>
       </div>
 

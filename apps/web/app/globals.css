@@ -8,14 +8,17 @@
  * tailwind.config.ts. Separate from the chart-specific tokens below.
  * ------------------------------------------------------------------- */
 :root {
+  /* SINGLE SOURCE OF TRUTH FOR WEB BRAND GREEN COLOR (#03ad03 -> HSL: 120 97% 35%) */
+  --brand-green: 120 97% 35%;
+
   --background: 0 0% 100%;
   --foreground: 224 71% 4%;
   --card: 0 0% 100%;
   --card-foreground: 224 71% 4%;
   --popover: 0 0% 100%;
   --popover-foreground: 224 71% 4%;
-  --primary: 142 76% 36%;
-  --primary-foreground: 210 40% 98%;
+  --primary: var(--brand-green);
+  --primary-foreground: 0 0% 100%;
   --secondary: 220 14% 96%;
   --secondary-foreground: 220 9% 25%;
   --accent: 220 14% 94%;
@@ -24,25 +27,27 @@
   --muted-foreground: 220 9% 46%;
   --destructive: 0 84% 60%;
   --destructive-foreground: 210 40% 98%;
-  --success: 142 76% 36%;
-  --success-foreground: 210 40% 98%;
+  --success: var(--brand-green);
+  --success-foreground: 0 0% 100%;
   --border: 220 13% 91%;
   --input: 220 13% 91%;
-  --ring: 142 76% 36%;
+  --ring: var(--brand-green);
   --radius: 0.75rem;
 }
 
 :root[data-theme="dark"],
 :root:not([data-theme="light"]) {
   @media (prefers-color-scheme: dark) {
+    --brand-green: 120 97% 35%;
+
     --background: 0 0% 0%;
     --foreground: 0 0% 100%;
     --card: 0 0% 0%;
     --card-foreground: 0 0% 100%;
     --popover: 0 0% 0%;
     --popover-foreground: 0 0% 100%;
-    --primary: 142 70% 45%;
-    --primary-foreground: 0 0% 0%;
+    --primary: var(--brand-green);
+    --primary-foreground: 0 0% 100%;
     --secondary: 0 0% 10%;
     --secondary-foreground: 0 0% 100%;
     --accent: 0 0% 12%;
@@ -51,22 +56,24 @@
     --muted-foreground: 0 0% 65%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --success: 142 70% 45%;
-    --success-foreground: 0 0% 0%;
+    --success: var(--brand-green);
+    --success-foreground: 0 0% 100%;
     --border: 0 0% 16%;
     --input: 0 0% 16%;
-    --ring: 142 70% 45%;
+    --ring: var(--brand-green);
   }
 }
 :root[data-theme="dark"] {
+  --brand-green: 120 97% 35%;
+
   --background: 0 0% 0%;
   --foreground: 0 0% 100%;
   --card: 0 0% 0%;
   --card-foreground: 0 0% 100%;
   --popover: 0 0% 0%;
   --popover-foreground: 0 0% 100%;
-  --primary: 142 70% 45%;
-  --primary-foreground: 0 0% 0%;
+  --primary: var(--brand-green);
+  --primary-foreground: 0 0% 100%;
   --secondary: 0 0% 10%;
   --secondary-foreground: 0 0% 100%;
   --accent: 0 0% 12%;
@@ -75,11 +82,11 @@
   --muted-foreground: 0 0% 65%;
   --destructive: 0 72% 51%;
   --destructive-foreground: 0 0% 100%;
-  --success: 142 70% 45%;
-  --success-foreground: 0 0% 0%;
+  --success: var(--brand-green);
+  --success-foreground: 0 0% 100%;
   --border: 0 0% 16%;
   --input: 0 0% 16%;
-  --ring: 142 70% 45%;
+  --ring: var(--brand-green);
 }
 
 * {
