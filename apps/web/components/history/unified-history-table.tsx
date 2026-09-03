@@ -13,6 +13,11 @@ import {
   ArrowUpDown,
   SlidersHorizontal,
   Plus,
+  Eye,
+  Calendar as CalendarIcon,
+  Tag,
+  FileText,
+  Clock,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -92,6 +97,9 @@ export function UnifiedHistoryTable({
   const [typeFilter, setTypeFilter] = React.useState<TransactionTypeFilter>(initialTypeFilter);
   const [categoryFilter, setCategoryFilter] = React.useState<string>("all");
   const [search, setSearch] = React.useState("");
+
+  // Detail Modal
+  const [selectedDetailItem, setSelectedDetailItem] = React.useState<UnifiedHistoryItem | null>(null);
 
   // Edit Modals
   const [editingCost, setEditingCost] = React.useState<CostRow | null>(null);
@@ -440,7 +448,17 @@ export function UnifiedHistoryTable({
                           <Button
                             variant="ghost"
                             size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-emerald-500"
+                            title="View Full Details"
+                            onClick={() => setSelectedDetailItem(item)}
+                          >
+                            <Eye className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                            title="Edit"
                             onClick={() => {
                               if (isIncome && item.rawIncome) {
                                 setEditIncomeSource(item.rawIncome.source_type);
@@ -458,6 +476,7 @@ export function UnifiedHistoryTable({
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 text-muted-foreground hover:text-rose-600 dark:hover:text-rose-400"
+                            title="Delete"
                             onClick={() => {
                               if (confirm(`Are you sure you want to delete this ${item.type}?`)) {
                                 if (isIncome) deleteIncomeMutation.mutate(item.rawId);
@@ -653,6 +672,113 @@ export function UnifiedHistoryTable({
                 </Button>
               </DialogFooter>
             </form>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* 6. Transaction Details Dialog */}
+      {selectedDetailItem && (
+        <Dialog open={!!selectedDetailItem} onOpenChange={(open) => !open && setSelectedDetailItem(null)}>
+          <DialogContent className="sm:max-w-md rounded-xl border-border">
+            <DialogHeader className="pb-2">
+              <DialogTitle className="text-lg font-bold text-foreground">Transaction Details</DialogTitle>
+            </DialogHeader>
+
+            <div className="py-2">
+              <table className="w-full text-xs text-left border-collapse">
+                <tbody className="divide-y divide-border border-t border-b border-border">
+                  <tr>
+                    <th className="py-2.5 px-3 font-semibold text-muted-foreground bg-muted/30 w-1/3">Type</th>
+                    <td className="py-2.5 px-3 font-medium text-foreground">
+                      {selectedDetailItem.type === "income" ? "Income" : "Expense"}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th className="py-2.5 px-3 font-semibold text-muted-foreground bg-muted/30">Amount</th>
+                    <td className="py-2.5 px-3 font-bold text-foreground tabular-nums">
+                      {selectedDetailItem.type === "income" ? "+" : "-"}
+                      {formatCurrency(selectedDetailItem.amount)}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th className="py-2.5 px-3 font-semibold text-muted-foreground bg-muted/30">Date</th>
+                    <td className="py-2.5 px-3 font-medium text-foreground">
+                      {formatDateLabel(selectedDetailItem.date)} ({selectedDetailItem.date} G.C.)
+                    </td>
+                  </tr>
+                  <tr>
+                    <th className="py-2.5 px-3 font-semibold text-muted-foreground bg-muted/30">
+                      {selectedDetailItem.type === "income" ? "Source" : "Category"}
+                    </th>
+                    <td className="py-2.5 px-3 font-medium text-foreground">
+                      {selectedDetailItem.type === "income"
+                        ? selectedDetailItem.categoryOrSource
+                        : `${selectedDetailItem.categoryOrSource}${
+                            selectedDetailItem.subcategory
+                              ? ` (${COST_SUBCATEGORY_LABELS[selectedDetailItem.subcategory]})`
+                              : ""
+                          }`}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th className="py-2.5 px-3 font-semibold text-muted-foreground bg-muted/30">Description</th>
+                    <td className="py-2.5 px-3 text-foreground whitespace-pre-wrap">
+                      {selectedDetailItem.description || "—"}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th className="py-2.5 px-3 font-semibold text-muted-foreground bg-muted/30">Record ID</th>
+                    <td className="py-2.5 px-3 font-mono text-[11px] text-muted-foreground">
+                      {selectedDetailItem.rawId}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <DialogFooter className="flex-row items-center justify-between gap-2 pt-2">
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="rounded-lg text-xs"
+                  onClick={() => {
+                    const item = selectedDetailItem;
+                    setSelectedDetailItem(null);
+                    if (item.type === "income" && item.rawIncome) {
+                      setEditIncomeSource(item.rawIncome.source_type);
+                      setEditingIncome(item.rawIncome);
+                    } else if (item.type === "cost" && item.rawCost) {
+                      setEditCostCategory(item.rawCost.category);
+                      setEditCostSubcategory(item.rawCost.subcategory);
+                      setEditingCost(item.rawCost);
+                    }
+                  }}
+                >
+                  Edit
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="rounded-lg text-xs text-rose-600 hover:text-rose-700"
+                  onClick={() => {
+                    const item = selectedDetailItem;
+                    setSelectedDetailItem(null);
+                    if (confirm(`Are you sure you want to delete this ${item.type}?`)) {
+                      if (item.type === "income") deleteIncomeMutation.mutate(item.rawId);
+                      else deleteCostMutation.mutate(item.rawId);
+                    }
+                  }}
+                >
+                  Delete
+                </Button>
+              </div>
+              <Button type="button" size="sm" onClick={() => setSelectedDetailItem(null)} className="rounded-lg text-xs">
+                Close
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       )}
