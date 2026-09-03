@@ -2,7 +2,7 @@
   "name": "mc-tracker",
   "private": true,
   "version": "0.1.0",
-  "description": "MC Tracker - Monthly Cost & Income Tracker (Turborepo monorepo)",
+  "description": "MC Tracker (Turborepo monorepo)",
   "packageManager": "pnpm@11.21.0",
   "engines": {
     "node": ">=20"

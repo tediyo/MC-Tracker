@@ -63,8 +63,8 @@ export function LoginForm() {
           </div>
           {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
         </CardContent>
-        <CardFooter className="flex flex-col gap-3">
-          <SubmitButton className="w-full">Log in</SubmitButton>
+        <CardFooter className="flex flex-col items-center gap-3">
+          <SubmitButton className="w-36 rounded-xl font-semibold shadow-sm">Log in</SubmitButton>
           <p className="text-center text-sm text-muted-foreground">
             No account?{" "}
             <Link href="/signup" className="text-primary hover:underline">

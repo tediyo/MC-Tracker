@@ -46,8 +46,8 @@ export function CostEntryForm({ userId }: { userId: string }) {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-      <div className="flex max-w-sm flex-col gap-1">
-        <Controller
+      <div className="flex w-fit max-w-[240px] flex-col gap-1">
+        {/* <Controller
           control={form.control}
           name="date"
           render={({ field }) => (
@@ -58,7 +58,7 @@ export function CostEntryForm({ userId }: { userId: string }) {
               required
             />
           )}
-        />
+        /> */}
         {form.formState.errors.date ? (
           <p className="text-xs text-destructive">{form.formState.errors.date.message}</p>
         ) : null}

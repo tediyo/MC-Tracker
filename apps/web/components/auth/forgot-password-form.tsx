@@ -32,8 +32,8 @@ export function ForgotPasswordForm() {
             </p>
           )}
         </CardContent>
-        <CardFooter className="flex flex-col gap-3">
-          <SubmitButton className="w-full">Send reset link</SubmitButton>
+        <CardFooter className="flex flex-col items-center gap-3">
+          <SubmitButton className="w-44 rounded-xl font-semibold shadow-sm">Send reset link</SubmitButton>
           <p className="text-center text-sm text-muted-foreground">
             <Link href="/login" className="text-primary hover:underline">
               Back to log in

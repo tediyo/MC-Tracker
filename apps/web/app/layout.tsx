@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "MC Tracker",
-  description: "Monthly Cost & Income Tracker",
+  description: " ", 
   icons: {
     icon: "/MCT_Logo.png",
     shortcut: "/MCT_Logo.png",

@@ -54,8 +54,8 @@ export function ResetPasswordForm() {
           </div>
           {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
         </CardContent>
-        <CardFooter>
-          <SubmitButton className="w-full">Update password</SubmitButton>
+        <CardFooter className="flex justify-center">
+          <SubmitButton className="w-44 rounded-xl font-semibold shadow-sm">Update password</SubmitButton>
         </CardFooter>
       </form>
     </Card>
