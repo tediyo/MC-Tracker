@@ -309,9 +309,9 @@ export function UnifiedHistoryTable({
                 <SelectValue placeholder="Transaction Type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">🌐 All Transactions</SelectItem>
-                <SelectItem value="cost">🔴 Expenses Only</SelectItem>
-                <SelectItem value="income">🟢 Income Only</SelectItem>
+                <SelectItem value="all">All Transactions</SelectItem>
+                <SelectItem value="cost">Expenses Only</SelectItem>
+                <SelectItem value="income">Income Only</SelectItem>
               </SelectContent>
             </Select>
           </div>

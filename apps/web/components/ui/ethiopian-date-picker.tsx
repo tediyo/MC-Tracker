@@ -1,7 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { Calendar as CalendarIcon, Repeat, ChevronDown } from "lucide-react";
+import {
+  Calendar as CalendarIcon,
+  Repeat,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Check,
+} from "lucide-react";
 import {
   ETHIOPIAN_MONTHS,
   getEthiopianDate,
@@ -9,15 +16,33 @@ import {
   getDaysInEthiopianMonth,
 } from "@mc-tracker/shared-types";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 interface EthiopianDatePickerProps {
   label?: string;
   value: string; // Gregorian ISO string "YYYY-MM-DD"
   onChange: (isoDate: string) => void;
   required?: boolean;
+  className?: string;
+}
+
+const GREGORIAN_MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
+
+function getDaysInGregorianMonth(year: number, month: number): number {
+  return new Date(year, month, 0).getDate();
+}
+
+function formatLocalDate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
 export function EthiopianDatePicker({
@@ -25,33 +50,57 @@ export function EthiopianDatePicker({
   value,
   onChange,
   required = false,
+  className,
 }: EthiopianDatePickerProps) {
   const [useEthiopian, setUseEthiopian] = React.useState<boolean>(true);
   const [isOpen, setIsOpen] = React.useState<boolean>(false);
+  const [showYearPicker, setShowYearPicker] = React.useState<boolean>(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
-  // Parse current Gregorian value to Ethiopian
-  const ethDate = React.useMemo(() => {
-    if (!value) return getEthiopianDate(new Date());
-    return getEthiopianDate(value);
+  // Current today reference
+  const todayGregIso = React.useMemo(() => formatLocalDate(new Date()), []);
+  const todayEth = React.useMemo(() => getEthiopianDate(todayGregIso), [todayGregIso]);
+
+  // Selected date state
+  const selectedEth = React.useMemo(() => {
+    if (!value) return todayEth;
+    try {
+      return getEthiopianDate(value);
+    } catch {
+      return todayEth;
+    }
+  }, [value, todayEth]);
+
+  const selectedGreg = React.useMemo(() => {
+    if (!value) return new Date();
+    try {
+      return new Date(value);
+    } catch {
+      return new Date();
+    }
   }, [value]);
 
-  const [year, setYear] = React.useState<number>(ethDate.year);
-  const [month, setMonth] = React.useState<number>(ethDate.month);
-  const [day, setDay] = React.useState<number>(ethDate.day);
+  // Calendar view state (which month/year is currently being viewed)
+  const [viewYear, setViewYear] = React.useState<number>(selectedEth.year);
+  const [viewMonth, setViewMonth] = React.useState<number>(selectedEth.month);
 
-  // Sync internal state when external value changes
+  // Sync viewing position when popover opens or value changes
   React.useEffect(() => {
-    setYear(ethDate.year);
-    setMonth(ethDate.month);
-    setDay(ethDate.day);
-  }, [ethDate.year, ethDate.month, ethDate.day]);
+    if (useEthiopian) {
+      setViewYear(selectedEth.year);
+      setViewMonth(selectedEth.month);
+    } else {
+      setViewYear(selectedGreg.getFullYear());
+      setViewMonth(selectedGreg.getMonth() + 1);
+    }
+  }, [isOpen, useEthiopian, selectedEth.year, selectedEth.month, selectedGreg]);
 
   // Close popover when clicking outside
   React.useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
+        setShowYearPicker(false);
       }
     }
     if (isOpen) {
@@ -62,38 +111,122 @@ export function EthiopianDatePicker({
     };
   }, [isOpen]);
 
-  const daysInCurrentMonth = React.useMemo(() => {
-    return getDaysInEthiopianMonth(year, month);
-  }, [year, month]);
+  // Calendar calculations
+  const daysInMonth = React.useMemo(() => {
+    return useEthiopian
+      ? getDaysInEthiopianMonth(viewYear, viewMonth)
+      : getDaysInGregorianMonth(viewYear, viewMonth);
+  }, [useEthiopian, viewYear, viewMonth]);
 
-  const handleEthiopianChange = (newYear: number, newMonth: number, newDay: number) => {
-    const maxDays = getDaysInEthiopianMonth(newYear, newMonth);
-    const validDay = Math.min(newDay, maxDays);
-    setYear(newYear);
-    setMonth(newMonth);
-    setDay(validDay);
+  const firstDayWeekday = React.useMemo(() => {
+    try {
+      if (useEthiopian) {
+        return toGregorianDate(viewYear, viewMonth, 1).getDay();
+      }
+      return new Date(viewYear, viewMonth - 1, 1).getDay();
+    } catch {
+      return 0;
+    }
+  }, [useEthiopian, viewYear, viewMonth]);
 
-    const greg = toGregorianDate(newYear, newMonth, validDay);
-    const iso = greg.toISOString().slice(0, 10);
-    onChange(iso);
+  // Month navigation handlers
+  const handlePrevMonth = () => {
+    if (useEthiopian) {
+      if (viewMonth === 1) {
+        setViewMonth(13);
+        setViewYear((y) => y - 1);
+      } else {
+        setViewMonth((m) => m - 1);
+      }
+    } else {
+      if (viewMonth === 1) {
+        setViewMonth(12);
+        setViewYear((y) => y - 1);
+      } else {
+        setViewMonth((m) => m - 1);
+      }
+    }
   };
 
-  const years = React.useMemo(() => {
-    const currentEthYear = getEthiopianDate(new Date()).year;
-    return Array.from({ length: 11 }, (_, i) => currentEthYear - 5 + i);
-  }, []);
-
-  const monthObj = ETHIOPIAN_MONTHS.find((m) => m.number === month) || ETHIOPIAN_MONTHS[0];
-
-  const formattedDisplay = React.useMemo(() => {
+  const handleNextMonth = () => {
     if (useEthiopian) {
-      return `${monthObj?.nameEn} ${day}, ${year} E.C.`;
+      if (viewMonth === 13) {
+        setViewMonth(1);
+        setViewYear((y) => y + 1);
+      } else {
+        setViewMonth((m) => m + 1);
+      }
+    } else {
+      if (viewMonth === 12) {
+        setViewMonth(1);
+        setViewYear((y) => y + 1);
+      } else {
+        setViewMonth((m) => m + 1);
+      }
     }
-    return value || "Select Date";
-  }, [useEthiopian, monthObj?.nameEn, day, year, value]);
+  };
+
+  // Day selection
+  const handleSelectDay = (day: number) => {
+    if (useEthiopian) {
+      const greg = toGregorianDate(viewYear, viewMonth, day);
+      onChange(formatLocalDate(greg));
+    } else {
+      const pad = (n: number) => String(n).padStart(2, "0");
+      onChange(`${viewYear}-${pad(viewMonth)}-${pad(day)}`);
+    }
+  };
+
+  // Quick jump to Today
+  const handleSelectToday = () => {
+    onChange(todayGregIso);
+    if (useEthiopian) {
+      setViewYear(todayEth.year);
+      setViewMonth(todayEth.month);
+    } else {
+      const d = new Date();
+      setViewYear(d.getFullYear());
+      setViewMonth(d.getMonth() + 1);
+    }
+  };
+
+  // Year options for fast year picker
+  const yearOptions = React.useMemo(() => {
+    const center = viewYear;
+    return Array.from({ length: 15 }, (_, i) => center - 7 + i);
+  }, [viewYear]);
+
+  // View month name display
+  const viewMonthName = React.useMemo(() => {
+    if (useEthiopian) {
+      return ETHIOPIAN_MONTHS[viewMonth - 1]?.nameEn || `Month ${viewMonth}`;
+    }
+    return GREGORIAN_MONTH_NAMES[viewMonth - 1] || "";
+  }, [useEthiopian, viewMonth]);
+
+  // Selected date title display
+  const selectedHeaderTitle = React.useMemo(() => {
+    if (useEthiopian) {
+      const mName = ETHIOPIAN_MONTHS[selectedEth.month - 1]?.nameEn || `Month ${selectedEth.month}`;
+      return `${mName} ${selectedEth.day}, ${selectedEth.year}`;
+    }
+    const mName = GREGORIAN_MONTH_NAMES[selectedGreg.getMonth()] || "";
+    return `${mName} ${selectedGreg.getDate()}, ${selectedGreg.getFullYear()}`;
+  }, [useEthiopian, selectedEth, selectedGreg]);
+
+  // Trigger button label display
+  const formattedDisplay = React.useMemo(() => {
+    if (!value) return "Select Date";
+    if (useEthiopian) {
+      const mName = ETHIOPIAN_MONTHS[selectedEth.month - 1]?.nameEn || `Month ${selectedEth.month}`;
+      return `${mName} ${selectedEth.day}, ${selectedEth.year} E.C.`;
+    }
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${pad(selectedGreg.getMonth() + 1)}/${pad(selectedGreg.getDate())}/${selectedGreg.getFullYear()}`;
+  }, [useEthiopian, selectedEth, selectedGreg, value]);
 
   return (
-    <div ref={containerRef} className="relative flex flex-col gap-1.5 w-full">
+    <div ref={containerRef} className={cn("relative flex flex-col gap-1.5 w-full max-w-[240px]", className)}>
       {label ? (
         <Label className="text-xs font-semibold text-muted-foreground">
           {label} {required ? <span className="text-destructive">*</span> : null}
@@ -103,129 +236,174 @@ export function EthiopianDatePicker({
       {/* Main Trigger Button */}
       <button
         type="button"
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={() => {
+          setIsOpen((prev) => !prev);
+          setShowYearPicker(false);
+        }}
         className="flex h-10 w-full items-center justify-between rounded-xl border border-border/80 bg-card px-3 text-xs font-medium text-foreground hover:bg-accent/40 hover:border-border transition-all focus:outline-none focus:ring-2 focus:ring-primary/20"
       >
         <span className="flex items-center gap-2 truncate">
           <CalendarIcon className="h-4 w-4 text-emerald-500 shrink-0" />
           <span className="truncate">{formattedDisplay}</span>
         </span>
-        <ChevronDown className="h-3.5 w-3.5 text-muted-foreground shrink-0 ml-1" />
+        <ChevronDown className={cn("h-3.5 w-3.5 text-muted-foreground shrink-0 ml-1 transition-transform duration-150", isOpen && "rotate-180")} />
       </button>
 
-      {/* Dropdown Popover */}
+      {/* Calendar Grid Popover */}
       {isOpen && (
-        <div className="absolute top-full left-0 z-50 mt-1.5 w-72 rounded-xl border border-border bg-popover p-3.5 shadow-xl animate-in fade-in duration-150">
-          <div className="flex items-center justify-between pb-3 border-b border-border/50 mb-3">
-            <span className="text-xs font-bold text-foreground">Date Selector</span>
+        <div className="absolute top-full left-0 z-50 mt-1.5 w-80 rounded-2xl border border-border bg-popover p-4 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+          {/* Header Block: Title & Calendar System Switcher */}
+          <div className="flex items-start justify-between pb-3 border-b border-border/60 mb-3">
+            <div>
+              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Select date</p>
+              <h3 className="text-lg font-bold text-foreground tracking-tight mt-0.5">{selectedHeaderTitle}</h3>
+            </div>
             <Button
               type="button"
-              variant="ghost"
+              variant="outline"
               size="sm"
-              onClick={() => setUseEthiopian(!useEthiopian)}
-              className="h-6 px-2 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10 gap-1"
+              onClick={() => {
+                setUseEthiopian(!useEthiopian);
+                setShowYearPicker(false);
+              }}
+              className="h-7 px-2.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/10 gap-1.5 rounded-lg"
             >
               <Repeat className="h-3 w-3" />
-              {useEthiopian ? "Gregorian" : "Ethiopian"}
+              {useEthiopian ? "E.C." : "G.C."}
             </Button>
           </div>
 
-          {useEthiopian ? (
-            <div className="flex flex-col gap-3">
-              {/* Year Select */}
-              <div className="flex flex-col gap-1">
-                <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Year</Label>
-                <Select
-                  value={String(year)}
-                  onValueChange={(val) => handleEthiopianChange(Number(val), month, day)}
-                >
-                  <SelectTrigger className="h-9 rounded-lg text-xs border-border/60 bg-card">
-                    <SelectValue placeholder="Year" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {years.map((y) => (
-                      <SelectItem key={y} value={String(y)} className="text-xs">
-                        {y} E.C.
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+          {/* Month & Year Navigation Toolbar */}
+          <div className="flex items-center justify-between mb-3 px-1">
+            <button
+              type="button"
+              onClick={() => setShowYearPicker((prev) => !prev)}
+              className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-sm font-bold text-foreground hover:bg-accent/60 transition-colors"
+            >
+              <span>{viewMonthName} {viewYear}</span>
+              <ChevronDown className={cn("h-3.5 w-3.5 text-muted-foreground transition-transform", showYearPicker && "rotate-180")} />
+            </button>
 
-              {/* Month Select */}
-              <div className="flex flex-col gap-1">
-                <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Month</Label>
-                <Select
-                  value={String(month)}
-                  onValueChange={(val) => handleEthiopianChange(year, Number(val), day)}
-                >
-                  <SelectTrigger className="h-9 rounded-lg text-xs border-border/60 bg-card">
-                    <SelectValue placeholder="Month" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ETHIOPIAN_MONTHS.map((m) => (
-                      <SelectItem key={m.number} value={String(m.number)} className="text-xs">
-                        {m.nameEn} ({m.nameAm})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={handlePrevMonth}
+                className="h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent/60 transition-colors"
+                aria-label="Previous Month"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={handleNextMonth}
+                className="h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent/60 transition-colors"
+                aria-label="Next Month"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
 
-              {/* Day Select */}
-              <div className="flex flex-col gap-1">
-                <Label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Day</Label>
-                <Select
-                  value={String(day)}
-                  onValueChange={(val) => handleEthiopianChange(year, month, Number(val))}
-                >
-                  <SelectTrigger className="h-9 rounded-lg text-xs border-border/60 bg-card">
-                    <SelectValue placeholder="Day" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: daysInCurrentMonth }, (_, i) => i + 1).map((d) => (
-                      <SelectItem key={d} value={String(d)} className="text-xs">
-                        Day {d}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="pt-2 border-t border-border/50 flex items-center justify-between">
-                <span className="text-[11px] text-muted-foreground truncate">
-                  ISO: <strong className="text-foreground">{value}</strong>
-                </span>
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={() => setIsOpen(false)}
-                  className="h-7 px-3 text-xs rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-medium"
-                >
-                  Done
-                </Button>
-              </div>
+          {showYearPicker ? (
+            /* Fast Year Selector */
+            <div className="max-h-56 overflow-y-auto py-2 grid grid-cols-3 gap-2 border-y border-border/40 my-2 pr-1">
+              {yearOptions.map((y) => {
+                const isSelected = y === viewYear;
+                return (
+                  <button
+                    key={y}
+                    type="button"
+                    onClick={() => {
+                      setViewYear(y);
+                      setShowYearPicker(false);
+                    }}
+                    className={cn(
+                      "py-2 px-1 rounded-xl text-xs font-semibold transition-all",
+                      isSelected
+                        ? "bg-emerald-600 text-white font-bold shadow-sm"
+                        : "text-foreground hover:bg-accent"
+                    )}
+                  >
+                    {y} {useEthiopian ? "E.C." : ""}
+                  </button>
+                );
+              })}
             </div>
           ) : (
-            <div className="flex flex-col gap-3">
-              <Input
-                type="date"
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                className="h-9 rounded-lg text-xs border-border/60 bg-card"
-              />
-              <Button
-                type="button"
-                size="sm"
-                onClick={() => setIsOpen(false)}
-                className="h-7 px-3 text-xs rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-medium self-end"
-              >
-                Done
-              </Button>
+            /* Calendar Day Grid */
+            <div>
+              {/* Day of Week Row */}
+              <div className="grid grid-cols-7 mb-1.5 text-center">
+                {WEEKDAYS.map((w, idx) => (
+                  <span key={idx} className="text-xs font-bold text-muted-foreground/80 py-1">
+                    {w}
+                  </span>
+                ))}
+              </div>
+
+              {/* Day Grid */}
+              <div className="grid grid-cols-7 gap-1">
+                {/* Blank Offset Cells */}
+                {Array.from({ length: firstDayWeekday }, (_, i) => (
+                  <div key={`empty-${i}`} className="h-8 w-8" />
+                ))}
+
+                {/* Days in Month */}
+                {Array.from({ length: daysInMonth }, (_, i) => {
+                  const day = i + 1;
+                  const isSelected = useEthiopian
+                    ? day === selectedEth.day && viewMonth === selectedEth.month && viewYear === selectedEth.year
+                    : day === selectedGreg.getDate() && viewMonth === (selectedGreg.getMonth() + 1) && viewYear === selectedGreg.getFullYear();
+
+                  const isToday = useEthiopian
+                    ? day === todayEth.day && viewMonth === todayEth.month && viewYear === todayEth.year
+                    : day === new Date().getDate() && viewMonth === (new Date().getMonth() + 1) && viewYear === new Date().getFullYear();
+
+                  return (
+                    <button
+                      key={`day-${day}`}
+                      type="button"
+                      onClick={() => handleSelectDay(day)}
+                      className={cn(
+                        "h-8 w-8 mx-auto rounded-full flex items-center justify-center text-xs font-medium transition-all",
+                        isSelected
+                          ? "bg-emerald-600 text-white font-bold shadow-sm hover:bg-emerald-600"
+                          : "text-foreground hover:bg-accent/80 hover:text-foreground",
+                        !isSelected && isToday && "border border-emerald-500 font-bold text-emerald-600 dark:text-emerald-400"
+                      )}
+                    >
+                      {day}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
+
+          {/* Footer Actions */}
+          <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={handleSelectToday}
+              className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline px-1 py-0.5"
+            >
+              Today
+            </button>
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => {
+                setIsOpen(false);
+                setShowYearPicker(false);
+              }}
+              className="h-7 px-3.5 text-xs rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-sm"
+            >
+              Done
+            </Button>
+          </div>
         </div>
       )}
     </div>
   );
 }
+
