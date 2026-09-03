@@ -11,7 +11,8 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/income", label: "Income", icon: TrendingUp },
   { href: "/costs", label: "Costs", icon: Receipt },
-  { href: "/history", label: "History", icon: History },
   { href: "/plans", label: "Plans", icon: Target },
+  { href: "/history", label: "History", icon: History },
+  
   { href: "/profile", label: "Profile", icon: User },
 ];

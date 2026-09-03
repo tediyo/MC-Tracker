@@ -55,18 +55,14 @@ export function Sidebar({ userEmail }: SidebarProps) {
             <span className="text-sm font-semibold tracking-tight text-foreground">
               MC Tracker
             </span>
-            <span className="text-[11px] font-medium text-muted-foreground">
-              Financial Management
-            </span>
+            
           </div>
         </div>
        
       </div>
 
       {/* Section Label */}
-      <div className="mb-2 px-2 text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
-        Menu
-      </div>
+     
 
       {/* Navigation Links */}
       <nav className="flex flex-1 flex-col gap-1">
