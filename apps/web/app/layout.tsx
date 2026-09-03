@@ -19,11 +19,11 @@ export const metadata: Metadata = {
  * Absence of a stored value (or "system") leaves the attribute unset, letting
  * globals.css's `prefers-color-scheme` fallback apply.
  */
-const NO_FLASH_THEME_SCRIPT = `(function(){try{var t=localStorage.getItem("mc-tracker-theme")||"light";document.documentElement.setAttribute("data-theme",t)}catch(e){}})();`;
+const NO_FLASH_THEME_SCRIPT = `(function(){try{window.__mc_tracker_web_app=true;var t=localStorage.getItem("mc-tracker-theme")||"light";document.documentElement.setAttribute("data-theme",t);document.documentElement.setAttribute("data-mc-tracker-web-app","true");}catch(e){}})();`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" data-mc-tracker-web-app="true" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/MCT_Logo.png" type="image/png" />
         <link rel="apple-touch-icon" href="/MCT_Logo.png" />

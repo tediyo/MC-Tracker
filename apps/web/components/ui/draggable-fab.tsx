@@ -167,6 +167,8 @@ export function DraggableFab({
   return (
     <>
       <div
+        id="mc-tracker-web-fab"
+        data-mc-tracker-fab="true"
         className="fixed z-50 transition-transform duration-75 select-none touch-none"
         style={{
           left: position ? `${position.x}px` : "auto",
