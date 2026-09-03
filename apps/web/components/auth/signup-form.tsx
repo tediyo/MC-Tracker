@@ -18,7 +18,7 @@ export function SignupForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base text-foreground">Create your account</CardTitle>
+        {/* <CardTitle className="text-base text-foreground">Create your account</CardTitle> */}
       </CardHeader>
       <form action={formAction}>
         <CardContent className="flex flex-col gap-4">
