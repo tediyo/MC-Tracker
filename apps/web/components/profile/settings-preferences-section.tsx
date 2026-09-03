@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Calendar, Sun, Moon, Laptop, CheckCircle2, Settings2, Sparkles } from "lucide-react";
+import { Calendar, Sun, Moon, Laptop, CheckCircle2, Settings2, Radio, SunMoon } from "lucide-react";
 import { useCalendarPreference } from "@/components/providers/calendar-provider";
 import { useTheme } from "@/components/providers/theme-provider";
 import { useLiveModePreference } from "@/components/providers/live-mode-provider";
@@ -168,7 +168,7 @@ export function SettingsPreferencesSection() {
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-primary" />
+              <Radio className="h-4 w-4 text-primary" />
               <CardTitle className="text-base">Live Mode Floating Icon</CardTitle>
             </div>
             <span
