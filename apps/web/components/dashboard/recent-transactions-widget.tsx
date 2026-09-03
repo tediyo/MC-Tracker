@@ -79,7 +79,7 @@ export function RecentTransactionsWidget({
         <div className="flex items-center gap-2">
           <Button asChild variant="ghost" size="sm" className="h-8 text-xs font-semibold text-emerald-600 dark:text-emerald-400 gap-1">
             <Link href="/costs/history">
-              <span>View History</span>
+              <span>View Full History</span>
               <ChevronRight className="h-3.5 w-3.5" />
             </Link>
           </Button>

@@ -5,7 +5,7 @@ import { IncomeEntryForm } from "@/components/forms/income-entry-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-import { TrendingUp, History } from "lucide-react";
+import { History, ChevronRight } from "lucide-react";
 
 export default async function IncomePage() {
   const supabase = await createClient();
@@ -18,19 +18,28 @@ export default async function IncomePage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Log Income</h1>
         </div>
-        <Button asChild variant="outline" size="sm" className="gap-2 self-start sm:self-auto rounded-xl">
+        <Button asChild variant="outline" size="sm" className="gap-2 self-start sm:self-auto rounded-xl font-semibold hover:bg-accent">
           <Link href="/income/history" prefetch={true}>
-            <History className="h-4 w-4" />
-            Income History
+            <History className="h-4 w-4 text-emerald-500" />
+            <span>View Full History</span>
+            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
           </Link>
         </Button>
       </div>
 
       <Card className="border-border shadow-sm">
-        <CardHeader className="pb-3 border-b border-border/40">
+        <CardHeader className="pb-3 border-b border-border/40 flex flex-row items-center justify-between">
           <CardTitle className="text-sm font-bold text-foreground">
             Income Entry
           </CardTitle>
+          <Link
+            href="/income/history"
+            prefetch={true}
+            className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300 flex items-center gap-1 transition-colors"
+          >
+            <span>View Full History</span>
+            <ChevronRight className="h-3.5 w-3.5" />
+          </Link>
         </CardHeader>
         <CardContent>
           <IncomeEntryForm userId={user.id} />

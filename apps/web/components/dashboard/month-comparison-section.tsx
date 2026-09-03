@@ -12,7 +12,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import {
-  GitCompare,
+  ArrowLeftRight,
   TrendingUp,
   TrendingDown,
   ArrowRight,
@@ -130,7 +130,7 @@ export function MonthComparisonSection({ userId }: MonthComparisonSectionProps) 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500 shadow-sm">
-              <GitCompare className="h-5 w-5 text-emerald-500" />
+              <ArrowLeftRight className="h-5 w-5 text-emerald-500" />
             </div>
             <div>
               <div className="flex items-center gap-2">

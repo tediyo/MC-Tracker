@@ -4,10 +4,10 @@ import * as React from "react";
 import Link from "next/link";
 import {
   UserCheck,
-  Palette,
+  Moon,
   Pencil,
   ChevronRight,
-  Shield,
+  KeyRound,
   Calendar,
   Globe,
   HelpCircle,
@@ -17,7 +17,7 @@ import {
   TrendingUp,
   Receipt,
   Target,
-  Sparkles,
+  Radio,
 } from "lucide-react";
 import { useCalendarPreference } from "@/components/providers/calendar-provider";
 import { useTheme } from "@/components/providers/theme-provider";
@@ -210,7 +210,7 @@ export function MobileStyleProfile({
 
           {/* Dark Theme Toggle */}
           <SettingRow
-            icon={Palette}
+            icon={Moon}
             title="Dark Theme"
             subtitle={isDarkMode ? "Dark Mode" : "Light Mode"}
             hasSwitch={true}
@@ -221,7 +221,7 @@ export function MobileStyleProfile({
 
           {/* Live Floating Icon Toggle */}
           <SettingRow
-            icon={Sparkles}
+            icon={Radio}
             title="Live Floating Icon"
             subtitle={isLiveMode ? "On (Visible on screen)" : "Off (Hidden by default)"}
             hasSwitch={true}
@@ -232,7 +232,7 @@ export function MobileStyleProfile({
 
           {/* Change Password Row */}
           <SettingRow
-            icon={Shield}
+            icon={KeyRound}
             title="Change Password"
             onPress={() => setActiveModal("password")}
             showDivider={false}

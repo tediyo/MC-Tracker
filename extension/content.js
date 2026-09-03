@@ -1,10 +1,29 @@
 (function () {
   "use me";
 
-  if (window.__mc_tracker_fab_injected) return;
-  window.__mc_tracker_fab_injected = true;
-
   const APP_BASE_URL = "http://localhost:3000";
+
+  function isWebAppDomainOrPage() {
+    if (
+      window.__mc_tracker_web_app ||
+      (document.documentElement && document.documentElement.hasAttribute("data-mc-tracker-web-app")) ||
+      document.getElementById("mc-tracker-web-fab") ||
+      document.querySelector("[data-mc-tracker-fab]")
+    ) {
+      return true;
+    }
+    try {
+      if (window.location && window.location.origin === new URL(APP_BASE_URL).origin) {
+        return true;
+      }
+    } catch (e) {
+      // Ignore URL parsing errors
+    }
+    return false;
+  }
+
+  if (window.__mc_tracker_fab_injected || isWebAppDomainOrPage()) return;
+  window.__mc_tracker_fab_injected = true;
 
   let isLiveMode = true;
   let fabRoot = null;
@@ -30,6 +49,8 @@
   }
 
   function safeInit() {
+    if (isWebAppDomainOrPage()) return;
+
     if (!document.body) {
       setTimeout(safeInit, 100);
       return;
@@ -56,7 +77,7 @@
   }
 
   function initUI(savedPos) {
-    if (document.getElementById("mc-tracker-fab-root")) return;
+    if (document.getElementById("mc-tracker-fab-root") || isWebAppDomainOrPage()) return;
 
     // 1. Create Root Host
     fabRoot = document.createElement("div");

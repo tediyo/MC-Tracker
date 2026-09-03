@@ -1,4 +1,4 @@
-import { LayoutDashboard, TrendingUp, Receipt, Target, User, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, TrendingUp, Receipt, Target, History, User, type LucideIcon } from "lucide-react";
 
 export interface NavItem {
   href: string;
@@ -12,5 +12,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/income", label: "Income", icon: TrendingUp },
   { href: "/costs", label: "Costs", icon: Receipt },
   { href: "/plans", label: "Plans", icon: Target },
+  { href: "/history", label: "History", icon: History },
+  
   { href: "/profile", label: "Profile", icon: User },
 ];
