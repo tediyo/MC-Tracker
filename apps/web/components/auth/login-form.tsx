@@ -18,7 +18,7 @@ export function LoginForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base text-foreground">Log in</CardTitle>
+        {/* <CardTitle className="text-base text-foreground">Log in</CardTitle> */}
       </CardHeader>
       <form action={formAction}>
         <CardContent className="flex flex-col gap-4">
