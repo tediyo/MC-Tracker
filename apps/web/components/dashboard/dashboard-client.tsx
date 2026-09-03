@@ -165,14 +165,14 @@ export function DashboardClient({
             />
           </div>
 
+          <IncomeExpenseTrendChart data={data.trend} />
+          <MonthComparisonSection userId={userId} />
+
           <RecentTransactionsWidget
             costs={data.currentPeriodCosts || []}
             incomes={data.currentPeriodIncomes || []}
             showBalances={showBalances}
           />
-
-          <IncomeExpenseTrendChart data={data.trend} />
-          <MonthComparisonSection userId={userId} />
         </>
       )}
     </div>
