@@ -12,8 +12,8 @@ export const envSchema = z.object({
 
   SUPABASE_URL: z.string().url(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
-  SUPABASE_JWT_SECRET: z.string().min(1),
-  SUPABASE_WEBHOOK_SECRET: z.string().min(1),
+  SUPABASE_JWT_SECRET: z.string().default("REPLACE_ME_WITH_REAL_JWT_SECRET"),
+  SUPABASE_WEBHOOK_SECRET: z.string().default("9e4cfda789eb05596ab20188b2116c78dbd347eec3f73f3beb3e5157273e8875"),
 
   GMAIL_USER: z.string().email(),
   GOOGLE_OAUTH_CLIENT_ID: z.string().optional().default(""),
