@@ -285,10 +285,7 @@ export async function POST(req: Request) {
                     <td style="vertical-align: middle;">
                       <div style="font-size: 13px; font-weight: 700; color: #15803d;">
                         Downloadable PDF Report Attached
-                      </div>
-                      <div style="font-size: 12px; color: #166534; margin-top: 2px;">
-                        <strong>${pdfFilename}</strong> has been generated with your transaction data and attached to this email. You can download or print it directly.
-                      </div>
+                     
                     </td>
                   </tr>
                 </table>

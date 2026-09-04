@@ -1,4 +1,5 @@
 services:
+  # 1. NestJS Backend API (Handles Scheduled Emails, Webhooks, and Month-End Cron)
   - type: web
     name: mc-tracker-api
     env: docker
@@ -21,13 +22,31 @@ services:
         sync: false
       - key: GMAIL_USER
         sync: false
-      - key: GOOGLE_OAUTH_CLIENT_ID
-        sync: false
-      - key: GOOGLE_OAUTH_CLIENT_SECRET
-        sync: false
-      - key: GOOGLE_OAUTH_REFRESH_TOKEN
-        sync: false
       - key: GMAIL_APP_PASSWORD
         sync: false
       - key: WEB_APP_URL
+        sync: false
+
+  # 2. Next.js Web Application
+  - type: web
+    name: mc-tracker-web
+    env: docker
+    dockerfilePath: ./apps/web/Dockerfile
+    dockerContext: .
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      - key: NEXT_PUBLIC_SITE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
         sync: false
