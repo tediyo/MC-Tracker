@@ -15,6 +15,7 @@ WORKDIR /app
 COPY --from=pruner /app/out/json/ .
 RUN pnpm install --frozen-lockfile
 COPY --from=pruner /app/out/full/ .
+COPY --from=pruner /app/tsconfig.base.json ./
 RUN pnpm turbo run build --filter=@mc-tracker/api
 
 # ---- Runtime image ----
