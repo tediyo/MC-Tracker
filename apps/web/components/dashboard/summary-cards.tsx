@@ -37,9 +37,15 @@ interface SummaryCardsProps {
   metrics: PeriodMetrics;
   showBalances?: boolean;
   onToggleShowBalances?: () => void;
+  filterLabel?: string | null;
 }
 
-export function SummaryCards({ metrics, showBalances = true, onToggleShowBalances }: SummaryCardsProps) {
+export function SummaryCards({
+  metrics,
+  showBalances = true,
+  onToggleShowBalances,
+  filterLabel,
+}: SummaryCardsProps) {
   const displayVal = (val: number) => (showBalances ? formatCurrency(val) : "••••••");
 
   return (
@@ -80,7 +86,16 @@ export function SummaryCards({ metrics, showBalances = true, onToggleShowBalance
         {/* Total Costs */}
         <Card className="border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Total Expenses</CardTitle>
+            <div className="flex flex-col gap-0.5">
+              <CardTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Total Expenses
+              </CardTitle>
+              {filterLabel && (
+                <span className="text-[10px] font-semibold text-primary truncate max-w-[120px]">
+                  {filterLabel}
+                </span>
+              )}
+            </div>
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <Receipt className="h-4 w-4" />
             </span>

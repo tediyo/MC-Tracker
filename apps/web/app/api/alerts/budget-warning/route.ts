@@ -1,15 +1,18 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 
-const EMAIL_USER = process.env.EMAIL_USER || "tewodrosberhanu19@gmail.com";
-const EMAIL_PASS = process.env.EMAIL_PASS || "nbloosgfbxsvfyux";
+const EMAIL_USER = process.env.EMAIL_USER || "mctrackernotification@gmail.com";
+const EMAIL_PASS = process.env.EMAIL_PASS || "kmcveektvwxiqroo";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { email, threshold, spent, limit } = body;
 
-    const targetEmail = email || process.env.NOTIFICATION_EMAIL || "tewodrosberhanu16@gmail.com";
+    const targetEmail = email || process.env.NOTIFICATION_EMAIL;
+    if (!targetEmail) {
+      return NextResponse.json({ error: "Recipient email is required" }, { status: 400 });
+    }
 
     console.log(`[Gmail SMTP] Sending ${threshold}% Budget Warning Email to: ${targetEmail}`);
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-import type { CostCategory, CostRow } from "@mc-tracker/shared-types";
+import type { CostCategory, CostSubcategory, CostRow } from "@mc-tracker/shared-types";
 import {
   COST_CATEGORY_LABELS,
   COST_SUBCATEGORY_LABELS,
@@ -34,9 +34,17 @@ interface CostSubcategoryPieChartProps {
   category: CostCategory | null;
   costs: CostRow[];
   range: { start: Date; end: Date };
+  selectedSubcategory?: CostSubcategory | null;
+  onSelectSubcategory?: (subcategory: CostSubcategory) => void;
 }
 
-export function CostSubcategoryPieChart({ category, costs, range }: CostSubcategoryPieChartProps) {
+export function CostSubcategoryPieChart({
+  category,
+  costs,
+  range,
+  selectedSubcategory,
+  onSelectSubcategory,
+}: CostSubcategoryPieChartProps) {
   let subcategoryMap: Record<string, number> = {};
   let titleText = "Subcategory Breakdown";
   let isAll = !category;
@@ -92,7 +100,12 @@ export function CostSubcategoryPieChart({ category, costs, range }: CostSubcateg
           </CardTitle>
           {isAll && (
             <span className="text-[11px] font-medium text-muted-foreground bg-muted/60 px-2.5 py-0.5 rounded-full">
-              Click a Category on left to filter
+              Click a Category to filter
+            </span>
+          )}
+          {selectedSubcategory && (
+            <span className="text-[11px] font-semibold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full">
+              Selected: {COST_SUBCATEGORY_LABELS[selectedSubcategory] ?? selectedSubcategory}
             </span>
           )}
         </div>
@@ -116,9 +129,17 @@ export function CostSubcategoryPieChart({ category, costs, range }: CostSubcateg
                 paddingAngle={3}
                 labelLine={true}
                 label={({ label, value }) => `${label}: ${formatCurrency(value)}`}
+                onClick={(entry) => onSelectSubcategory?.(entry.subcategory as CostSubcategory)}
+                cursor="pointer"
               >
                 {chartData.map((entry) => (
-                  <Cell key={entry.subcategory} fill={entry.color} stroke="var(--surface-1)" strokeWidth={2} />
+                  <Cell
+                    key={entry.subcategory}
+                    fill={entry.color}
+                    stroke="var(--surface-1)"
+                    strokeWidth={2}
+                    opacity={selectedSubcategory && selectedSubcategory !== entry.subcategory ? 0.4 : 1}
+                  />
                 ))}
               </Pie>
               <Tooltip formatter={(value: number) => formatCurrency(value)} />

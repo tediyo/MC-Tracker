@@ -2,16 +2,22 @@ import { Injectable, Logger } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
 import { endOfMonth, format, isLastDayOfMonth, startOfMonth } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
+import {
+  isLastDayOfEthiopianMonth,
+  getEthiopianDate,
+  getEthiopianMonthLabel,
+  toGregorianDate,
+  getDaysInEthiopianMonth,
+} from "@mc-tracker/shared-types";
 import { APP_TIMEZONE } from "../../config/app-timezone";
 import { NotificationsService } from "../notifications.service";
 import { MailService } from "../../mail/mail.service";
 
 /**
- * `@nestjs/schedule`'s cron parser has no native "last day of month"
- * pattern, so this runs every day at 9:00 PM (APP_TIMEZONE) and
- * short-circuits unless today actually is the last calendar day of the
- * month - `date-fns`'s `isLastDayOfMonth` handles Feb 28/29 correctly, so
- * there's no hand-rolled date math to get wrong.
+ * Runs daily at 9:00 PM (APP_TIMEZONE).
+ * Dynamically checks whether today is the last calendar day of either the
+ * Ethiopian month (E.C.) or Gregorian month (G.C.), and dispatches
+ * personalized summaries to each user according to their configured calendar toggle.
  */
 @Injectable()
 export class MonthlySummaryJob {
@@ -25,20 +31,44 @@ export class MonthlySummaryJob {
   @Cron("0 21 * * *", { name: "monthly-summary-check", timeZone: APP_TIMEZONE })
   async handle(): Promise<void> {
     const now = toZonedTime(new Date(), APP_TIMEZONE);
-    if (!isLastDayOfMonth(now)) return;
+    const isGregorianEnd = isLastDayOfMonth(now);
+    const isEthiopianEnd = isLastDayOfEthiopianMonth(now);
 
-    const start = startOfMonth(now);
-    const end = endOfMonth(now);
-    const startIso = format(start, "yyyy-MM-dd");
-    const endIso = format(end, "yyyy-MM-dd");
-    const monthLabel = format(now, "MMMM yyyy");
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1;
+    if (!isGregorianEnd && !isEthiopianEnd) return;
 
     const users = await this.notifications.getAllUsers();
-    this.logger.log(`Monthly summary: sending to ${users.length} user(s) for ${monthLabel}`);
+    this.logger.log(`Monthly summary: checking ${users.length} user(s) (GregorianEnd: ${isGregorianEnd}, EthiopianEnd: ${isEthiopianEnd})`);
 
     for (const user of users) {
+      const mode = (user.user_metadata?.calendar_mode || "ethiopian").toLowerCase();
+      if (mode === "gregorian" && !isGregorianEnd) continue;
+      if (mode === "ethiopian" && !isEthiopianEnd) continue;
+
+      let monthLabel: string;
+      let startIso: string;
+      let endIso: string;
+      let year: number;
+      let month: number;
+
+      if (mode === "gregorian") {
+        const start = startOfMonth(now);
+        const end = endOfMonth(now);
+        startIso = format(start, "yyyy-MM-dd");
+        endIso = format(end, "yyyy-MM-dd");
+        monthLabel = format(now, "MMMM yyyy");
+        year = now.getFullYear();
+        month = now.getMonth() + 1;
+      } else {
+        const ethNow = getEthiopianDate(now);
+        monthLabel = getEthiopianMonthLabel(ethNow);
+        const startEth = toGregorianDate(ethNow.year, ethNow.month, 1);
+        const endEth = toGregorianDate(ethNow.year, ethNow.month, getDaysInEthiopianMonth(ethNow.year, ethNow.month));
+        startIso = format(startEth, "yyyy-MM-dd");
+        endIso = format(endEth, "yyyy-MM-dd");
+        year = ethNow.year;
+        month = ethNow.month;
+      }
+
       const [summary, plan] = await Promise.all([
         this.notifications.getPeriodSummary(user.id, startIso, endIso),
         this.notifications.getPlanForMonth(user.id, year, month),

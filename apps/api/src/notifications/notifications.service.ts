@@ -22,10 +22,20 @@ export class NotificationsService {
     return data ?? [];
   }
 
-  async getAllUsers(): Promise<UserRow[]> {
+  async getAllUsers(): Promise<Array<{ id: string; email: string; user_metadata?: Record<string, any> }>> {
+    try {
+      const { data, error } = await this.supabase.getClient().auth.admin.listUsers({ perPage: 1000 });
+      if (!error && data?.users) {
+        return data.users.map((u) => ({
+          id: u.id,
+          email: u.email ?? "",
+          user_metadata: u.user_metadata,
+        }));
+      }
+    } catch {}
     const { data, error } = await this.supabase.getClient().from("users").select("*");
     if (error) throw error;
-    return data ?? [];
+    return (data ?? []).map((u: any) => ({ id: u.id, email: u.email ?? "" }));
   }
 
   async getPeriodSummary(userId: string, startIso: string, endIso: string): Promise<GetPeriodSummaryRow> {
