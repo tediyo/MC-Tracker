@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export type CalendarMode = "ethiopian" | "gregorian";
 
@@ -31,6 +32,20 @@ export function CalendarProvider({ children }: { children: React.ReactNode }) {
     const stored = readStoredCalendarMode();
     setCalendarModeState(stored);
     setMounted(true);
+
+    // Sync from Supabase user account metadata if logged in
+    try {
+      const supabase = createClient();
+      supabase.auth.getUser().then(({ data }) => {
+        const remoteMode = data?.user?.user_metadata?.calendar_mode as CalendarMode | undefined;
+        if (remoteMode === "gregorian" || remoteMode === "ethiopian") {
+          setCalendarModeState(remoteMode);
+          try {
+            window.localStorage.setItem(CALENDAR_STORAGE_KEY, remoteMode);
+          } catch {}
+        }
+      }).catch(() => {});
+    } catch {}
   }, []);
 
   const setCalendarMode = React.useCallback((next: CalendarMode) => {
@@ -40,6 +55,14 @@ export function CalendarProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // Ignore local storage write errors in private contexts
     }
+
+    // Persist to user account metadata in Supabase so automated jobs respect it
+    try {
+      const supabase = createClient();
+      supabase.auth.updateUser({ data: { calendar_mode: next } }).catch((err) => {
+        console.warn("[CalendarProvider] Failed to update calendar_mode in auth metadata:", err);
+      });
+    } catch {}
   }, []);
 
   return (

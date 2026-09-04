@@ -113,3 +113,17 @@ export function toGregorianDate(ethYear: number, ethMonth: number, ethDay: numbe
   const { year, month, day } = jdnToGregorian(jdn);
   return new Date(year, month - 1, day);
 }
+
+export function isLastDayOfEthiopianMonth(date: Date = new Date()): boolean {
+  const eth = getEthiopianDate(date);
+  const daysInMonth = getDaysInEthiopianMonth(eth.year, eth.month);
+  return eth.day === daysInMonth;
+}
+
+export function getEthiopianMonthLabel(dateOrEth: Date | EthiopianDate): string {
+  const eth = dateOrEth instanceof Date ? getEthiopianDate(dateOrEth) : dateOrEth;
+  const monthInfo = ETHIOPIAN_MONTHS.find((m) => m.number === eth.month);
+  const name = monthInfo ? monthInfo.nameEn : `Month ${eth.month}`;
+  return `${name} ${eth.year} E.C.`;
+}
+

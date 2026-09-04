@@ -2,11 +2,18 @@
 
 import * as React from "react";
 import { addDays, subDays, addWeeks, subWeeks, addMonths, subMonths, addYears, subYears } from "date-fns";
-import type { TimeFrame, CostCategory } from "@mc-tracker/shared-types";
+import type {
+  TimeFrame,
+  CostCategory,
+  CostSubcategory,
+} from "@mc-tracker/shared-types";
 import {
   getEthiopianDate,
   toGregorianDate,
   getDaysInEthiopianMonth,
+  COST_CATEGORY_LABELS,
+  COST_SUBCATEGORY_LABELS,
+  CATEGORY_SUBCATEGORY_MAP,
 } from "@mc-tracker/shared-types";
 import { useDashboardData } from "@/hooks/use-dashboard-data";
 import type { DashboardData } from "@/lib/dashboard/get-dashboard-data";
@@ -19,6 +26,7 @@ import { IncomeExpenseTrendChart } from "@/components/dashboard/income-expense-t
 import { MonthComparisonSection } from "@/components/dashboard/month-comparison-section";
 import { PdfReportButton } from "@/components/dashboard/pdf-report-button";
 import { RecentTransactionsWidget } from "@/components/dashboard/recent-transactions-widget";
+import { DashboardFilterBar } from "@/components/dashboard/dashboard-filter-bar";
 import { WebDashboardSkeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
@@ -105,6 +113,7 @@ export function DashboardClient({
   const [timeframe, setTimeframe] = React.useState<TimeFrame>(initialTimeframe);
   const [referenceDate, setReferenceDate] = React.useState<Date>(initialRefDate);
   const [selectedCategory, setSelectedCategory] = React.useState<CostCategory | null>(null);
+  const [selectedSubcategory, setSelectedSubcategory] = React.useState<CostSubcategory | null>(null);
   const [showBalances, setShowBalances] = React.useState<boolean>(true);
   const { calendarMode, setCalendarMode } = useCalendarPreference();
 
@@ -121,7 +130,88 @@ export function DashboardClient({
   function handleTimeframeChange(next: TimeFrame) {
     setTimeframe(next);
     setSelectedCategory(null);
+    setSelectedSubcategory(null);
   }
+
+  const handleCategorySelect = (cat: CostCategory | null) => {
+    setSelectedCategory(cat);
+    if (!cat) {
+      setSelectedSubcategory(null);
+    } else if (
+      selectedSubcategory &&
+      !CATEGORY_SUBCATEGORY_MAP[cat].includes(selectedSubcategory)
+    ) {
+      setSelectedSubcategory(null);
+    }
+  };
+
+  const handleSubcategorySelect = (sub: CostSubcategory | null) => {
+    setSelectedSubcategory(sub);
+    if (sub && !selectedCategory) {
+      for (const [cat, subs] of Object.entries(CATEGORY_SUBCATEGORY_MAP)) {
+        if (subs.includes(sub)) {
+          setSelectedCategory(cat as CostCategory);
+          break;
+        }
+      }
+    }
+  };
+
+  const filteredCosts = React.useMemo(() => {
+    if (!data?.currentPeriodCosts) return [];
+    return data.currentPeriodCosts.filter((c) => {
+      if (selectedCategory && c.category !== selectedCategory) return false;
+      if (selectedSubcategory && c.subcategory !== selectedSubcategory) return false;
+      return true;
+    });
+  }, [data?.currentPeriodCosts, selectedCategory, selectedSubcategory]);
+
+  const effectiveMetrics = React.useMemo(() => {
+    if (!data?.metrics) return null;
+    if (!selectedCategory && !selectedSubcategory) return data.metrics;
+
+    const filteredTotalCosts = filteredCosts.reduce((sum, c) => sum + Number(c.amount), 0);
+    const filteredNetProfitLoss = data.metrics.totalIncome - filteredTotalCosts;
+    const filteredCostVariance =
+      data.metrics.targetCostLimit !== null
+        ? data.metrics.targetCostLimit - filteredTotalCosts
+        : null;
+    const filteredSavingsVariance =
+      data.metrics.targetSavingsGoal !== null
+        ? filteredNetProfitLoss - data.metrics.targetSavingsGoal
+        : null;
+
+    return {
+      ...data.metrics,
+      totalCosts: filteredTotalCosts,
+      netProfitLoss: filteredNetProfitLoss,
+      costVariance: filteredCostVariance,
+      savingsVariance: filteredSavingsVariance,
+    };
+  }, [data?.metrics, filteredCosts, selectedCategory, selectedSubcategory]);
+
+  const filterLabel = React.useMemo(() => {
+    if (selectedCategory && selectedSubcategory) {
+      return `${COST_CATEGORY_LABELS[selectedCategory]} › ${COST_SUBCATEGORY_LABELS[selectedSubcategory] ?? selectedSubcategory}`;
+    }
+    if (selectedCategory) {
+      return COST_CATEGORY_LABELS[selectedCategory];
+    }
+    if (selectedSubcategory) {
+      return COST_SUBCATEGORY_LABELS[selectedSubcategory] ?? selectedSubcategory;
+    }
+    return null;
+  }, [selectedCategory, selectedSubcategory]);
+
+  const reportData = React.useMemo(() => {
+    if (!data) return null;
+    if (!selectedCategory && !selectedSubcategory) return data;
+    return {
+      ...data,
+      metrics: effectiveMetrics || data.metrics,
+      currentPeriodCosts: filteredCosts,
+    };
+  }, [data, effectiveMetrics, filteredCosts, selectedCategory, selectedSubcategory]);
 
   const showSkeleton = isFetching || !data;
 
@@ -137,31 +227,45 @@ export function DashboardClient({
           onPrevious={() => setReferenceDate((d) => stepCalendarDate(timeframe, d, -1, calendarMode))}
           onNext={() => setReferenceDate((d) => stepCalendarDate(timeframe, d, 1, calendarMode))}
         />
-        {data ? (
-          <PdfReportButton data={data} showBalances={showBalances} timeframe={timeframe} />
+        {reportData ? (
+          <PdfReportButton data={reportData} showBalances={showBalances} timeframe={timeframe} />
         ) : null}
       </div>
+
+      <DashboardFilterBar
+        selectedCategory={selectedCategory}
+        selectedSubcategory={selectedSubcategory}
+        onSelectCategory={handleCategorySelect}
+        onSelectSubcategory={handleSubcategorySelect}
+        filteredCount={filteredCosts.length}
+        totalCount={data?.currentPeriodCosts?.length || 0}
+      />
 
       {showSkeleton ? (
         <WebDashboardSkeleton />
       ) : (
         <>
           <SummaryCards
-            metrics={data.metrics}
+            metrics={effectiveMetrics || data.metrics}
             showBalances={showBalances}
             onToggleShowBalances={() => setShowBalances(!showBalances)}
+            filterLabel={filterLabel}
           />
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <CostCategoryPieChart
               data={data.costsByCategory}
               selectedCategory={selectedCategory}
-              onSelectCategory={setSelectedCategory}
+              onSelectCategory={(cat) => handleCategorySelect(selectedCategory === cat ? null : cat)}
             />
             <CostSubcategoryPieChart
               category={selectedCategory}
               costs={data.currentPeriodCosts}
               range={{ start: data.metrics.range.start, end: referenceDate }}
+              selectedSubcategory={selectedSubcategory}
+              onSelectSubcategory={(sub) =>
+                handleSubcategorySelect(selectedSubcategory === sub ? null : sub)
+              }
             />
           </div>
 
@@ -169,7 +273,7 @@ export function DashboardClient({
           <MonthComparisonSection userId={userId} />
 
           <RecentTransactionsWidget
-            costs={data.currentPeriodCosts || []}
+            costs={filteredCosts}
             incomes={data.currentPeriodIncomes || []}
             showBalances={showBalances}
           />
