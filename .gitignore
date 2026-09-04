@@ -8,26 +8,41 @@ dist/
 build/
 .turbo/
 
-# Env files (never commit real credentials)
+# Environment & Secret files (never commit real credentials)
 .env
-.env.local
-.env.*.local
-!.env.example
+.env*
+*.env*
+**/.env*
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+*.p12
+*.keystore
+*.jks
+*serviceAccount*.json
+*service-account*.json
 
-# Supabase local dev
+# Supabase database migrations & local dev
 supabase/.branches
 supabase/.temp
+supabase/migrations/
 
 # Logs
 *.log
 npm-debug.log*
 pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Editor/OS
+# Editor / Tooling / OS
 .DS_Store
 Thumbs.db
 .vscode/*
 !.vscode/extensions.json
+.idea/
+.claude/
 
 # Testing
 coverage/
