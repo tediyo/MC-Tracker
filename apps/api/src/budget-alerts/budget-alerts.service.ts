@@ -91,7 +91,7 @@ export class BudgetAlertsService {
     const targetCostLimit = Number(plan.target_cost_limit);
     if (totalCost <= targetCostLimit) return;
 
-    await this.mail.sendOverBudgetAlert({
+    const sent = await this.mail.sendOverBudgetAlert({
       email: user.email,
       monthLabel,
       targetCostLimit,
@@ -99,11 +99,15 @@ export class BudgetAlertsService {
       overBy: totalCost - targetCostLimit,
     });
 
-    const { error } = await this.supabase
-      .getClient()
-      .from("plans")
-      .update({ over_budget_alert_sent_at: new Date().toISOString() })
-      .eq("id", plan.id);
-    if (error) this.logger.error(`Failed to stamp over_budget_alert_sent_at for plan ${plan.id}: ${error.message}`);
+    if (sent) {
+      const { error } = await this.supabase
+        .getClient()
+        .from("plans")
+        .update({ over_budget_alert_sent_at: new Date().toISOString() })
+        .eq("id", plan.id);
+      if (error) this.logger.error(`Failed to stamp over_budget_alert_sent_at for plan ${plan.id}: ${error.message}`);
+    } else {
+      this.logger.warn(`Email alert delivery failed for user ${userId}; leaving over_budget_alert_sent_at unstamped for retry.`);
+    }
   }
 }
