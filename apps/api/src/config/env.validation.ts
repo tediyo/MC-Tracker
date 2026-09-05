@@ -27,6 +27,10 @@ export const envSchema = z.object({
   RESEND_API_KEY: z.string().optional().default(""),
   RESEND_FROM: z.string().optional().default(""),
 
+  BREVO_API_KEY: z.string().optional().default(""),
+  BREVO_FROM_EMAIL: z.string().optional().default("mctrackernotification@gmail.com"),
+  BREVO_FROM_NAME: z.string().optional().default("MC Tracker"),
+
   WEB_APP_URL: z.string().url().default("http://localhost:3000"),
 });
 
