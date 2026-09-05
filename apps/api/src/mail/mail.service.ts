@@ -1,6 +1,10 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { MailerService } from "@nestjs-modules/mailer";
+import { Resend } from "resend";
+import * as handlebars from "handlebars";
+import * as fs from "fs";
+import * as path from "path";
 
 interface DailyReminderContext {
   email: string;
@@ -34,22 +38,30 @@ function formatUsd(amount: number): string {
 }
 
 /**
- * Thin wrapper around MailerService - one method per notification type,
- * each rendering its own Handlebars template. Kept intentionally simple:
- * callers (the cron jobs / budget-alerts service) build the context object,
- * this just renders + sends + logs failures without throwing (a failed
- * send for one user should never take down the whole cron run).
+ * Thin wrapper around MailerService and Resend - one method per notification type,
+ * rendering Handlebars templates. Automatically uses Resend (HTTPS Port 443) when
+ * RESEND_API_KEY is configured, bypassing cloud provider SMTP port restrictions.
  */
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
   private readonly webAppUrl: string;
+  private readonly resendClient: Resend | null = null;
+  private readonly fromAddress: string;
+  private readonly templatesDir: string;
 
   constructor(
     private readonly mailer: MailerService,
     config: ConfigService,
   ) {
     this.webAppUrl = config.get<string>("WEB_APP_URL", "http://localhost:3000");
+    const resendApiKey = config.get<string>("RESEND_API_KEY");
+    if (resendApiKey) {
+      this.resendClient = new Resend(resendApiKey);
+      this.logger.log("[MailService] Resend HTTPS transport initialized");
+    }
+    this.fromAddress = config.get<string>("RESEND_FROM") || "MC Tracker <onboarding@resend.dev>";
+    this.templatesDir = path.join(__dirname, "templates");
   }
 
   async sendDailyReminder(ctx: DailyReminderContext): Promise<void> {
@@ -106,6 +118,33 @@ export class MailService {
     context: Record<string, unknown>,
   ): Promise<void> {
     try {
+      if (this.resendClient) {
+        let html = "";
+        try {
+          const filePath = path.join(this.templatesDir, `${template}.hbs`);
+          if (fs.existsSync(filePath)) {
+            const source = fs.readFileSync(filePath, "utf-8");
+            html = handlebars.compile(source)(context);
+          }
+        } catch (err: any) {
+          this.logger.warn(`Failed to render template "${template}": ${err.message}`);
+        }
+
+        const { data, error } = await this.resendClient.emails.send({
+          from: this.fromAddress,
+          to,
+          subject,
+          html: html || `<p>${subject}</p>`,
+        });
+
+        if (error) {
+          this.logger.error(`Resend failed to send "${template}" to ${to}: ${error.message}`);
+        } else {
+          this.logger.log(`Email "${template}" dispatched via Resend to ${to} (ID: ${data?.id})`);
+        }
+        return;
+      }
+
       await this.mailer.sendMail({ to, subject, template, context });
     } catch (error) {
       // A failed send for one user must never abort the rest of a cron

@@ -24,6 +24,9 @@ export const envSchema = z.object({
   SMTP_PORT: z.coerce.number().default(465),
   MAIL_FROM: z.string().default("MC Tracker <no-reply@example.com>"),
 
+  RESEND_API_KEY: z.string().optional().default(""),
+  RESEND_FROM: z.string().optional().default(""),
+
   WEB_APP_URL: z.string().url().default("http://localhost:3000"),
 });
 
