@@ -113,8 +113,8 @@ export class MailService {
     });
   }
 
-  async sendOverBudgetAlert(ctx: OverBudgetAlertContext): Promise<void> {
-    await this.send(ctx.email, `You're over budget for ${ctx.monthLabel}`, "over-budget-alert", {
+  async sendOverBudgetAlert(ctx: OverBudgetAlertContext): Promise<boolean> {
+    return await this.send(ctx.email, `You're over budget for ${ctx.monthLabel}`, "over-budget-alert", {
       monthLabel: ctx.monthLabel,
       targetCostLimit: formatUsd(ctx.targetCostLimit),
       totalCost: formatUsd(ctx.totalCost),
@@ -128,7 +128,7 @@ export class MailService {
     subject: string,
     template: string,
     context: Record<string, unknown>,
-  ): Promise<void> {
+  ): Promise<boolean> {
     try {
       // 1. Compile template with Handlebars
       let html = "";
@@ -144,57 +144,73 @@ export class MailService {
 
       // 2. Dispatch via Brevo HTTPS API (Port 443 - free, no domain verification required, sends to any recipient)
       if (this.brevoApiKey) {
-        const res = await fetch("https://api.brevo.com/v3/smtp/email", {
-          method: "POST",
-          headers: {
-            "api-key": this.brevoApiKey,
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-          },
-          body: JSON.stringify({
-            sender: {
-              name: this.brevoFromName,
-              email: this.brevoFromEmail,
+        try {
+          const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+            method: "POST",
+            headers: {
+              "api-key": this.brevoApiKey,
+              "Content-Type": "application/json",
+              "Accept": "application/json",
             },
-            to: [{ email: to }],
-            subject,
-            htmlContent: html || `<p>${subject}</p>`,
-          }),
-        });
+            body: JSON.stringify({
+              sender: {
+                name: this.brevoFromName,
+                email: this.brevoFromEmail,
+              },
+              to: [{ email: to }],
+              subject,
+              htmlContent: html || `<p>${subject}</p>`,
+            }),
+          });
 
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          this.logger.error(`Brevo failed to send "${template}" to ${to}: ${JSON.stringify(errData)}`);
-        } else {
-          const data = await res.json().catch(() => ({}));
-          this.logger.log(`Email "${template}" dispatched via Brevo to ${to} (MessageId: ${(data as any)?.messageId})`);
+          if (res.ok) {
+            const data = await res.json().catch(() => ({}));
+            this.logger.log(`Email "${template}" dispatched via Brevo to ${to} (MessageId: ${(data as any)?.messageId})`);
+            return true;
+          } else {
+            const errData = await res.json().catch(() => ({}));
+            this.logger.error(`Brevo failed to send "${template}" to ${to}: ${JSON.stringify(errData)}`);
+          }
+        } catch (err: any) {
+          this.logger.error(`Brevo network error: ${err.message}`);
         }
-        return;
       }
 
       // 3. Dispatch via Resend HTTPS API (if configured)
       if (this.resendClient) {
-        const { data, error } = await this.resendClient.emails.send({
-          from: this.fromAddress,
-          to,
-          subject,
-          html: html || `<p>${subject}</p>`,
-        });
+        try {
+          const { data, error } = await this.resendClient.emails.send({
+            from: this.fromAddress,
+            to,
+            subject,
+            html: html || `<p>${subject}</p>`,
+          });
 
-        if (error) {
-          this.logger.error(`Resend failed to send "${template}" to ${to}: ${error.message}`);
-        } else {
-          this.logger.log(`Email "${template}" dispatched via Resend to ${to} (ID: ${data?.id})`);
+          if (!error) {
+            this.logger.log(`Email "${template}" dispatched via Resend to ${to} (ID: ${data?.id})`);
+            return true;
+          } else {
+            this.logger.error(`Resend failed to send "${template}" to ${to}: ${error.message}`);
+          }
+        } catch (err: any) {
+          this.logger.error(`Resend network error: ${err.message}`);
         }
-        return;
       }
 
-      // 4. Fallback to nodemailer SMTP
-      await this.mailer.sendMail({ to, subject, template, context });
+      // 4. Fallback to nodemailer SMTP (local dev)
+      try {
+        await this.mailer.sendMail({ to, subject, template, context });
+        return true;
+      } catch (smtpErr: any) {
+        this.logger.error(`SMTP fallback failed: ${smtpErr.message}`);
+      }
+
+      return false;
     } catch (error) {
       // A failed send for one user must never abort the rest of a cron
       // run's loop over every user - log and move on.
       this.logger.error(`Failed to send "${template}" to ${to}: ${(error as Error).message}`);
+      return false;
     }
   }
 }
