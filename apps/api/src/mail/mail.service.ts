@@ -48,6 +48,9 @@ export class MailService {
   private readonly webAppUrl: string;
   private readonly resendClient: Resend | null = null;
   private readonly fromAddress: string;
+  private readonly brevoApiKey: string | null = null;
+  private readonly brevoFromEmail: string;
+  private readonly brevoFromName: string;
   private readonly templatesDir: string;
 
   constructor(
@@ -55,6 +58,15 @@ export class MailService {
     config: ConfigService,
   ) {
     this.webAppUrl = config.get<string>("WEB_APP_URL", "http://localhost:3000");
+
+    const brevoKey = config.get<string>("BREVO_API_KEY");
+    if (brevoKey) {
+      this.brevoApiKey = brevoKey;
+      this.logger.log("[MailService] Brevo HTTPS transport initialized (Port 443)");
+    }
+    this.brevoFromEmail = config.get<string>("BREVO_FROM_EMAIL") || "mctrackernotification@gmail.com";
+    this.brevoFromName = config.get<string>("BREVO_FROM_NAME") || "MC Tracker";
+
     const resendApiKey = config.get<string>("RESEND_API_KEY");
     if (resendApiKey) {
       this.resendClient = new Resend(resendApiKey);
@@ -118,18 +130,50 @@ export class MailService {
     context: Record<string, unknown>,
   ): Promise<void> {
     try {
-      if (this.resendClient) {
-        let html = "";
-        try {
-          const filePath = path.join(this.templatesDir, `${template}.hbs`);
-          if (fs.existsSync(filePath)) {
-            const source = fs.readFileSync(filePath, "utf-8");
-            html = handlebars.compile(source)(context);
-          }
-        } catch (err: any) {
-          this.logger.warn(`Failed to render template "${template}": ${err.message}`);
+      // 1. Compile template with Handlebars
+      let html = "";
+      try {
+        const filePath = path.join(this.templatesDir, `${template}.hbs`);
+        if (fs.existsSync(filePath)) {
+          const source = fs.readFileSync(filePath, "utf-8");
+          html = handlebars.compile(source)(context);
         }
+      } catch (err: any) {
+        this.logger.warn(`Failed to render template "${template}": ${err.message}`);
+      }
 
+      // 2. Dispatch via Brevo HTTPS API (Port 443 - free, no domain verification required, sends to any recipient)
+      if (this.brevoApiKey) {
+        const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+          method: "POST",
+          headers: {
+            "api-key": this.brevoApiKey,
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+          },
+          body: JSON.stringify({
+            sender: {
+              name: this.brevoFromName,
+              email: this.brevoFromEmail,
+            },
+            to: [{ email: to }],
+            subject,
+            htmlContent: html || `<p>${subject}</p>`,
+          }),
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          this.logger.error(`Brevo failed to send "${template}" to ${to}: ${JSON.stringify(errData)}`);
+        } else {
+          const data = await res.json().catch(() => ({}));
+          this.logger.log(`Email "${template}" dispatched via Brevo to ${to} (MessageId: ${(data as any)?.messageId})`);
+        }
+        return;
+      }
+
+      // 3. Dispatch via Resend HTTPS API (if configured)
+      if (this.resendClient) {
         const { data, error } = await this.resendClient.emails.send({
           from: this.fromAddress,
           to,
@@ -145,6 +189,7 @@ export class MailService {
         return;
       }
 
+      // 4. Fallback to nodemailer SMTP
       await this.mailer.sendMail({ to, subject, template, context });
     } catch (error) {
       // A failed send for one user must never abort the rest of a cron

@@ -31,7 +31,35 @@ export async function POST(req: Request) {
       </div>
     `;
 
-    // 1. Resend HTTPS API (bypasses cloud SMTP port blocks on Render/Vercel)
+    // 1. Brevo HTTPS API (Port 443 - no port blocks on Render/Vercel, sends to any recipient)
+    const brevoApiKey = process.env.BREVO_API_KEY;
+    if (brevoApiKey) {
+      const brevoFromEmail = process.env.BREVO_FROM_EMAIL || "mctrackernotification@gmail.com";
+      const brevoFromName = process.env.BREVO_FROM_NAME || "MC Tracker";
+      const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          "api-key": brevoApiKey,
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: JSON.stringify({
+          sender: { name: brevoFromName, email: brevoFromEmail },
+          to: [{ email: targetEmail }],
+          subject: emailSubject,
+          htmlContent: emailHtml,
+        }),
+      });
+
+      const brevoData = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(brevoData.message || "Brevo API error");
+      }
+      console.log("[Brevo] Budget warning email dispatched:", brevoData.messageId);
+      return NextResponse.json({ success: true, messageId: brevoData.messageId, recipient: targetEmail, provider: "brevo" });
+    }
+
+    // 2. Resend HTTPS API (bypasses cloud SMTP port blocks on Render/Vercel)
     const resendApiKey = process.env.RESEND_API_KEY;
     if (resendApiKey) {
       const resendFrom = process.env.RESEND_FROM || "MC Tracker <onboarding@resend.dev>";
