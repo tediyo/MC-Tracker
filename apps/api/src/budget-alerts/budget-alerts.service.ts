@@ -1,5 +1,11 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { endOfMonth, format, parseISO, startOfMonth } from "date-fns";
+import {
+  getEthiopianDate,
+  getEthiopianMonthLabel,
+  toGregorianDate,
+  getDaysInEthiopianMonth,
+} from "@mc-tracker/shared-types";
 import type { CostRow } from "@mc-tracker/shared-types";
 import { SupabaseService } from "../supabase/supabase.service";
 import { NotificationsService } from "../notifications/notifications.service";
@@ -44,30 +50,50 @@ export class BudgetAlertsService {
 
   /** Entry point from the daily-reminder safety net - one user, one reference date. */
   async checkAndAlertForUserMonth(userId: string, referenceDate: Date): Promise<void> {
-    const year = referenceDate.getFullYear();
-    const month = referenceDate.getMonth() + 1;
-
-    const plan = await this.notifications.getPlanForMonth(userId, year, month);
-    if (!plan) return; // no plan for this month - nothing to compare against
-    if (plan.over_budget_alert_sent_at) return; // already alerted this month - see the plan's documented re-fire semantics
-
-    const monthStartIso = format(startOfMonth(referenceDate), "yyyy-MM-dd");
-    const monthEndIso = format(endOfMonth(referenceDate), "yyyy-MM-dd");
-    const summary = await this.notifications.getPeriodSummary(userId, monthStartIso, monthEndIso);
-
-    const totalCost = Number(summary.total_cost);
-    const targetCostLimit = Number(plan.target_cost_limit);
-    if (totalCost <= targetCostLimit) return;
-
     const user = await this.notifications.getUserById(userId);
     if (!user) {
       this.logger.warn(`Over-budget check: no users row found for ${userId}`);
       return;
     }
 
+    const mode = (user.user_metadata?.calendar_mode || "ethiopian").toLowerCase();
+
+    let year: number;
+    let month: number;
+    let monthStartIso: string;
+    let monthEndIso: string;
+    let monthLabel: string;
+
+    if (mode === "gregorian") {
+      year = referenceDate.getFullYear();
+      month = referenceDate.getMonth() + 1;
+      monthStartIso = format(startOfMonth(referenceDate), "yyyy-MM-dd");
+      monthEndIso = format(endOfMonth(referenceDate), "yyyy-MM-dd");
+      monthLabel = format(referenceDate, "MMMM yyyy");
+    } else {
+      const ethDate = getEthiopianDate(referenceDate);
+      year = ethDate.year;
+      month = ethDate.month;
+      monthLabel = getEthiopianMonthLabel(ethDate);
+      const startEth = toGregorianDate(ethDate.year, ethDate.month, 1);
+      const endEth = toGregorianDate(ethDate.year, ethDate.month, getDaysInEthiopianMonth(ethDate.year, ethDate.month));
+      monthStartIso = format(startEth, "yyyy-MM-dd");
+      monthEndIso = format(endEth, "yyyy-MM-dd");
+    }
+
+    const plan = await this.notifications.getPlanForMonth(userId, year, month);
+    if (!plan) return; // no plan for this month - nothing to compare against
+    if (plan.over_budget_alert_sent_at) return; // already alerted this month - see the plan's documented re-fire semantics
+
+    const summary = await this.notifications.getPeriodSummary(userId, monthStartIso, monthEndIso);
+
+    const totalCost = Number(summary.total_cost);
+    const targetCostLimit = Number(plan.target_cost_limit);
+    if (totalCost <= targetCostLimit) return;
+
     await this.mail.sendOverBudgetAlert({
       email: user.email,
-      monthLabel: format(referenceDate, "MMMM yyyy"),
+      monthLabel,
       targetCostLimit,
       totalCost,
       overBy: totalCost - targetCostLimit,
