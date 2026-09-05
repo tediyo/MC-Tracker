@@ -31,4 +31,17 @@ export class BudgetAlertsController {
       this.logger.error(`Over-budget check failed: ${(error as Error).message}`);
     }
   }
+
+  @Post("notify-surpassed")
+  async notifySurpassed(@Body() body: { userId: string }): Promise<{ success: boolean; message?: string }> {
+    if (!body?.userId) return { success: false, message: "Missing userId" };
+
+    try {
+      await this.budgetAlerts.checkAndAlertForUserMonth(body.userId, new Date());
+      return { success: true };
+    } catch (error) {
+      this.logger.error(`Notify surpassed check failed for ${body.userId}: ${(error as Error).message}`);
+      return { success: false, message: (error as Error).message };
+    }
+  }
 }

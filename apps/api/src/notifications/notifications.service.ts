@@ -60,9 +60,19 @@ export class NotificationsService {
     return data ?? null;
   }
 
-  async getUserById(userId: string): Promise<UserRow | null> {
+  async getUserById(userId: string): Promise<{ id: string; email: string; user_metadata?: Record<string, any> } | null> {
+    try {
+      const { data, error } = await this.supabase.getClient().auth.admin.getUserById(userId);
+      if (!error && data?.user) {
+        return {
+          id: data.user.id,
+          email: data.user.email ?? "",
+          user_metadata: data.user.user_metadata,
+        };
+      }
+    } catch {}
     const { data, error } = await this.supabase.getClient().from("users").select("*").eq("id", userId).maybeSingle();
     if (error) throw error;
-    return data ?? null;
+    return data ? { id: data.id, email: data.email ?? "" } : null;
   }
 }
