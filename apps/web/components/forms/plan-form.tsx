@@ -79,6 +79,11 @@ export function PlanForm({ userId, mode, initialMonth, initialYear, existingPeri
     try {
       const supabase = createClient();
       await updatePlan(supabase, plan.id, values);
+      fetch("/api/alerts/notify-surpassed", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      }).catch(() => {});
       toast.success("Plan updated");
       router.push("/plans");
       router.refresh();
