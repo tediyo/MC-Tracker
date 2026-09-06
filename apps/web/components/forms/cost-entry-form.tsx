@@ -36,6 +36,14 @@ export function CostEntryForm({ userId }: { userId: string }) {
     try {
       const supabase = createClient();
       await insertCostBatch(supabase, userId, values.date, values.rows);
+
+      // Check if monthly plan was surpassed and trigger alert if so
+      fetch("/api/alerts/notify-surpassed", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      }).catch((err) => console.warn("Over-budget check warning:", err));
+
       toast.success(`Saved ${values.rows.length} cost row${values.rows.length > 1 ? "s" : ""}`);
       form.reset({ date: values.date, rows: [newRow()] });
       router.refresh();
