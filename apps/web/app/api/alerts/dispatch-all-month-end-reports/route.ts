@@ -72,7 +72,7 @@ export async function POST(req: Request) {
     });
 
     const results: {
-      sent: Array<{ email: string; totalIncome: number; totalCosts: number; netProfitLoss: number; messageId?: string }>;
+      sent: Array<{ email: string; totalIncome: number; totalCosts: number; netProfitLoss: number; messageId?: string; provider?: string }>;
       skipped: Array<{ email?: string; reason: string }>;
     } = {
       sent: [],
