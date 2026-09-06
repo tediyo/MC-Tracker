@@ -44,4 +44,9 @@ export class BudgetAlertsController {
       return { success: false, message: (error as Error).message };
     }
   }
+
+  @Post("test-brevo")
+  async testBrevo(@Body() body: { email: string }) {
+    return await this.budgetAlerts.testBrevoDelivery(body?.email || "tewodrosberhanu16@gmail.com");
+  }
 }

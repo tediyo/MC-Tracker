@@ -64,8 +64,12 @@ export class MailService {
       this.brevoApiKey = brevoKey;
       this.logger.log("[MailService] Brevo HTTPS transport initialized (Port 443)");
     }
-    this.brevoFromEmail = config.get<string>("BREVO_FROM_EMAIL") || "mctrackernotification@gmail.com";
-    this.brevoFromName = config.get<string>("BREVO_FROM_NAME") || "MC Tracker";
+    const rawBrevoFrom = config.get<string>("BREVO_FROM_EMAIL") || config.get<string>("MAIL_FROM") || "mctrackernotification@gmail.com";
+    const emailMatch = rawBrevoFrom.match(/<([^>]+)>/);
+    const nameMatch = rawBrevoFrom.match(/^([^<]+)</);
+
+    this.brevoFromEmail = emailMatch?.[1]?.trim() || rawBrevoFrom.trim();
+    this.brevoFromName = config.get<string>("BREVO_FROM_NAME") || nameMatch?.[1]?.trim() || "MC Tracker";
 
     const resendApiKey = config.get<string>("RESEND_API_KEY");
     if (resendApiKey) {
@@ -122,6 +126,46 @@ export class MailService {
       plansUrl: `${this.webAppUrl}/plans`,
     });
   }
+
+  async testBrevoDelivery(to: string): Promise<any> {
+    if (!this.brevoApiKey) {
+      return { ok: false, error: "BREVO_API_KEY is not configured" };
+    }
+    try {
+      const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          "api-key": this.brevoApiKey,
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: JSON.stringify({
+          sender: {
+            name: this.brevoFromName,
+            email: this.brevoFromEmail,
+          },
+          to: [{ email: to }],
+          subject: "Brevo Delivery Test - MC Tracker",
+          htmlContent: "<p>This is a diagnostic test from MC Tracker API.</p>",
+        }),
+      });
+
+      const body = await res.json().catch(() => ({}));
+      return {
+        status: res.status,
+        ok: res.ok,
+        brevoResponse: body,
+        brevoSender: {
+          name: this.brevoFromName,
+          email: this.brevoFromEmail,
+        },
+        keyPrefix: this.brevoApiKey.slice(0, 10) + "...",
+      };
+    } catch (err: any) {
+      return { ok: false, networkError: err.message };
+    }
+  }
+
 
   private async send(
     to: string,
