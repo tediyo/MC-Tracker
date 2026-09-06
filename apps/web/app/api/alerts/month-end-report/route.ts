@@ -184,8 +184,8 @@ export async function POST(req: Request) {
       const rawBrevoFrom = process.env.BREVO_FROM_EMAIL || process.env.MAIL_FROM || "mctrackernotification@gmail.com";
       const emailMatch = rawBrevoFrom.match(/<([^>]+)>/);
       const nameMatch = rawBrevoFrom.match(/^([^<]+)</);
-      const brevoFromEmail = emailMatch ? emailMatch[1].trim() : rawBrevoFrom.trim();
-      const brevoFromName = process.env.BREVO_FROM_NAME || (nameMatch ? nameMatch[1].trim() : "MC Tracker");
+      const brevoFromEmail = emailMatch?.[1]?.trim() || rawBrevoFrom.trim();
+      const brevoFromName = process.env.BREVO_FROM_NAME || nameMatch?.[1]?.trim() || "MC Tracker";
 
       try {
         const res = await fetch("https://api.brevo.com/v3/smtp/email", {

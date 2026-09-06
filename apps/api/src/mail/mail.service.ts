@@ -68,8 +68,8 @@ export class MailService {
     const emailMatch = rawBrevoFrom.match(/<([^>]+)>/);
     const nameMatch = rawBrevoFrom.match(/^([^<]+)</);
 
-    this.brevoFromEmail = emailMatch ? emailMatch[1].trim() : rawBrevoFrom.trim();
-    this.brevoFromName = config.get<string>("BREVO_FROM_NAME") || (nameMatch ? nameMatch[1].trim() : "MC Tracker");
+    this.brevoFromEmail = emailMatch?.[1]?.trim() || rawBrevoFrom.trim();
+    this.brevoFromName = config.get<string>("BREVO_FROM_NAME") || nameMatch?.[1]?.trim() || "MC Tracker";
 
     const resendApiKey = config.get<string>("RESEND_API_KEY");
     if (resendApiKey) {
