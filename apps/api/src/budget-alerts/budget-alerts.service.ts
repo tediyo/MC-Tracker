@@ -34,6 +34,10 @@ export class BudgetAlertsService {
     private readonly mail: MailService,
   ) {}
 
+  async testBrevoDelivery(email: string) {
+    return await this.mail.testBrevoDelivery(email);
+  }
+
   /**
    * Entry point from the webhook - derives (userId, referenceDate) from the
    * inserted row. Uses date-fns's `parseISO` rather than the native `new
