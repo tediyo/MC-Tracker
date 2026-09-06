@@ -69,7 +69,15 @@ export async function createPlan(
 }
 
 export async function updatePlan(supabase: Client, id: string, input: UpdatePlanInput): Promise<PlanRow> {
-  const { data, error } = await supabase.from("plans").update(input).eq("id", id).select().single();
+  const { data, error } = await supabase
+    .from("plans")
+    .update({
+      ...input,
+      over_budget_alert_sent_at: null,
+    })
+    .eq("id", id)
+    .select()
+    .single();
   if (error) throw error;
   return data;
 }
