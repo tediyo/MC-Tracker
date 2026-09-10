@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { calculatePercentChange, calculatePeriodMetrics } from "./metrics";
+import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
+import { calculatePercentChange, calculatePeriodMetrics, capEnd } from "./metrics";
 import type { IncomeRow, CostRow, PlanRow } from "../db";
 
 function income(date: string, amount: number): IncomeRow {
@@ -38,6 +38,15 @@ describe("calculatePercentChange", () => {
 
 describe("calculatePeriodMetrics", () => {
   const referenceDate = new Date(2026, 7, 9); // Aug 9, 2026 — partial month "to date"
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(referenceDate);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
   it("caps the current period at referenceDate but uses the FULL previous period", () => {
     const incomes = [income("2026-08-08", 1000), income("2026-08-20", 500) /* after referenceDate: excluded */];
@@ -85,5 +94,22 @@ describe("calculatePeriodMetrics", () => {
     const metrics = calculatePeriodMetrics([], [], plans, "yearly", referenceDate);
     expect(metrics.targetCostLimit).toBe(3000);
     expect(metrics.targetSavingsGoal).toBe(300);
+  });
+
+  it("returns the full month records without capping when navigating to a past month like Pagume 2018", () => {
+    // Simulate real-world now = Meskerem 1, 2019 E.C. (2026-09-11)
+    vi.setSystemTime(new Date(2026, 8, 11));
+
+    // User navigates back to Pagume 2018 E.C. (Pagume 1 is 2026-09-06, Pagume 5 is 2026-09-10)
+    const pagumeRef = new Date(2026, 8, 6);
+    const costs = [
+      cost("2026-09-06", 1371), // Pagume 1
+      cost("2026-09-08", 2000), // Pagume 3
+      cost("2026-09-10", 1924), // Pagume 5
+    ];
+
+    const metrics = calculatePeriodMetrics([], costs, [], "monthly", pagumeRef);
+    // Should include ALL costs across the whole Pagume month (1371 + 2000 + 1924 = 5295)
+    expect(metrics.totalCosts).toBe(5295);
   });
 });
