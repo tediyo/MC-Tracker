@@ -261,7 +261,7 @@ export function DashboardClient({
             <CostSubcategoryPieChart
               category={selectedCategory}
               costs={data.currentPeriodCosts}
-              range={{ start: data.metrics.range.start, end: referenceDate }}
+              range={data.metrics.range}
               selectedSubcategory={selectedSubcategory}
               onSelectSubcategory={(sub) =>
                 handleSubcategorySelect(selectedSubcategory === sub ? null : sub)

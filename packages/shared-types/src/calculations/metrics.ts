@@ -34,14 +34,18 @@ export function calculatePercentChange(current: number, previous: number): numbe
   return ((current - previous) / Math.abs(previous)) * 100;
 }
 
-export function capEnd(range: DateRange, referenceDate?: Date): DateRange {
-  const ref = referenceDate || new Date();
+export function capEnd(range: DateRange, _referenceDate?: Date): DateRange {
+  const now = new Date();
   // If the period has already ended in the past, return the full period range
-  if (range.end.getTime() <= ref.getTime()) {
+  if (range.end.getTime() <= now.getTime()) {
     return range;
   }
-  // If we are currently inside this period, cap at endOfDay(ref) or range.end
-  const cappedEnd = endOfDay(ref).getTime() < range.end.getTime() ? endOfDay(ref) : range.end;
+  // If the period is entirely in the future, return the full period range
+  if (now.getTime() < range.start.getTime()) {
+    return range;
+  }
+  // If we are currently inside this period, cap at endOfDay(now) or range.end
+  const cappedEnd = endOfDay(now).getTime() < range.end.getTime() ? endOfDay(now) : range.end;
   return { start: range.start, end: cappedEnd };
 }
 
