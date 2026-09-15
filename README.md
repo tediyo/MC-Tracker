@@ -143,7 +143,7 @@ Ensure the three active `.env` files are configured:
 
 1. **Web** (`apps/web/.env.local`):
    ```env
-   NEXT_PUBLIC_SUPABASE_URL=https://slmakefgxtupbpdolxib.supabase.co
+   NEXT_PUBLIC_SUPABASE_URL=...
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
    NEXT_PUBLIC_SITE_URL=http://localhost:3000
    ```
@@ -152,7 +152,7 @@ Ensure the three active `.env` files are configured:
    ```env
    PORT=3001
    APP_TIMEZONE=Africa/Addis_Ababa
-   SUPABASE_URL=https://slmakefgxtupbpdolxib.supabase.co
+   SUPABASE_URL=
    SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
    SUPABASE_JWT_SECRET=your-supabase-jwt-secret
    SUPABASE_WEBHOOK_SECRET=your-database-webhook-secret
@@ -160,7 +160,7 @@ Ensure the three active `.env` files are configured:
    GMAIL_APP_PASSWORD=your-gmail-app-password
    SMTP_HOST=smtp.gmail.com
    SMTP_PORT=465
-   MAIL_FROM="MC Tracker <mctrackernotification@gmail.com>"
+   MAIL_FROM=
    WEB_APP_URL=http://localhost:3000
    ```
 
