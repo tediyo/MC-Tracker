@@ -51,4 +51,16 @@ describe("buildTrendSeries", () => {
     expect(series.at(7)?.targetCostLimit).toBe(3000); // index 7 = August (Hamle 2018)
     expect(series.at(0)?.targetCostLimit).toBeNull(); // January has no plan
   });
+
+  it("monthly (ethiopian): returns 13 Ethiopian months for the Ethiopian year", () => {
+    const plans = [plan(2018, 1, 5000), plan(2018, 13, 1000)];
+    const series = buildTrendSeries(incomes, [], plans, "monthly", referenceDate, undefined, "ethiopian");
+    expect(series).toHaveLength(13);
+    expect(series[0].bucketLabel).toBe("Meskerem");
+    expect(series[1].bucketLabel).toBe("Tikimt");
+    expect(series[11].bucketLabel).toBe("Nehase");
+    expect(series[12].bucketLabel).toBe("Pagume");
+    expect(series[0].targetCostLimit).toBe(5000);
+    expect(series[12].targetCostLimit).toBe(1000);
+  });
 });

@@ -50,30 +50,98 @@ export interface PeriodRange {
  * full period containing that date plus the equivalent previous period.
  * Used as the basis for both period-metric calculations and trend bucketing.
  */
-export function getPeriodRange(timeframe: TimeFrame, referenceDate: Date): PeriodRange {
+export function getPeriodRange(
+  timeframe: TimeFrame,
+  referenceDate: Date,
+  calendarMode: "ethiopian" | "gregorian" = "ethiopian",
+): PeriodRange {
+  if (calendarMode === "gregorian") {
+    switch (timeframe) {
+      case "daily": {
+        const previousRef = subDays(referenceDate, 1);
+        return {
+          timeframe,
+          start: startOfDay(referenceDate),
+          end: endOfDay(referenceDate),
+          previousStart: startOfDay(previousRef),
+          previousEnd: endOfDay(previousRef),
+          label: format(referenceDate, "MMM d, yyyy"),
+        };
+      }
+      case "weekly": {
+        const start = startOfWeek(referenceDate, { weekStartsOn: WEEK_STARTS_ON });
+        const end = endOfWeek(referenceDate, { weekStartsOn: WEEK_STARTS_ON });
+        const previousRef = subWeeks(referenceDate, 1);
+        return {
+          timeframe,
+          start,
+          end,
+          previousStart: startOfWeek(previousRef, { weekStartsOn: WEEK_STARTS_ON }),
+          previousEnd: endOfWeek(previousRef, { weekStartsOn: WEEK_STARTS_ON }),
+          label: `Week of ${format(start, "MMM d, yyyy")}`,
+        };
+      }
+      case "monthly": {
+        const start = startOfMonth(referenceDate);
+        const end = endOfMonth(referenceDate);
+        const previousRef = subMonths(referenceDate, 1);
+        const previousStart = startOfMonth(previousRef);
+        const previousEnd = endOfMonth(previousRef);
+        return {
+          timeframe,
+          start,
+          end,
+          previousStart,
+          previousEnd,
+          label: `${format(referenceDate, "MMMM yyyy")} G.C.`,
+        };
+      }
+      case "yearly": {
+        const start = startOfYear(referenceDate);
+        const end = endOfYear(referenceDate);
+        const previousRef = subYears(referenceDate, 1);
+        const previousStart = startOfYear(previousRef);
+        const previousEnd = endOfYear(previousRef);
+        return {
+          timeframe,
+          start,
+          end,
+          previousStart,
+          previousEnd,
+          label: `${format(referenceDate, "yyyy")} G.C.`,
+        };
+      }
+    }
+  }
+
+  // Ethiopian calendar mode
   switch (timeframe) {
     case "daily": {
       const previousRef = subDays(referenceDate, 1);
+      const eth = getEthiopianDate(referenceDate);
+      const ethMonthObj = ETHIOPIAN_MONTHS.find((m) => m.number === eth.month);
       return {
         timeframe,
         start: startOfDay(referenceDate),
         end: endOfDay(referenceDate),
         previousStart: startOfDay(previousRef),
         previousEnd: endOfDay(previousRef),
-        label: format(referenceDate, "MMM d, yyyy"),
+        label: `${ethMonthObj?.nameEn || ""} ${eth.day}, ${eth.year} E.C.`,
       };
     }
     case "weekly": {
       const start = startOfWeek(referenceDate, { weekStartsOn: WEEK_STARTS_ON });
       const end = endOfWeek(referenceDate, { weekStartsOn: WEEK_STARTS_ON });
       const previousRef = subWeeks(referenceDate, 1);
+      const eth = getEthiopianDate(start);
+      const ethMonthObj = ETHIOPIAN_MONTHS.find((m) => m.number === eth.month);
       return {
         timeframe,
         start,
         end,
         previousStart: startOfWeek(previousRef, { weekStartsOn: WEEK_STARTS_ON }),
         previousEnd: endOfWeek(previousRef, { weekStartsOn: WEEK_STARTS_ON }),
-        label: `Week of ${format(start, "MMM d, yyyy")}`,
+        label: `Week of ${ethMonthObj?.nameEn || ""} ${eth.day}, ${eth.year} E.C.`,
       };
     }
     case "monthly": {
