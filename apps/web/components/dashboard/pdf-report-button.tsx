@@ -18,6 +18,183 @@ import {
 
 import { useCalendarPreference, type CalendarMode } from "@/components/providers/calendar-provider";
 
+interface DonutSlice {
+  label: string;
+  value: number;
+  color: string;
+  percent: number;
+}
+
+function generateDonutChartSvg({
+  slices,
+  total,
+  displayTotal,
+  size = 170,
+  innerRadius = 44,
+  outerRadius = 72,
+}: {
+  slices: DonutSlice[];
+  total: number;
+  displayTotal: string;
+  size?: number;
+  innerRadius?: number;
+  outerRadius?: number;
+}): string {
+  const cx = size / 2;
+  const cy = size / 2;
+
+  if (total <= 0 || slices.length === 0) {
+    return `
+      <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="display: block; margin: 0 auto;">
+        <circle cx="${cx}" cy="${cy}" r="${outerRadius}" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2" />
+        <circle cx="${cx}" cy="${cy}" r="${innerRadius}" fill="#ffffff" />
+        <text x="${cx}" y="${cy + 4}" text-anchor="middle" font-size="11" fill="#94a3b8" font-weight="600">No Data</text>
+      </svg>
+    `;
+  }
+
+  const positiveSlices = slices.filter((s) => s.value > 0);
+  if (positiveSlices.length === 1 && positiveSlices[0]) {
+    const s = positiveSlices[0];
+    const strokeWidth = outerRadius - innerRadius;
+    const midRadius = innerRadius + strokeWidth / 2;
+    return `
+      <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="display: block; margin: 0 auto;">
+        <circle cx="${cx}" cy="${cy}" r="${midRadius}" fill="none" stroke="${s.color}" stroke-width="${strokeWidth}" />
+        <circle cx="${cx}" cy="${cy}" r="${innerRadius}" fill="#ffffff" />
+        <text x="${cx}" y="${cy - 6}" text-anchor="middle" font-size="9" font-weight="700" fill="#64748b" letter-spacing="0.5">TOTAL</text>
+        <text x="${cx}" y="${cy + 10}" text-anchor="middle" font-size="12" font-weight="800" fill="#0f172a">${displayTotal}</text>
+      </svg>
+    `;
+  }
+
+  let startAngle = -Math.PI / 2;
+  const paths = positiveSlices
+    .map((s) => {
+      const angle = (s.value / total) * 2 * Math.PI;
+      const endAngle = startAngle + angle;
+
+      const x1 = cx + outerRadius * Math.cos(startAngle);
+      const y1 = cy + outerRadius * Math.sin(startAngle);
+      const x2 = cx + outerRadius * Math.cos(endAngle);
+      const y2 = cy + outerRadius * Math.sin(endAngle);
+      const x3 = cx + innerRadius * Math.cos(endAngle);
+      const y3 = cy + innerRadius * Math.sin(endAngle);
+      const x4 = cx + innerRadius * Math.cos(startAngle);
+      const y4 = cy + innerRadius * Math.sin(startAngle);
+
+      const largeArc = angle > Math.PI ? 1 : 0;
+      const d = `M ${x1.toFixed(2)} ${y1.toFixed(2)} A ${outerRadius} ${outerRadius} 0 ${largeArc} 1 ${x2.toFixed(2)} ${y2.toFixed(2)} L ${x3.toFixed(2)} ${y3.toFixed(2)} A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${x4.toFixed(2)} ${y4.toFixed(2)} Z`;
+
+      startAngle = endAngle;
+      return `<path d="${d}" fill="${s.color}" stroke="#ffffff" stroke-width="2" />`;
+    })
+    .join("");
+
+  return `
+    <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="display: block; margin: 0 auto;">
+      ${paths}
+      <circle cx="${cx}" cy="${cy}" r="${innerRadius}" fill="#ffffff" />
+      <text x="${cx}" y="${cy - 6}" text-anchor="middle" font-size="9" font-weight="700" fill="#64748b" letter-spacing="0.5">TOTAL</text>
+      <text x="${cx}" y="${cy + 10}" text-anchor="middle" font-size="12" font-weight="800" fill="#0f172a">${displayTotal}</text>
+    </svg>
+  `;
+}
+
+function generateTrendBarChartSvg({
+  trend,
+  displayAmount,
+}: {
+  trend: { bucketLabel: string; income: number; cost: number }[];
+  displayAmount: (num: number) => string;
+}): string {
+  if (trend.length === 0) return "";
+
+  const width = 740;
+  const height = 210;
+  const padLeft = 68;
+  const padRight = 20;
+  const padTop = 24;
+  const padBottom = 38;
+  const plotWidth = width - padLeft - padRight;
+  const plotHeight = height - padTop - padBottom;
+
+  const rawMax = Math.max(...trend.map((t) => Math.max(t.income, t.cost)), 0);
+  const roughMax = rawMax > 0 ? rawMax * 1.15 : 1000;
+  const magnitude = Math.pow(10, Math.floor(Math.log10(roughMax)));
+  const roundedMax = Math.ceil(roughMax / (magnitude / 2)) * (magnitude / 2) || 1000;
+
+  const gridSteps = [0, roundedMax / 3, (2 * roundedMax) / 3, roundedMax];
+  const gridlines = gridSteps
+    .map((val) => {
+      const y = padTop + plotHeight - (val / roundedMax) * plotHeight;
+      return `
+        <line x1="${padLeft}" y1="${y.toFixed(1)}" x2="${(padLeft + plotWidth).toFixed(1)}" y2="${y.toFixed(1)}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="3,3" />
+        <text x="${padLeft - 8}" y="${(y + 3.5).toFixed(1)}" text-anchor="end" font-size="10" font-weight="600" fill="#94a3b8">${displayAmount(Math.round(val))}</text>
+      `;
+    })
+    .join("");
+
+  const n = trend.length;
+  const slotWidth = plotWidth / n;
+  const barWidth = Math.max(Math.min(slotWidth * 0.36, 22), 6);
+  const barGap = 2;
+
+  const barsAndLabels = trend
+    .map((pt, i) => {
+      const slotCenter = padLeft + i * slotWidth + slotWidth / 2;
+      const incH = Math.min((pt.income / roundedMax) * plotHeight, plotHeight);
+      const costH = Math.min((pt.cost / roundedMax) * plotHeight, plotHeight);
+
+      const xInc = slotCenter - barWidth - barGap / 2;
+      const yInc = padTop + plotHeight - incH;
+
+      const xCost = slotCenter + barGap / 2;
+      const yCost = padTop + plotHeight - costH;
+
+      return `
+        <g>
+          ${
+            incH > 0
+              ? `<rect x="${xInc.toFixed(1)}" y="${yInc.toFixed(1)}" width="${barWidth.toFixed(1)}" height="${Math.max(incH, 1).toFixed(1)}" fill="#10b981" rx="3" />`
+              : ""
+          }
+          ${
+            costH > 0
+              ? `<rect x="${xCost.toFixed(1)}" y="${yCost.toFixed(1)}" width="${barWidth.toFixed(1)}" height="${Math.max(costH, 1).toFixed(1)}" fill="#ef4444" rx="3" />`
+              : ""
+          }
+          <text x="${slotCenter.toFixed(1)}" y="${(padTop + plotHeight + 18).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="600" fill="#64748b">${pt.bucketLabel}</text>
+        </g>
+      `;
+    })
+    .join("");
+
+  return `
+    <div style="margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Income vs Expense Comparison Graph</span>
+        <div style="display: flex; gap: 16px; font-size: 11px; font-weight: 700;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="display: inline-block; width: 10px; height: 10px; background: #10b981; border-radius: 2px;"></span>
+            <span style="color: #047857;">Income</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="display: inline-block; width: 10px; height: 10px; background: #ef4444; border-radius: 2px;"></span>
+            <span style="color: #b91c1c;">Expenses</span>
+          </div>
+        </div>
+      </div>
+      <svg width="100%" height="${height}" viewBox="0 0 ${width} ${height}" style="display: block; background: #f8fafc; border-radius: 10px; border: 1px solid #f1f5f9;">
+        ${gridlines}
+        <!-- Baseline -->
+        <line x1="${padLeft}" y1="${padTop + plotHeight}" x2="${padLeft + plotWidth}" y2="${padTop + plotHeight}" stroke="#cbd5e1" stroke-width="1.5" />
+        ${barsAndLabels}
+      </svg>
+    </div>
+  `;
+}
+
 interface PdfReportButtonProps {
   data: DashboardData;
   showBalances?: boolean;
@@ -42,7 +219,7 @@ export function PdfReportButton({
       return;
     }
 
-    const { metrics, costsByCategory, currentPeriodCosts, currentPeriodIncomes, trend } = data;
+    const { metrics, costsByCategory, currentPeriodCosts, trend } = data;
     const ethToday = getEthiopianDate(new Date());
     const ethMonthToday = ETHIOPIAN_MONTHS.find((m) => m.number === ethToday.month);
     const nowFormatted = isEthiopian
@@ -60,14 +237,31 @@ export function PdfReportButton({
 
     // Category Breakdown math
     const totalCategoryCosts = Object.values(costsByCategory).reduce((a, b) => a + b, 0);
+    const categoryColors: Record<CostCategory, string> = {
+      basic: "#3b82f6", // Blue
+      fancy: "#f97316", // Orange
+      extra: "#10b981", // Emerald
+    };
     const categoryEntries = (Object.entries(costsByCategory) as [CostCategory, number][]).map(
       ([cat, val]) => ({
         category: cat,
         label: COST_CATEGORY_LABELS[cat] || cat,
         total: val,
+        color: categoryColors[cat] || "#64748b",
         percentage: totalCategoryCosts > 0 ? (val / totalCategoryCosts) * 100 : 0,
       })
     );
+
+    const categoryDonutSvg = generateDonutChartSvg({
+      slices: categoryEntries.map((c) => ({
+        label: c.label,
+        value: c.total,
+        color: c.color,
+        percent: c.percentage,
+      })),
+      total: totalCategoryCosts,
+      displayTotal: displayAmount(totalCategoryCosts),
+    });
 
     // Subcategory Breakdown math
     const subcategoryMap: Record<string, { category: CostCategory; total: number }> = {};
@@ -85,6 +279,45 @@ export function PdfReportButton({
       percentage: totalCategoryCosts > 0 ? (info.total / totalCategoryCosts) * 100 : 0,
     })).sort((a, b) => b.total - a.total);
 
+    const subcategoryPalette = [
+      "#10b981",
+      "#3b82f6",
+      "#f59e0b",
+      "#8b5cf6",
+      "#ec4899",
+      "#06b6d4",
+      "#f97316",
+      "#64748b",
+    ];
+    const topSubcategories = subcategoryEntries.slice(0, 5);
+    const remainingSubcategoriesTotal = subcategoryEntries.slice(5).reduce((sum, s) => sum + s.total, 0);
+    const subcategorySlices: DonutSlice[] = topSubcategories.map((s, idx) => ({
+      label: s.label,
+      value: s.total,
+      color: subcategoryPalette[idx % subcategoryPalette.length] ?? "#64748b",
+      percent: s.percentage,
+    }));
+    if (remainingSubcategoriesTotal > 0) {
+      subcategorySlices.push({
+        label: "Other",
+        value: remainingSubcategoriesTotal,
+        color: subcategoryPalette[5 % subcategoryPalette.length] ?? "#64748b",
+        percent: totalCategoryCosts > 0 ? (remainingSubcategoriesTotal / totalCategoryCosts) * 100 : 0,
+      });
+    }
+
+    const subcategoryDonutSvg = generateDonutChartSvg({
+      slices: subcategorySlices,
+      total: totalCategoryCosts,
+      displayTotal: displayAmount(totalCategoryCosts),
+    });
+
+    // Trend Graph SVG
+    const trendGraphSvg = generateTrendBarChartSvg({
+      trend,
+      displayAmount,
+    });
+
     // Variance strings
     const costBudgetStr =
       metrics.costVariance === null
@@ -99,41 +332,6 @@ export function PdfReportButton({
         : metrics.savingsVariance >= 0
         ? `${displayAmount(metrics.savingsVariance)} ahead of savings goal`
         : `${displayAmount(Math.abs(metrics.savingsVariance))} behind savings goal`;
-
-    // Recent Transactions (top 10)
-    const combinedTx = [
-      ...currentPeriodCosts.map((c) => ({
-        id: c.id,
-        type: "cost" as const,
-        amount: Number(c.amount),
-        date: c.date,
-        tag: COST_CATEGORY_LABELS[c.category] || c.category,
-        desc: c.description || COST_SUBCATEGORY_LABELS[c.subcategory] || c.subcategory,
-      })),
-      ...currentPeriodIncomes.map((i) => ({
-        id: i.id,
-        type: "income" as const,
-        amount: Number(i.amount),
-        date: i.date,
-        tag: INCOME_SOURCE_TYPE_LABELS[i.source_type] || i.source_type,
-        desc: i.description || "Income Deposit",
-      })),
-    ]
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, 10);
-
-    const formatTxDateString = (isoDate: string) => {
-      try {
-        if (isEthiopian) {
-          const ed = getEthiopianDate(isoDate);
-          const m = ETHIOPIAN_MONTHS.find((item) => item.number === ed.month);
-          return `${m?.nameEn || ""} ${ed.day}, ${ed.year} E.C. (${isoDate})`;
-        }
-        return `${isoDate} G.C.`;
-      } catch {
-        return isoDate;
-      }
-    };
 
     const htmlContent = `
       <!DOCTYPE html>
@@ -266,6 +464,8 @@ export function PdfReportButton({
               border-radius: 14px;
               padding: 16px;
               background: #ffffff;
+              break-inside: avoid;
+              page-break-inside: avoid;
             }
             .box-title {
               font-size: 14px;
@@ -331,6 +531,7 @@ export function PdfReportButton({
             @media print {
               body { padding: 0; }
               .no-print { display: none; }
+              .box { break-inside: avoid; page-break-inside: avoid; }
             }
           </style>
         </head>
@@ -392,7 +593,7 @@ export function PdfReportButton({
             </div>
           </div>
 
-          <!-- Two Column Breakdown -->
+          <!-- Two Column Breakdown with Donut Charts -->
           <div class="two-col">
             <!-- Cost By Category -->
             <div class="box">
@@ -401,6 +602,9 @@ export function PdfReportButton({
                 totalCategoryCosts === 0
                   ? '<p class="empty-text">—</p>'
                   : `
+                <div style="margin-bottom: 16px; padding: 10px 0 14px 0; border-bottom: 1px dashed #e2e8f0; display: flex; justify-content: center;">
+                  ${categoryDonutSvg}
+                </div>
                 <table>
                   <thead>
                     <tr>
@@ -415,9 +619,12 @@ export function PdfReportButton({
                         (cat) => `
                       <tr>
                         <td>
-                          <div class="font-bold">${cat.label}</div>
+                          <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: ${cat.color};"></span>
+                            <span class="font-bold">${cat.label}</span>
+                          </div>
                           <div class="progress-bar-bg">
-                            <div class="progress-bar-fill" style="width: ${cat.percentage.toFixed(1)}%;"></div>
+                            <div class="progress-bar-fill" style="width: ${cat.percentage.toFixed(1)}%; background: ${cat.color};"></div>
                           </div>
                         </td>
                         <td class="text-right font-bold">${displayAmount(cat.total)}</td>
@@ -439,6 +646,9 @@ export function PdfReportButton({
                 subcategoryEntries.length === 0
                   ? '<p class="empty-text">—</p>'
                   : `
+                <div style="margin-bottom: 16px; padding: 10px 0 14px 0; border-bottom: 1px dashed #e2e8f0; display: flex; justify-content: center;">
+                  ${subcategoryDonutSvg}
+                </div>
                 <table>
                   <thead>
                     <tr>
@@ -451,13 +661,21 @@ export function PdfReportButton({
                     ${subcategoryEntries
                       .slice(0, 7)
                       .map(
-                        (sub) => `
+                        (sub, idx) => {
+                          const dotColor = subcategoryPalette[idx % subcategoryPalette.length];
+                          return `
                       <tr>
-                        <td class="font-bold">${sub.label}</td>
+                        <td>
+                          <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: ${dotColor};"></span>
+                            <span class="font-bold">${sub.label}</span>
+                          </div>
+                        </td>
                         <td>${sub.categoryLabel}</td>
                         <td class="text-right font-bold">${displayAmount(sub.total)}</td>
                       </tr>
-                    `
+                    `;
+                        }
                       )
                       .join("")}
                   </tbody>
@@ -467,12 +685,13 @@ export function PdfReportButton({
             </div>
           </div>
 
-          <!-- Cash Flow Trend Points -->
+          <!-- Cash Flow Trend with Dual-Bar Comparison Graph -->
           ${
             trend.length > 0
               ? `
             <div class="box" style="margin-bottom: 24px;">
-              <h3 class="box-title">Income &amp; Expense Trend Intervals (${isEthiopian ? "Ethiopian Calendar" : "Gregorian Calendar"})</h3>
+              <h3 class="box-title">Cash Flow &amp; Trend Intervals (${isEthiopian ? "Ethiopian Calendar" : "Gregorian Calendar"})</h3>
+              ${trendGraphSvg}
               <table>
                 <thead>
                   <tr>
@@ -502,43 +721,6 @@ export function PdfReportButton({
           `
               : ""
           }
-
-          <!-- Recent Transactions -->
-          <div class="box">
-            <h3 class="box-title">Recent Transactions</h3>
-            ${
-              combinedTx.length === 0
-                ? '<p class="empty-text">No recent transactions logged yet.</p>'
-                : `
-              <table>
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Type / Category</th>
-                    <th>Description</th>
-                    <th class="text-right">Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${combinedTx
-                    .map(
-                      (tx) => `
-                    <tr>
-                      <td>${formatTxDateString(tx.date)}</td>
-                      <td><span class="font-bold">${tx.tag}</span> (${tx.type.toUpperCase()})</td>
-                      <td>${tx.desc}</td>
-                      <td class="text-right font-bold ${tx.type === "income" ? "income-val" : ""}">
-                        ${tx.type === "income" ? "+" : "-"}${displayAmount(tx.amount)}
-                      </td>
-                    </tr>
-                  `
-                    )
-                    .join("")}
-                </tbody>
-              </table>
-            `
-            }
-          </div>
 
           <!-- Footer -->
           <div class="footer-note">
