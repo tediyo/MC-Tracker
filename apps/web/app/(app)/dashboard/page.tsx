@@ -9,7 +9,9 @@ export default async function DashboardPage() {
   if (!user) redirect("/login");
 
   const referenceDate = new Date();
-  const initialData = await getDashboardData(supabase, user.id, "monthly", referenceDate);
+  const userCalendarMode: "ethiopian" | "gregorian" =
+    (user.user_metadata?.calendar_mode as any) === "gregorian" ? "gregorian" : "ethiopian";
+  const initialData = await getDashboardData(supabase, user.id, "monthly", referenceDate, userCalendarMode);
 
   return (
     <div className="flex flex-col gap-6">
@@ -25,6 +27,7 @@ export default async function DashboardPage() {
         userId={user.id}
         initialTimeframe="monthly"
         initialReferenceDate={referenceDate}
+        initialCalendarMode={userCalendarMode}
         initialData={initialData}
       />
     </div>

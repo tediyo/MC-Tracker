@@ -16,17 +16,25 @@ import {
   type TimeFrame,
 } from "@mc-tracker/shared-types";
 
+import { useCalendarPreference, type CalendarMode } from "@/components/providers/calendar-provider";
+
 interface PdfReportButtonProps {
   data: DashboardData;
   showBalances?: boolean;
   timeframe?: TimeFrame;
+  calendarMode?: CalendarMode;
 }
 
 export function PdfReportButton({
   data,
   showBalances = true,
   timeframe = "monthly",
+  calendarMode: propCalendarMode,
 }: PdfReportButtonProps) {
+  const { calendarMode: contextCalendarMode } = useCalendarPreference();
+  const calendarMode = propCalendarMode || contextCalendarMode || "ethiopian";
+  const isEthiopian = calendarMode === "ethiopian";
+
   const handlePrintReport = () => {
     const printWindow = window.open("", "_blank");
     if (!printWindow) {
@@ -37,7 +45,9 @@ export function PdfReportButton({
     const { metrics, costsByCategory, currentPeriodCosts, currentPeriodIncomes, trend } = data;
     const ethToday = getEthiopianDate(new Date());
     const ethMonthToday = ETHIOPIAN_MONTHS.find((m) => m.number === ethToday.month);
-    const nowFormatted = `${ethMonthToday?.nameEn || "Month"} ${ethToday.day}, ${ethToday.year} E.C. (${new Date().toLocaleDateString()})`;
+    const nowFormatted = isEthiopian
+      ? `${ethMonthToday?.nameEn || "Month"} ${ethToday.day}, ${ethToday.year} E.C. (${new Date().toLocaleDateString()} G.C.)`
+      : `${new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })} G.C.`;
 
     const displayAmount = (num: number) => (showBalances ? formatCurrency(num) : "••••••");
 
@@ -112,11 +122,14 @@ export function PdfReportButton({
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, 10);
 
-    const formatEthDateString = (isoDate: string) => {
+    const formatTxDateString = (isoDate: string) => {
       try {
-        const ed = getEthiopianDate(isoDate);
-        const m = ETHIOPIAN_MONTHS.find((item) => item.number === ed.month);
-        return `${m?.nameEn || ""} ${ed.day}, ${ed.year} E.C.`;
+        if (isEthiopian) {
+          const ed = getEthiopianDate(isoDate);
+          const m = ETHIOPIAN_MONTHS.find((item) => item.number === ed.month);
+          return `${m?.nameEn || ""} ${ed.day}, ${ed.year} E.C. (${isoDate})`;
+        }
+        return `${isoDate} G.C.`;
       } catch {
         return isoDate;
       }
@@ -459,11 +472,11 @@ export function PdfReportButton({
             trend.length > 0
               ? `
             <div class="box" style="margin-bottom: 24px;">
-              <h3 class="box-title">Income & Expense Trend Intervals</h3>
+              <h3 class="box-title">Income &amp; Expense Trend Intervals (${isEthiopian ? "Ethiopian Calendar" : "Gregorian Calendar"})</h3>
               <table>
                 <thead>
                   <tr>
-                    <th>Period Interval</th>
+                    <th>Period Interval (${isEthiopian ? "E.C." : "G.C."})</th>
                     <th class="text-right">Income</th>
                     <th class="text-right">Expenses</th>
                     <th class="text-right">Net Profit / Loss</th>
@@ -511,7 +524,7 @@ export function PdfReportButton({
                     .map(
                       (tx) => `
                     <tr>
-                      <td>${tx.date} (${formatEthDateString(tx.date)})</td>
+                      <td>${formatTxDateString(tx.date)}</td>
                       <td><span class="font-bold">${tx.tag}</span> (${tx.type.toUpperCase()})</td>
                       <td>${tx.desc}</td>
                       <td class="text-right font-bold ${tx.type === "income" ? "income-val" : ""}">
@@ -529,7 +542,7 @@ export function PdfReportButton({
 
           <!-- Footer -->
           <div class="footer-note">
-            <span>MC Tracker Personal Finance Overview</span>
+            <span>MC Tracker Personal Finance Overview (${isEthiopian ? "Ethiopian Calendar" : "Gregorian Calendar"})</span>
             <span>Confidential Financial Document</span>
           </div>
 

@@ -100,6 +100,7 @@ interface DashboardClientProps {
   userId: string;
   initialTimeframe: TimeFrame;
   initialReferenceDate: Date;
+  initialCalendarMode?: CalendarMode;
   initialData: DashboardData;
 }
 
@@ -107,6 +108,7 @@ export function DashboardClient({
   userId,
   initialTimeframe,
   initialReferenceDate,
+  initialCalendarMode = "ethiopian",
   initialData,
 }: DashboardClientProps) {
   const initialRefDate = React.useMemo(() => new Date(initialReferenceDate), [initialReferenceDate]);
@@ -119,11 +121,13 @@ export function DashboardClient({
 
   const isDefaultKey =
     timeframe === initialTimeframe &&
+    calendarMode === initialCalendarMode &&
     referenceDate.toISOString().slice(0, 10) === initialRefDate.toISOString().slice(0, 10);
   const { data, isFetching } = useDashboardData(
     userId,
     timeframe,
     referenceDate,
+    calendarMode,
     isDefaultKey ? initialData : undefined,
   );
 
@@ -228,7 +232,12 @@ export function DashboardClient({
           onNext={() => setReferenceDate((d) => stepCalendarDate(timeframe, d, 1, calendarMode))}
         />
         {reportData ? (
-          <PdfReportButton data={reportData} showBalances={showBalances} timeframe={timeframe} />
+          <PdfReportButton
+            data={reportData}
+            showBalances={showBalances}
+            timeframe={timeframe}
+            calendarMode={calendarMode}
+          />
         ) : null}
       </div>
 

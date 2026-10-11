@@ -17,13 +17,14 @@ export function useDashboardData(
   userId: string,
   timeframe: TimeFrame,
   referenceDate: Date,
+  calendarMode: "ethiopian" | "gregorian" = "ethiopian",
   initialData?: DashboardData,
 ): UseQueryResult<DashboardData> {
   const referenceDateIso = referenceDate.toISOString().slice(0, 10);
 
   return useQuery({
-    queryKey: ["dashboard", userId, timeframe, referenceDateIso],
-    queryFn: () => getDashboardData(createClient(), userId, timeframe, referenceDate),
+    queryKey: ["dashboard", userId, timeframe, referenceDateIso, calendarMode],
+    queryFn: () => getDashboardData(createClient(), userId, timeframe, referenceDate, calendarMode),
     initialData,
     staleTime: 0,
     placeholderData: undefined,

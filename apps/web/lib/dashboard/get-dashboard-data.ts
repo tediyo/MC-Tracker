@@ -8,6 +8,8 @@ import {
   filterIncomesInRange,
   getPeriodRange,
   capEnd,
+  getEthiopianDate,
+  toGregorianDate,
   type TimeFrame,
   type PeriodMetrics,
   type TrendPoint,
@@ -41,7 +43,23 @@ function toIsoDate(date: Date): string {
  * generously wasteful for daily/weekly views but simple and correct - fine
  * at personal-tracker data volumes.
  */
-function fetchWindowStart(timeframe: TimeFrame, referenceDate: Date): Date {
+function fetchWindowStart(
+  timeframe: TimeFrame,
+  referenceDate: Date,
+  calendarMode: "ethiopian" | "gregorian" = "ethiopian",
+): Date {
+  if (calendarMode === "ethiopian") {
+    const eth = getEthiopianDate(referenceDate);
+    if (timeframe === "monthly") {
+      const startEthYear = toGregorianDate(eth.year, 1, 1);
+      return subMonths(startEthYear, 1);
+    }
+    if (timeframe === "yearly") {
+      const startEthYearsAgo = toGregorianDate(eth.year - 6, 1, 1);
+      return subMonths(startEthYearsAgo, 1);
+    }
+  }
+
   switch (timeframe) {
     case "daily":
       return subDays(referenceDate, 31);
@@ -69,9 +87,10 @@ export async function getDashboardData(
   userId: string,
   timeframe: TimeFrame,
   referenceDate: Date,
+  calendarMode: "ethiopian" | "gregorian" = "ethiopian",
 ): Promise<DashboardData> {
-  const periodRange = getPeriodRange(timeframe, referenceDate);
-  const start = toIsoDate(fetchWindowStart(timeframe, referenceDate));
+  const periodRange = getPeriodRange(timeframe, referenceDate, calendarMode);
+  const start = toIsoDate(fetchWindowStart(timeframe, referenceDate, calendarMode));
   const end = toIsoDate(endOfDay(periodRange.end));
 
   const [incomes, costs, plans] = await Promise.all([
@@ -80,8 +99,8 @@ export async function getDashboardData(
     fetchAllPlans(supabase, userId),
   ]);
 
-  const metrics = calculatePeriodMetrics(incomes, costs, plans, timeframe, referenceDate);
-  const trend = buildTrendSeries(incomes, costs, plans, timeframe, referenceDate);
+  const metrics = calculatePeriodMetrics(incomes, costs, plans, timeframe, referenceDate, calendarMode);
+  const trend = buildTrendSeries(incomes, costs, plans, timeframe, referenceDate, undefined, calendarMode);
   // Reuses the same pure filter shared-types' own metrics/aggregate
   // functions are built on (parseISO-based, so a date-only string is read
   // as local midnight consistently - not the native `new Date(dateOnly)`,
