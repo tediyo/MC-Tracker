@@ -8,11 +8,28 @@ import {
   getEthiopianMonthLabel,
   toGregorianDate,
   getDaysInEthiopianMonth,
+  getPeriodRange,
 } from "@mc-tracker/shared-types";
 import { generateMonthlyReportPdf } from "@/lib/reports/generate-monthly-report-pdf";
 
 const EMAIL_USER = process.env.EMAIL_USER || "mctrackernotification@gmail.com";
 const EMAIL_PASS = process.env.EMAIL_PASS || "kmcveektvwxiqroo";
+
+function getAddisAbabaDate(d: Date = new Date()): Date {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Africa/Addis_Ababa",
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    hour12: false,
+  });
+  const parts = formatter.formatToParts(d);
+  const get = (type: string) => parseInt(parts.find((p) => p.type === type)?.value || "0", 10);
+  return new Date(get("year"), get("month") - 1, get("day"), get("hour"), get("minute"), get("second"));
+}
 
 export async function POST(req: Request) {
   try {
@@ -25,11 +42,20 @@ export async function POST(req: Request) {
 
     const url = new URL(req.url);
     const onlyIfMonthEnd = url.searchParams.get("onlyIfMonthEnd") === "true" || body.onlyIfMonthEnd === true;
-    const now = new Date();
+    const force = body.force === true || url.searchParams.get("force") === "true";
+    const rawDate = body.referenceDate || body.date || url.searchParams.get("referenceDate") || url.searchParams.get("date");
+    let now: Date;
+    if (rawDate) {
+      const parsed = new Date(rawDate);
+      now = isNaN(parsed.getTime()) ? getAddisAbabaDate() : parsed;
+    } else {
+      now = getAddisAbabaDate();
+    }
+
     const isGregorianMonthEnd = isLastDayOfMonth(now);
     const isEthiopianMonthEnd = isLastDayOfEthiopianMonth(now);
 
-    if (onlyIfMonthEnd && !isGregorianMonthEnd && !isEthiopianMonthEnd) {
+    if (onlyIfMonthEnd && !force && !isGregorianMonthEnd && !isEthiopianMonthEnd) {
       return NextResponse.json({
         success: true,
         skipped: true,
@@ -42,8 +68,6 @@ export async function POST(req: Request) {
 
     const dryRun = body.dryRun ?? (url.searchParams.get("dryRun") === "true");
     const targetUserId = body.targetUserId || url.searchParams.get("targetUserId") || undefined;
-
-
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://slmakefgxtupbpdolxib.supabase.co";
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -97,32 +121,67 @@ export async function POST(req: Request) {
         (user.user_metadata?.calendar_mode as any) === "gregorian" ? "gregorian" : "ethiopian";
 
       // If scheduled cron run, verify if today is the month-end for THIS user's chosen calendar:
-      if (onlyIfMonthEnd) {
+      if (onlyIfMonthEnd && !force) {
         if (userCalendarMode === "gregorian" && !isGregorianMonthEnd) {
-          results.skipped.push({ email, reason: "Skipped: Today is not Gregorian month-end for user on Gregorian calendar" });
+          results.skipped.push({ email, reason: "Skipped: Date is not Gregorian month-end for user on Gregorian calendar" });
           continue;
         }
         if (userCalendarMode === "ethiopian" && !isEthiopianMonthEnd) {
-          results.skipped.push({ email, reason: "Skipped: Today is not Ethiopian month-end for user on Ethiopian calendar" });
+          results.skipped.push({ email, reason: "Skipped: Date is not Ethiopian month-end for user on Ethiopian calendar" });
           continue;
         }
       }
 
-      // Compute dynamic period label based on user's calendar mode
+      // Compute exact month boundaries without UTC timezone offset shifts
+      let startIso: string;
+      let endIso: string;
       let userPeriodLabel = body.periodLabel || url.searchParams.get("periodLabel");
-      if (!userPeriodLabel) {
-        if (userCalendarMode === "gregorian") {
+      let planMonth: number;
+      let planYear: number;
+
+      if (userCalendarMode === "ethiopian") {
+        const ethDate = getEthiopianDate(now);
+        planMonth = ethDate.month;
+        planYear = ethDate.year;
+        const daysInMonth = getDaysInEthiopianMonth(ethDate.year, ethDate.month);
+        const startGreg = toGregorianDate(ethDate.year, ethDate.month, 1);
+        const endGreg = toGregorianDate(ethDate.year, ethDate.month, daysInMonth);
+        startIso = format(startGreg, "yyyy-MM-dd");
+        endIso = format(endGreg, "yyyy-MM-dd");
+        if (!userPeriodLabel) {
+          userPeriodLabel = getEthiopianMonthLabel(ethDate);
+        }
+      } else {
+        planMonth = now.getMonth() + 1;
+        planYear = now.getFullYear();
+        startIso = format(startOfMonth(now), "yyyy-MM-dd");
+        endIso = format(endOfMonth(now), "yyyy-MM-dd");
+        if (!userPeriodLabel) {
           userPeriodLabel = format(now, "MMMM yyyy");
-        } else {
-          userPeriodLabel = getEthiopianMonthLabel(now);
         }
       }
 
-      // 2. Fetch all user transactions & plan
+      // Avoid duplicate emails if already dispatched for this period
+      if (!force && user.user_metadata?.last_month_end_summary_sent === userPeriodLabel) {
+        results.skipped.push({ email, reason: `Already sent summary for ${userPeriodLabel}` });
+        continue;
+      }
+
+      // 2. Fetch user transactions & plan for THIS month
       const [{ data: userCosts }, { data: userIncomes }, { data: userPlans }] = await Promise.all([
-        supabaseAdmin.from("costs").select("amount, category, subcategory, date").eq("user_id", user.id),
-        supabaseAdmin.from("incomes").select("amount, date").eq("user_id", user.id),
-        supabaseAdmin.from("plans").select("target_cost_limit, month, year").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1),
+        supabaseAdmin.from("costs").select("amount, category, subcategory, date")
+          .eq("user_id", user.id)
+          .gte("date", startIso)
+          .lte("date", endIso),
+        supabaseAdmin.from("incomes").select("amount, date")
+          .eq("user_id", user.id)
+          .gte("date", startIso)
+          .lte("date", endIso),
+        supabaseAdmin.from("plans").select("target_cost_limit, target_savings_goal, month, year")
+          .eq("user_id", user.id)
+          .eq("month", planMonth)
+          .eq("year", planYear)
+          .limit(1),
       ]);
 
       const costsList = userCosts || [];
@@ -154,7 +213,16 @@ export async function POST(req: Request) {
 
       const subcategoryCosts = Object.values(subcategoryMap).sort((a, b) => b.amount - a.amount);
 
-      const activePlan = userPlans && userPlans.length > 0 ? userPlans[0] : null;
+      let activePlan = userPlans && userPlans.length > 0 ? userPlans[0] : null;
+      if (!activePlan) {
+        const { data: fallbackPlans } = await supabaseAdmin.from("plans")
+          .select("target_cost_limit, target_savings_goal, month, year")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(1);
+        activePlan = fallbackPlans && fallbackPlans.length > 0 ? fallbackPlans[0] : null;
+      }
+
       const costLimit = activePlan?.target_cost_limit ? Number(activePlan.target_cost_limit) : undefined;
 
       const cleanPeriodName = userPeriodLabel.replace(/[^a-zA-Z0-9_-]/g, "_");
@@ -371,6 +439,19 @@ export async function POST(req: Request) {
           messageId: info.messageId,
           provider: "smtp",
         });
+      }
+
+      // Record in user metadata that this period's summary was sent
+      try {
+        await supabaseAdmin.auth.admin.updateUserById(user.id, {
+          user_metadata: {
+            ...user.user_metadata,
+            last_month_end_summary_sent: userPeriodLabel,
+            last_month_end_summary_sent_at: new Date().toISOString(),
+          },
+        });
+      } catch (metaErr) {
+        console.warn(`[Batch Email] Failed to record sent summary metadata for ${email}:`, metaErr);
       }
     }
 
