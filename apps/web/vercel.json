@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/alerts/dispatch-all-month-end-reports?onlyIfMonthEnd=true",
-      "schedule": "0 21 28-31 * *"
+      "schedule": "0 18 * * *"
     }
   ]
 }

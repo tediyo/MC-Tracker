@@ -18,7 +18,9 @@ import {
   Receipt,
   Target,
   Radio,
+  Mail,
 } from "lucide-react";
+import { toast } from "sonner";
 import { useCalendarPreference } from "@/components/providers/calendar-provider";
 import { useTheme } from "@/components/providers/theme-provider";
 import { useLiveModePreference } from "@/components/providers/live-mode-provider";
@@ -138,6 +140,29 @@ export function MobileStyleProfile({
     ? name.trim().charAt(0).toUpperCase()
     : email ? email.charAt(0).toUpperCase() : "U";
 
+  const [isSendingReport, setIsSendingReport] = React.useState(false);
+
+  const handleSendReportNow = async () => {
+    setIsSendingReport(true);
+    try {
+      const res = await fetch("/api/alerts/dispatch-all-month-end-reports?force=true", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (data.success && data.sentCount > 0) {
+        toast.success("Month-end summary email sent with PDF report attached!");
+      } else if (data.success) {
+        toast.info("Report processed: " + (data.message || "Summary is ready."));
+      } else {
+        toast.error("Failed to send report: " + (data.error || "Unknown error"));
+      }
+    } catch (err: any) {
+      toast.error("Network error: " + err.message);
+    } finally {
+      setIsSendingReport(false);
+    }
+  };
+
   const openInfo = (title: string, text: string) => {
     setInfoTitle(title);
     setInfoText(text);
@@ -227,6 +252,15 @@ export function MobileStyleProfile({
             hasSwitch={true}
             switchValue={isLiveMode}
             onSwitchChange={(val) => setIsLiveMode(val)}
+            showDivider={true}
+          />
+
+          {/* Email Month-End Summary Now */}
+          <SettingRow
+            icon={Mail}
+            title={isSendingReport ? "Sending Month-End Summary..." : "Send Month-End Report Now"}
+            subtitle="Email summary & attached PDF to your inbox"
+            onPress={handleSendReportNow}
             showDivider={true}
           />
 
