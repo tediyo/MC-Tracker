@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { CalendarProvider } from "@/components/providers/calendar-provider";
 import { LiveModeProvider } from "@/components/providers/live-mode-provider";
+import { CategoryProvider } from "@/components/providers/category-provider";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = React.useState(() => new QueryClient({
@@ -22,8 +23,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <CalendarProvider>
         <LiveModeProvider>
           <QueryClientProvider client={queryClient}>
-            {children}
-            <Toaster richColors position="top-right" />
+            <CategoryProvider>
+              {children}
+              <Toaster richColors position="top-right" />
+            </CategoryProvider>
           </QueryClientProvider>
         </LiveModeProvider>
       </CalendarProvider>

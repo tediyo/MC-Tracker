@@ -37,8 +37,13 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { fetchAllCosts, deleteCost, updateCost } from "@/lib/data/costs";
 import { fetchAllIncomes, deleteIncome, updateIncome } from "@/lib/data/incomes";
-import { formatCurrency, cn } from "@/lib/utils";
+import {
+  formatCurrency,
+  cn,
+} from "@/lib/utils";
 import { useCalendarPreference } from "@/components/providers/calendar-provider";
+import { useCategories } from "@/components/providers/category-provider";
+import { formatCategoryLabel, formatSubcategoryLabel } from "@mc-tracker/shared-types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -92,6 +97,7 @@ export function UnifiedHistoryTable({
   const queryClient = useQueryClient();
   const supabase = React.useMemo(() => createClient(), []);
   const { calendarMode } = useCalendarPreference();
+  const { categories, categoryLabels, categorySubcategoryMap, subcategoryLabels } = useCategories();
 
   // Filters
   const [typeFilter, setTypeFilter] = React.useState<TransactionTypeFilter>(initialTypeFilter);
@@ -103,8 +109,8 @@ export function UnifiedHistoryTable({
 
   // Edit Modals
   const [editingCost, setEditingCost] = React.useState<CostRow | null>(null);
-  const [editCostCategory, setEditCostCategory] = React.useState<CostCategory>("basic");
-  const [editCostSubcategory, setEditCostSubcategory] = React.useState<CostSubcategory>("other");
+  const [editCostCategory, setEditCostCategory] = React.useState<string>("basic");
+  const [editCostSubcategory, setEditCostSubcategory] = React.useState<string>("other");
 
   const [editingIncome, setEditingIncome] = React.useState<IncomeRow | null>(null);
   const [editIncomeSource, setEditIncomeSource] = React.useState<IncomeSourceType>("monthly");
@@ -130,7 +136,7 @@ export function UnifiedHistoryTable({
       type: "cost",
       amount: c.amount,
       date: c.date,
-      categoryOrSource: COST_CATEGORY_LABELS[c.category] || c.category,
+      categoryOrSource: categoryLabels[c.category] || formatCategoryLabel(c.category),
       subcategory: c.subcategory,
       category: c.category,
       description: c.description,
@@ -408,14 +414,15 @@ export function UnifiedHistoryTable({
                             <span
                               className={cn(
                                 "inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-bold uppercase tracking-wider",
-                                COST_CATEGORY_BADGE_STYLES[item.category || "basic"]
+                                COST_CATEGORY_BADGE_STYLES[item.category || "basic"] ||
+                                  "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
                               )}
                             >
                               {item.categoryOrSource}
                             </span>
                             {item.subcategory && (
                               <span className="text-xs font-semibold text-foreground">
-                                {COST_SUBCATEGORY_LABELS[item.subcategory]}
+                                {subcategoryLabels[item.subcategory] || formatSubcategoryLabel(item.subcategory)}
                               </span>
                             )}
                           </div>
@@ -549,18 +556,20 @@ export function UnifiedHistoryTable({
                     name="category"
                     value={editCostCategory}
                     onChange={(e) => {
-                      const nextCat = e.target.value as CostCategory;
+                      const nextCat = e.target.value;
                       setEditCostCategory(nextCat);
-                      const nextSubs = CATEGORY_SUBCATEGORY_MAP[nextCat];
+                      const nextSubs = categorySubcategoryMap[nextCat] || ["other"];
                       if (nextSubs && nextSubs[0]) {
                         setEditCostSubcategory(nextSubs[0]);
                       }
                     }}
                     className="flex h-9 w-full rounded-xl border border-input bg-transparent px-3 py-1 text-xs shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                   >
-                    <option value="basic">Basic</option>
-                    <option value="fancy">Fancy</option>
-                    <option value="extra">Extra</option>
+                    {categories.map((c) => (
+                      <option key={c} value={c}>
+                        {categoryLabels[c] || formatCategoryLabel(c)}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div className="flex flex-col gap-1">
@@ -569,12 +578,12 @@ export function UnifiedHistoryTable({
                     id="edit-cost-subcategory"
                     name="subcategory"
                     value={editCostSubcategory}
-                    onChange={(e) => setEditCostSubcategory(e.target.value as CostSubcategory)}
+                    onChange={(e) => setEditCostSubcategory(e.target.value)}
                     className="flex h-9 w-full rounded-xl border border-input bg-transparent px-3 py-1 text-xs shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                   >
-                    {CATEGORY_SUBCATEGORY_MAP[editCostCategory]?.map((sub) => (
+                    {(categorySubcategoryMap[editCostCategory] || ["other"]).map((sub) => (
                       <option key={sub} value={sub}>
-                        {COST_SUBCATEGORY_LABELS[sub]}
+                        {subcategoryLabels[sub] || formatSubcategoryLabel(sub)}
                       </option>
                     ))}
                   </select>
