@@ -31,7 +31,7 @@ export function SettingsPreferencesSection() {
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
               <FolderPlus className="h-4 w-4 text-emerald-500" />
-              <CardTitle className="text-base">Dynamic Categories & Subcategories</CardTitle>
+              <CardTitle className="text-base">Category Management</CardTitle>
             </div>
             <Link href="/settings">
               <Button size="sm" className="h-8 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs gap-1.5">
@@ -41,7 +41,7 @@ export function SettingsPreferencesSection() {
             </Link>
           </div>
           <CardDescription className="text-xs">
-            Add custom categories and subcategories based on your interests or explore curated starter packs (Fitness, Education, Tech, Travel, etc.).
+            Manage custom categories and subcategories for expense tracking and financial analysis.
           </CardDescription>
         </CardHeader>
       </Card>

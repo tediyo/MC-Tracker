@@ -3,7 +3,7 @@
 import * as React from "react";
 import {
   FolderPlus,
-  Sparkles,
+  Package,
   Plus,
   Trash2,
   Check,
@@ -158,9 +158,9 @@ export function DynamicCategoriesSettings() {
                 <FolderPlus className="h-5 w-5" />
               </div>
               <div>
-                <CardTitle className="text-lg">Dynamic Categories & Subcategories</CardTitle>
+                <CardTitle className="text-lg">Category Management</CardTitle>
                 <CardDescription className="text-xs">
-                  Customize expense classifications to match your lifestyle and personal interests. All changes write directly to your database.
+                  Manage custom expense categories and subcategories aligned with your personal tracking needs.
                 </CardDescription>
               </div>
             </div>
@@ -179,10 +179,10 @@ export function DynamicCategoriesSettings() {
                   <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                       <FolderPlus className="h-5 w-5 text-emerald-500" />
-                      <span>Create Custom Category</span>
+                      <span>Create Category</span>
                     </DialogTitle>
                     <DialogDescription className="text-xs">
-                      Add a new top-level classification (e.g. "Fitness", "Investment", "Freelance").
+                      Add a new top-level classification for your expense tracking.
                     </DialogDescription>
                   </DialogHeader>
 
@@ -241,7 +241,7 @@ export function DynamicCategoriesSettings() {
                         disabled={isSavingCat || !newCatLabel.trim()}
                         className="bg-emerald-600 hover:bg-emerald-500 text-white"
                       >
-                        {isSavingCat ? "Saving..." : "Save Category"}
+                        {isSavingCat ? "Saving..." : "Create Category"}
                       </Button>
                     </DialogFooter>
                   </form>
@@ -291,7 +291,7 @@ export function DynamicCategoriesSettings() {
                       <Label htmlFor="sub-name">Subcategory Name *</Label>
                       <Input
                         id="sub-name"
-                        placeholder="e.g. Supplements, Electricity, Gym"
+                        placeholder="e.g. Supplements, Electricity, Courses"
                         value={newSubLabel}
                         onChange={(e) => {
                           setNewSubLabel(e.target.value);
@@ -316,7 +316,7 @@ export function DynamicCategoriesSettings() {
                         disabled={isSavingSub || !newSubLabel.trim()}
                         className="bg-emerald-600 hover:bg-emerald-500 text-white"
                       >
-                        {isSavingSub ? "Saving..." : "Save Subcategory"}
+                        {isSavingSub ? "Saving..." : "Add Subcategory"}
                       </Button>
                     </DialogFooter>
                   </form>
@@ -326,15 +326,15 @@ export function DynamicCategoriesSettings() {
           </div>
         </CardHeader>
 
-        {/* Section 1: User Interest Starter Presets */}
+        {/* Section 1: Preconfigured Categories */}
         <CardContent className="border-t border-border/40 pt-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-emerald-500" />
-              <h3 className="text-sm font-bold text-foreground">Interest Starter Packs</h3>
+              <Package className="h-4 w-4 text-emerald-500" />
+              <h3 className="text-sm font-bold text-foreground">Preconfigured Packages</h3>
             </div>
             <span className="text-[11px] text-muted-foreground">
-              1-click activate curated categories & subcategories based on your interests
+              Curated categories and subcategories aligned with specific spending needs
             </span>
           </div>
 
@@ -409,7 +409,7 @@ export function DynamicCategoriesSettings() {
                         : "bg-emerald-600 hover:bg-emerald-500 text-white"
                     )}
                   >
-                    {isActive ? "Remove Pack" : "Add Interest Pack"}
+                    {isActive ? "Deactivate" : "Activate"}
                   </Button>
                 </div>
               );
@@ -432,7 +432,7 @@ export function DynamicCategoriesSettings() {
             </span>
           </div>
           <CardDescription className="text-xs">
-            Review all active categories available when logging expenses or filtering analytics. Custom additions can be deleted at any time.
+            Review active categories and subcategories available across expense forms and analytics.
           </CardDescription>
         </CardHeader>
 

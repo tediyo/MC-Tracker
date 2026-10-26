@@ -109,10 +109,10 @@ export function CategoryProvider({ children }: { children: React.ReactNode }) {
 
       try {
         await saveUserCategories(supabase, updatedCategories, customSubcategories);
-        toast.success(`Category "${newCategory.label}" added and saved to database!`);
+        toast.success(`Category "${newCategory.label}" created`);
       } catch (err: any) {
         setCustomCategories(customCategories);
-        toast.error(err.message || "Failed to save category to database");
+        toast.error(err.message || "Failed to save category");
         throw err;
       }
     },
@@ -130,11 +130,11 @@ export function CategoryProvider({ children }: { children: React.ReactNode }) {
 
       try {
         await saveUserCategories(supabase, updatedCategories, updatedSubcategories);
-        toast.success("Category removed successfully");
+        toast.success("Category removed");
       } catch (err: any) {
         setCustomCategories(customCategories);
         setCustomSubcategories(customSubcategories);
-        toast.error(err.message || "Failed to delete category");
+        toast.error(err.message || "Failed to remove category");
         throw err;
       }
     },
@@ -163,10 +163,10 @@ export function CategoryProvider({ children }: { children: React.ReactNode }) {
 
       try {
         await saveUserCategories(supabase, customCategories, updatedSubcategories);
-        toast.success(`Subcategory "${newSubcategory.label}" added to database!`);
+        toast.success(`Subcategory "${newSubcategory.label}" created`);
       } catch (err: any) {
         setCustomSubcategories(customSubcategories);
-        toast.error(err.message || "Failed to save subcategory to database");
+        toast.error(err.message || "Failed to save subcategory");
         throw err;
       }
     },
@@ -184,10 +184,10 @@ export function CategoryProvider({ children }: { children: React.ReactNode }) {
 
       try {
         await saveUserCategories(supabase, customCategories, updatedSubcategories);
-        toast.success("Subcategory removed successfully");
+        toast.success("Subcategory removed");
       } catch (err: any) {
         setCustomSubcategories(customSubcategories);
-        toast.error(err.message || "Failed to delete subcategory");
+        toast.error(err.message || "Failed to remove subcategory");
         throw err;
       }
     },
@@ -212,7 +212,7 @@ export function CategoryProvider({ children }: { children: React.ReactNode }) {
 
         try {
           await saveUserCategories(supabase, updatedCats, updatedSubs);
-          toast.success(`Removed "${preset.title}" interest package`);
+          toast.success(`Removed "${preset.title}" pack`);
         } catch (err: any) {
           setCustomCategories(customCategories);
           setCustomSubcategories(customSubcategories);
@@ -236,11 +236,11 @@ export function CategoryProvider({ children }: { children: React.ReactNode }) {
 
         try {
           await saveUserCategories(supabase, updatedCats, updatedSubs);
-          toast.success(`Activated "${preset.title}"! Added category & ${newSubs.length} subcategories.`);
+          toast.success(`Activated "${preset.title}"`);
         } catch (err: any) {
           setCustomCategories(customCategories);
           setCustomSubcategories(customSubcategories);
-          toast.error(err.message || "Failed to save interest package");
+          toast.error(err.message || "Failed to activate pack");
         }
       }
     },
