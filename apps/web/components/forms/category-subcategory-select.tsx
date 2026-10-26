@@ -1,16 +1,10 @@
 "use client";
 
 import { Controller, useWatch, type Control, type UseFormSetValue } from "react-hook-form";
-import {
-  COST_CATEGORIES,
-  COST_CATEGORY_LABELS,
-  COST_SUBCATEGORY_LABELS,
-  CATEGORY_SUBCATEGORY_MAP,
-  type CreateCostBatchInput,
-  type CostCategory,
-} from "@mc-tracker/shared-types";
+import type { CreateCostBatchInput } from "@mc-tracker/shared-types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { useCategories } from "@/components/providers/category-provider";
 
 interface CategorySubcategorySelectProps {
   control: Control<CreateCostBatchInput>;
@@ -19,15 +13,13 @@ interface CategorySubcategorySelectProps {
 }
 
 /**
- * The dependent category -> subcategory dropdown pair. Changing category
- * resets subcategory to that category's first valid value (via
- * `setValue`), so a stale subcategory from the previous category can never
- * survive the switch - `useWatch` (rather than re-rendering the whole row)
- * is what lets the subcategory options list react to that change.
+ * Dynamic category -> subcategory dropdown pair.
+ * Reactively uses user-defined dynamic categories and subcategories from CategoryProvider.
  */
 export function CategorySubcategorySelect({ control, setValue, index }: CategorySubcategorySelectProps) {
-  const category = useWatch({ control, name: `rows.${index}.category` }) as CostCategory;
-  const validSubcategories = CATEGORY_SUBCATEGORY_MAP[category] ?? [];
+  const { categories, categoryLabels, categorySubcategoryMap, subcategoryLabels } = useCategories();
+  const category = useWatch({ control, name: `rows.${index}.category` }) || "basic";
+  const validSubcategories = categorySubcategoryMap[category] ?? ["other"];
 
   return (
     <>
@@ -41,20 +33,17 @@ export function CategorySubcategorySelect({ control, setValue, index }: Category
               value={field.value}
               onValueChange={(value) => {
                 field.onChange(value);
-                const nextValid = CATEGORY_SUBCATEGORY_MAP[value as CostCategory];
-                // Non-null: every category maps to a known-nonempty literal
-                // array (see CATEGORY_SUBCATEGORY_MAP), just not typed as
-                // such under noUncheckedIndexedAccess.
-                setValue(`rows.${index}.subcategory`, nextValid[0]!, { shouldValidate: true });
+                const nextValid = categorySubcategoryMap[value] || ["other"];
+                setValue(`rows.${index}.subcategory`, nextValid[0] ?? "other", { shouldValidate: true });
               }}
             >
               <SelectTrigger id={`rows.${index}.category`}>
-                <SelectValue />
+                <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
-                {COST_CATEGORIES.map((c) => (
+                {categories.map((c) => (
                   <SelectItem key={c} value={c}>
-                    {COST_CATEGORY_LABELS[c]}
+                    {categoryLabels[c] || c}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -70,12 +59,12 @@ export function CategorySubcategorySelect({ control, setValue, index }: Category
           render={({ field }) => (
             <Select value={field.value} onValueChange={field.onChange}>
               <SelectTrigger id={`rows.${index}.subcategory`}>
-                <SelectValue />
+                <SelectValue placeholder="Select subcategory" />
               </SelectTrigger>
               <SelectContent>
                 {validSubcategories.map((s) => (
                   <SelectItem key={s} value={s}>
-                    {COST_SUBCATEGORY_LABELS[s]}
+                    {subcategoryLabels[s] || s}
                   </SelectItem>
                 ))}
               </SelectContent>

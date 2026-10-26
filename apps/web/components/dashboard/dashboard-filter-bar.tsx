@@ -3,14 +3,10 @@
 import * as React from "react";
 import { Filter, X, Tag } from "lucide-react";
 import {
-  COST_CATEGORIES,
-  COST_CATEGORY_LABELS,
-  COST_SUBCATEGORIES,
-  COST_SUBCATEGORY_LABELS,
-  CATEGORY_SUBCATEGORY_MAP,
   type CostCategory,
   type CostSubcategory,
 } from "@mc-tracker/shared-types";
+import { useCategories } from "@/components/providers/category-provider";
 import {
   Select,
   SelectContent,
@@ -22,17 +18,17 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-const CATEGORY_COLORS: Record<CostCategory, string> = {
+const DEFAULT_CATEGORY_COLORS: Record<string, string> = {
   basic: "bg-blue-500",
   fancy: "bg-amber-500",
   extra: "bg-emerald-500",
 };
 
 interface DashboardFilterBarProps {
-  selectedCategory: CostCategory | null;
-  selectedSubcategory: CostSubcategory | null;
-  onSelectCategory: (category: CostCategory | null) => void;
-  onSelectSubcategory: (subcategory: CostSubcategory | null) => void;
+  selectedCategory: string | null;
+  selectedSubcategory: string | null;
+  onSelectCategory: (category: any) => void;
+  onSelectSubcategory: (subcategory: any) => void;
   filteredCount?: number;
   totalCount?: number;
 }
@@ -45,29 +41,30 @@ export function DashboardFilterBar({
   filteredCount,
   totalCount,
 }: DashboardFilterBarProps) {
+  const { categories, categoryLabels, categorySubcategoryMap, subcategoryLabels } = useCategories();
+
   // Determine available subcategories based on whether a category is selected
-  const availableSubcategories: readonly CostSubcategory[] = React.useMemo(() => {
+  const availableSubcategories: readonly string[] = React.useMemo(() => {
     if (selectedCategory) {
-      return CATEGORY_SUBCATEGORY_MAP[selectedCategory];
+      return categorySubcategoryMap[selectedCategory] || ["other"];
     }
-    return COST_SUBCATEGORIES;
-  }, [selectedCategory]);
+    const allSubs = new Set<string>();
+    Object.values(categorySubcategoryMap).forEach((subs) => {
+      subs.forEach((s) => allSubs.add(s));
+    });
+    return Array.from(allSubs);
+  }, [selectedCategory, categorySubcategoryMap]);
 
   const hasActiveFilters = Boolean(selectedCategory || selectedSubcategory);
 
   const handleCategoryChange = (val: string) => {
     if (val === "all") {
       onSelectCategory(null);
-      // Keep subcategory if still valid or reset
       onSelectSubcategory(null);
     } else {
-      const cat = val as CostCategory;
-      onSelectCategory(cat);
-      // Reset subcategory if current selection is not valid for this category
-      if (
-        selectedSubcategory &&
-        !CATEGORY_SUBCATEGORY_MAP[cat].includes(selectedSubcategory)
-      ) {
+      onSelectCategory(val);
+      const validSubs = categorySubcategoryMap[val] || [];
+      if (selectedSubcategory && !validSubs.includes(selectedSubcategory)) {
         onSelectSubcategory(null);
       }
     }
@@ -77,13 +74,11 @@ export function DashboardFilterBar({
     if (val === "all") {
       onSelectSubcategory(null);
     } else {
-      const sub = val as CostSubcategory;
-      onSelectSubcategory(sub);
-      // If no category was selected, find which category this subcategory belongs to
+      onSelectSubcategory(val);
       if (!selectedCategory) {
-        for (const [cat, subs] of Object.entries(CATEGORY_SUBCATEGORY_MAP)) {
-          if (subs.includes(sub)) {
-            onSelectCategory(cat as CostCategory);
+        for (const [cat, subs] of Object.entries(categorySubcategoryMap)) {
+          if (subs.includes(val)) {
+            onSelectCategory(cat);
             break;
           }
         }
@@ -105,12 +100,12 @@ export function DashboardFilterBar({
         </div>
 
         {/* Quick Category Pills */}
-        <div className="flex items-center gap-1 bg-muted/60 p-0.5 rounded-lg border border-border/40">
+        <div className="flex items-center gap-1 bg-muted/60 p-0.5 rounded-lg border border-border/40 overflow-x-auto max-w-full">
           <button
             type="button"
             onClick={() => handleCategoryChange("all")}
             className={cn(
-              "px-2.5 py-1 text-xs font-medium rounded-md transition-all",
+              "px-2.5 py-1 text-xs font-medium rounded-md transition-all whitespace-nowrap",
               !selectedCategory
                 ? "bg-background text-foreground shadow-sm font-semibold"
                 : "text-muted-foreground hover:text-foreground",
@@ -118,27 +113,23 @@ export function DashboardFilterBar({
           >
             All
           </button>
-          {COST_CATEGORIES.map((cat) => {
+          {categories.map((cat) => {
             const isSelected = selectedCategory === cat;
+            const dotColor = DEFAULT_CATEGORY_COLORS[cat] || "bg-emerald-500";
             return (
               <button
                 key={cat}
                 type="button"
                 onClick={() => handleCategoryChange(cat)}
                 className={cn(
-                  "flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md transition-all",
+                  "flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md transition-all whitespace-nowrap",
                   isSelected
                     ? "bg-background text-foreground shadow-sm font-semibold"
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                <span
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    CATEGORY_COLORS[cat],
-                  )}
-                />
-                <span>{COST_CATEGORY_LABELS[cat]}</span>
+                <span className={cn("h-1.5 w-1.5 rounded-full", dotColor)} />
+                <span>{categoryLabels[cat] || cat}</span>
               </button>
             );
           })}
@@ -162,7 +153,7 @@ export function DashboardFilterBar({
               </SelectItem>
               {availableSubcategories.map((sub) => (
                 <SelectItem key={sub} value={sub} className="text-xs">
-                  {COST_SUBCATEGORY_LABELS[sub] ?? sub}
+                  {subcategoryLabels[sub] ?? sub}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -180,10 +171,10 @@ export function DashboardFilterBar({
                 <span
                   className={cn(
                     "h-1.5 w-1.5 rounded-full",
-                    CATEGORY_COLORS[selectedCategory],
+                    DEFAULT_CATEGORY_COLORS[selectedCategory] || "bg-emerald-500",
                   )}
                 />
-                <span>{COST_CATEGORY_LABELS[selectedCategory]}</span>
+                <span>{categoryLabels[selectedCategory] || selectedCategory}</span>
                 <button
                   type="button"
                   onClick={() => handleCategoryChange("all")}
@@ -200,7 +191,7 @@ export function DashboardFilterBar({
                 className="h-6 text-[11px] gap-1 px-2 font-normal border border-border/60 bg-muted/70"
               >
                 <Tag className="h-2.5 w-2.5 text-primary" />
-                <span>{COST_SUBCATEGORY_LABELS[selectedSubcategory]}</span>
+                <span>{subcategoryLabels[selectedSubcategory] || selectedSubcategory}</span>
                 <button
                   type="button"
                   onClick={() => onSelectSubcategory(null)}

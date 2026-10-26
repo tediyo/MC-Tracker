@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Calendar, Sun, Moon, Laptop, CheckCircle2, Settings2, Radio, SunMoon } from "lucide-react";
+import Link from "next/link";
+import { Calendar, Sun, Moon, Laptop, CheckCircle2, Settings2, Radio, SunMoon, FolderPlus, ChevronRight } from "lucide-react";
 import { useCalendarPreference } from "@/components/providers/calendar-provider";
 import { useTheme } from "@/components/providers/theme-provider";
 import { useLiveModePreference } from "@/components/providers/live-mode-provider";
@@ -23,6 +24,27 @@ export function SettingsPreferencesSection() {
           Preferences & Settings
         </h2>
       </div>
+
+      {/* Category Settings Quick Link */}
+      <Card className="viz-root border-border/60 shadow-sm bg-card/60">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <FolderPlus className="h-4 w-4 text-emerald-500" />
+              <CardTitle className="text-base">Category Management</CardTitle>
+            </div>
+            <Link href="/settings">
+              <Button size="sm" className="h-8 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs gap-1.5">
+                <span>Manage Categories</span>
+                <ChevronRight className="h-3.5 w-3.5" />
+              </Button>
+            </Link>
+          </div>
+          <CardDescription className="text-xs">
+            Manage custom categories and subcategories for expense tracking and financial analysis.
+          </CardDescription>
+        </CardHeader>
+      </Card>
 
       {/* Calendar System Preference */}
       <Card className="viz-root border-border/60 shadow-sm">
